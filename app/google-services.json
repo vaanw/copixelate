@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "659125756121",
+    "project_id": "copixelate-20430",
+    "storage_bucket": "copixelate-20430.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:659125756121:android:865fceedf3b7a6a5a09ec8",
+        "android_client_info": {
+          "package_name": "com.copixelate"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "659125756121-uuvn1cr34f4ahlop0a4dk1c6s587qqr0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA23AsfJM4RWG2bQdHvwta9kCuXsp2p2Dc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "659125756121-uuvn1cr34f4ahlop0a4dk1c6s587qqr0.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

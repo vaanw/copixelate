@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">Copixelate</string>
+
+    <!-- Input Validation Error Messages -->
+    <string name="invalid_text_too_short">Too short</string>
+    <string name="invalid_text_too_long">Too long</string>
+
+    <string name="invalid_email">Looks funky</string>
+    <string name="invalid_display_name_too_short">@string/invalid_text_too_short</string>
+    <string name="invalid_display_name_too_long">@string/invalid_text_too_long</string>
+    <string name="invalid_password_too_short">@string/invalid_text_too_short</string>
+    <string name="invalid_password_too_long">@string/invalid_text_too_long</string>
+    <string name="invalid_password_no_match">Doesn\'t match, sorry</string>
+
+</resources>
