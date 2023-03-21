@@ -28,14 +28,18 @@ fun SetupNavGraph(
 
     NavHost(
         navController = navController,
-        startDestination = ScreenInfo.Art.route
+        startDestination = NavInfo.Art.route
     ) {
 
-        composable(route = ScreenInfo.Art.route) {
+        composable(route = NavInfo.Art.route) {
             ArtScreen(viewModel = artViewModel)
         }
 
-        composable(route = ScreenInfo.Overview.route) {
+        composable(route = NavInfo.Library.route) {
+
+        }
+
+        composable(route = NavInfo.Login.route) {
             when (Auth.state) {
                 Auth.State.SIGNED_OUT -> AuthScreen(navController)
                 Auth.State.SIGNED_IN -> OverviewScreen(navController)
