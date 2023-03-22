@@ -3,30 +3,44 @@ package com.copixelate.ui
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
+import com.copixelate.data.Auth
 import com.copixelate.nav.NavInfo
 import com.copixelate.nav.SetupNavGraph
 import com.copixelate.ui.theme.CopixelateTheme
+import com.copixelate.viewmodel.NavViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainContent(navController: NavHostController) {
 
+    val navViewModel: NavViewModel = viewModel()
+
     CopixelateTheme {
         Scaffold(
-            bottomBar = { MainNavBar(navController) }
+            bottomBar = {
+                MainNavBar(
+                    navController = navController,
+                    authState = navViewModel.authState.collectAsState().value,
+                )
+            }
         ) { offsetPadding ->
             // Account for bottom nav bar size
             Surface(Modifier.padding(offsetPadding)) {
-                SetupNavGraph(navController = navController)
+                SetupNavGraph(
+                    navController = navController,
+                    navViewModel = navViewModel
+                )
             }
         }
 
@@ -36,9 +50,22 @@ fun MainContent(navController: NavHostController) {
 
 
 @Composable
-fun MainNavBar(navController: NavHostController) { //, authState: Auth.State) {
+fun MainNavBar(
+    navController: NavHostController,
+    authState: Auth.State
+) {
 
-    NavBarBuilder(navController, listOf(NavInfo.Art, NavInfo.Library, NavInfo.Login))
+    NavBarBuilder(
+        navController = navController,
+        navInfos = when (authState) {
+            Auth.State.SIGNED_IN -> {
+                listOf(NavInfo.Art, NavInfo.Library, NavInfo.Buds)
+            }
+            Auth.State.SIGNED_OUT -> {
+                listOf(NavInfo.Art, NavInfo.Library, NavInfo.Login)
+            }
+        })
+
 
 }
 

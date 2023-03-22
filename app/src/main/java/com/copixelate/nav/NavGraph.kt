@@ -11,6 +11,7 @@ import com.copixelate.ui.screens.ArtScreen
 import com.copixelate.ui.screens.AuthScreen
 import com.copixelate.ui.screens.OverviewScreen
 import com.copixelate.viewmodel.ArtViewModel
+import com.copixelate.viewmodel.NavViewModel
 
 fun NavController.refresh() {
     currentDestination?.route?.let { route ->
@@ -23,6 +24,7 @@ fun NavController.refresh() {
 @Composable
 fun SetupNavGraph(
     navController: NavHostController,
+    navViewModel: NavViewModel,
     artViewModel: ArtViewModel = viewModel()
 ) {
 
@@ -41,9 +43,13 @@ fun SetupNavGraph(
 
         composable(route = NavInfo.Login.route) {
             when (Auth.state) {
-                Auth.State.SIGNED_OUT -> AuthScreen(navController)
-                Auth.State.SIGNED_IN -> OverviewScreen(navController)
+                Auth.State.SIGNED_OUT -> AuthScreen(navController, navViewModel)
+                Auth.State.SIGNED_IN -> {}
             }
+        }
+
+        composable(route = NavInfo.Buds.route) {
+            OverviewScreen(navController)
         }
 
     }
