@@ -1,32 +1,45 @@
 package com.copixelate.ui
 
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
-import com.copixelate.nav.ScreenInfo
+import com.copixelate.nav.NavInfo
 import com.copixelate.nav.SetupNavGraph
 import com.copixelate.ui.theme.CopixelateTheme
+import com.copixelate.viewmodel.NavViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainContent(navController: NavHostController) {
 
-    CopixelateTheme {
+    val navViewModel: NavViewModel = viewModel()
 
+    CopixelateTheme {
         Scaffold(
-            bottomBar = { BottomBar(navController) }
+            bottomBar = {
+                MainNavBar(
+                    navController = navController,
+                    isSignedIn = navViewModel.isSignedIn.collectAsState().value,
+                )
+            }
         ) { offsetPadding ->
-            //Account for bottom nav bar size
+            // Account for bottom nav bar size
             Surface(Modifier.padding(offsetPadding)) {
-                SetupNavGraph(navController = navController)
+                SetupNavGraph(
+                    navController = navController,
+                    navViewModel = navViewModel
+                )
             }
         }
 
@@ -34,43 +47,101 @@ fun MainContent(navController: NavHostController) {
 
 }
 
-@Composable
-fun BottomBar(navController: NavHostController) {
 
-    val navBarItems = listOf(
-        ScreenInfo.Art,
-        ScreenInfo.Overview
+@Composable
+fun MainNavBar(
+    navController: NavHostController,
+    isSignedIn: Boolean
+) {
+
+    NavBarBuilder(
+        navController = navController,
+        navInfos = when (isSignedIn) {
+            true -> listOf(NavInfo.Art, NavInfo.Library, NavInfo.Buds)
+            false -> listOf(NavInfo.Art, NavInfo.Library, NavInfo.Login)
+        }
     )
 
+}
+
+@Composable
+fun NavBarBuilder(
+    navController: NavHostController,
+    navInfos: List<NavInfo>
+) {
+
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentDestination = navBackStackEntry?.destination
+
+    NavBarBuilder(
+        navInfos = navInfos,
+        onSelected = { route ->
+            currentDestination?.hierarchy?.any { navDest ->
+                navDest.route == route
+            } == true
+        },
+        onClick = { route ->
+            navController.navigate(route) {
+                // Pop up to the start destination of the graph to
+                // avoid building up a large stack of destinations
+                // on the back stack as users select items
+                popUpTo(navController.graph.findStartDestination().id) {
+                    saveState = true
+                }
+                // Avoid multiple copies of the same destination when
+                // reselecting the same item
+                launchSingleTop = true
+                // Restore state when reselecting a previously selected item
+                restoreState = true
+            }
+        }
+    )
+
+}
+
+@Composable
+fun NavBarBuilder(
+    navInfos: List<NavInfo>,
+    onSelected: (route: String) -> Boolean,
+    onClick: (route: String) -> Unit,
+) {
+
     NavigationBar {
-        val navBackStackEntry by navController.currentBackStackEntryAsState()
-        val currentDestination = navBackStackEntry?.destination
-        navBarItems.forEach { screenInfo ->
+        navInfos.forEach { navInfo ->
             NavigationBarItem(
                 icon = {
                     Icon(
-                        Icons.Filled.Favorite,
-                        contentDescription = "TBD icon"
+                        imageVector = navInfo.icon,
+                        contentDescription = stringResource(navInfo.contentDescriptionResId)
                     )
                 },
-                selected = currentDestination?.hierarchy?.any { it.route == screenInfo.route } == true,
-                onClick = {
-                    navController.navigate(screenInfo.route) {
-                        // Pop up to the start destination of the graph to
-                        // avoid building up a large stack of destinations
-                        // on the back stack as users select items
-                        popUpTo(navController.graph.findStartDestination().id) {
-                            saveState = true
-                        }
-                        // Avoid multiple copies of the same destination when
-                        // reselecting the same item
-                        launchSingleTop = true
-                        // Restore state when reselecting a previously selected item
-                        restoreState = true
-                    }
+                label = { Text(stringResource(navInfo.labelResId)) },
+                selected = onSelected(navInfo.route),
+                onClick = { onClick(navInfo.route) }
+            ) // End NavigationBarItem
+        } // End navBarItems.forEach
+    } // End NavigationBar
+
+}
+
+@Preview
+@Composable
+fun NavBarPreview() {
+
+    CopixelateTheme(darkTheme = true) {
+        Surface(modifier = Modifier.fillMaxSize()) {
+            Box {
+                Surface(modifier = Modifier.align(Alignment.BottomCenter)) {
+
+                    NavBarBuilder(
+                        navInfos = listOf(NavInfo.Art, NavInfo.Library, NavInfo.Login),
+                        onSelected = { false },
+                        onClick = {}
+                    )
                 }
-            )// End NavigationBarItem
-        }// End navBarItems.forEach
-    }// End NavigationBar
+
+            } // End Box
+        } // End Surface
+    } // End CopixelateTheme
 
 }

@@ -19,17 +19,23 @@ import com.copixelate.nav.refresh
 import com.copixelate.ui.components.SecretTextInputField
 import com.copixelate.ui.components.ValidatedTextInputField
 import com.copixelate.ui.theme.CopixelateTheme
+import com.copixelate.viewmodel.NavViewModel
 import kotlinx.coroutines.launch
 
 @Composable
-fun AuthScreen(navController: NavController) {
+fun AuthScreen(navController: NavController, navViewModel: NavViewModel) {
 
     val onSignUp = { email: String, displayName: String, password: String ->
         Auth.createAccount(email, password) { result ->
             when (result) {
                 is AuthResult.Success -> {
                     Log.d("onSignUp", "successful")
-                    Auth.updateAccount(displayName) { navController.refresh() }
+                    Auth.updateAccount(displayName) {
+                        // Only navigate away if we're still on this screen (???)
+                        // Refresh is a hack and shouldn't be necessary
+                        navViewModel.setSignedIn()
+                        navController.refresh()
+                    }
                 }
                 is AuthResult.Failure -> {
                     Log.d("onSignUp", "failed: ${result.message}")
@@ -43,6 +49,7 @@ fun AuthScreen(navController: NavController) {
             when (result) {
                 is AuthResult.Success -> {
                     Log.d("onSignIn", "successful")
+                    navViewModel.setSignedIn()
                     navController.refresh()
                 }
                 is AuthResult.Failure -> {

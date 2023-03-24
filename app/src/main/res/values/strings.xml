@@ -12,4 +12,15 @@
     <string name="invalid_password_too_long">@string/invalid_text_too_long</string>
     <string name="invalid_password_no_match">Doesn\'t match, sorry</string>
 
+    <!-- Nav Text -->
+    <string name="nav_label_art">Art</string>
+    <string name="nav_label_library">Library</string>
+    <string name="nav_label_login">Login</string>
+    <string name="nav_label_buds">Buds</string>
+
+    <string name="nav_content_description_art">Go to Art</string>
+    <string name="nav_content_description_library">Go to Library</string>
+    <string name="nav_content_description_login">Go to Login</string>
+    <string name="nav_content_description_buds">Go to Buds</string>
+
 </resources>
