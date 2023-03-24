@@ -34,5 +34,11 @@ enum class NavInfo(
         icon = Icons.Filled.Contacts,
         labelResId = R.string.nav_label_buds,
         contentDescriptionResId = R.string.nav_content_description_buds
+    ),
+    Settings(
+        route = "nav-route-settings",
+        icon = Icons.Filled.Settings,
+        labelResId = R.string.nav_label_settings,
+        contentDescriptionResId = R.string.nav_content_description_settings
     )
 }

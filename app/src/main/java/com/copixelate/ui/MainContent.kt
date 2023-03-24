@@ -27,6 +27,14 @@ fun MainContent(navController: NavHostController) {
 
     CopixelateTheme {
         Scaffold(
+            topBar = {
+                AppBarBuilder(
+                    navInfos = listOf(NavInfo.Settings),
+                    onClick = { route: String ->
+                        navController.navigate(route) { launchSingleTop = true }
+                    }
+                )
+            },
             bottomBar = {
                 MainNavBar(
                     navController = navController,
@@ -44,6 +52,31 @@ fun MainContent(navController: NavHostController) {
         }
 
     }
+
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AppBarBuilder(
+    navInfos: List<NavInfo>,
+    onClick: (route: String) -> Unit,
+) {
+
+    CenterAlignedTopAppBar(
+        title = {},
+        actions = {
+            navInfos.forEach { navInfo ->
+                IconButton(
+                    onClick = { onClick(navInfo.route) }
+                ) {
+                    Icon(
+                        imageVector = navInfo.icon,
+                        contentDescription = stringResource(navInfo.contentDescriptionResId)
+                    )
+                }
+            }
+        }
+    )
 
 }
 
@@ -85,14 +118,10 @@ fun NavBarBuilder(
                 // Pop up to the start destination of the graph to
                 // avoid building up a large stack of destinations
                 // on the back stack as users select items
-                popUpTo(navController.graph.findStartDestination().id) {
-                    saveState = true
-                }
+                popUpTo(navController.graph.findStartDestination().id)
                 // Avoid multiple copies of the same destination when
                 // reselecting the same item
                 launchSingleTop = true
-                // Restore state when reselecting a previously selected item
-                restoreState = true
             }
         }
     )
