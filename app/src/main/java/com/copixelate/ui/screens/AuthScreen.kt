@@ -33,7 +33,7 @@ fun AuthScreen(navController: NavController, navViewModel: NavViewModel) {
                     Auth.updateAccount(displayName) {
                         // Only navigate away if we're still on this screen (???)
                         // Refresh is a hack and shouldn't be necessary
-                        navViewModel.updateAuthState(Auth.state)
+                        navViewModel.setSignedIn()
                         navController.refresh()
                     }
                 }
@@ -49,7 +49,7 @@ fun AuthScreen(navController: NavController, navViewModel: NavViewModel) {
             when (result) {
                 is AuthResult.Success -> {
                     Log.d("onSignIn", "successful")
-                    navViewModel.updateAuthState(Auth.state)
+                    navViewModel.setSignedIn()
                     navController.refresh()
                 }
                 is AuthResult.Failure -> {

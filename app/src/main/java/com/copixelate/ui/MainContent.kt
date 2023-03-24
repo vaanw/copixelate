@@ -14,7 +14,6 @@ import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
-import com.copixelate.data.Auth
 import com.copixelate.nav.NavInfo
 import com.copixelate.nav.SetupNavGraph
 import com.copixelate.ui.theme.CopixelateTheme
@@ -31,7 +30,7 @@ fun MainContent(navController: NavHostController) {
             bottomBar = {
                 MainNavBar(
                     navController = navController,
-                    authState = navViewModel.authState.collectAsState().value,
+                    isSignedIn = navViewModel.isSignedIn.collectAsState().value,
                 )
             }
         ) { offsetPadding ->
@@ -52,20 +51,16 @@ fun MainContent(navController: NavHostController) {
 @Composable
 fun MainNavBar(
     navController: NavHostController,
-    authState: Auth.State
+    isSignedIn: Boolean
 ) {
 
     NavBarBuilder(
         navController = navController,
-        navInfos = when (authState) {
-            Auth.State.SIGNED_IN -> {
-                listOf(NavInfo.Art, NavInfo.Library, NavInfo.Buds)
-            }
-            Auth.State.SIGNED_OUT -> {
-                listOf(NavInfo.Art, NavInfo.Library, NavInfo.Login)
-            }
-        })
-
+        navInfos = when (isSignedIn) {
+            true -> listOf(NavInfo.Art, NavInfo.Library, NavInfo.Buds)
+            false -> listOf(NavInfo.Art, NavInfo.Library, NavInfo.Login)
+        }
+    )
 
 }
 
@@ -101,6 +96,7 @@ fun NavBarBuilder(
             }
         }
     )
+
 }
 
 @Composable

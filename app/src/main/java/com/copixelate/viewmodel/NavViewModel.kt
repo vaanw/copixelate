@@ -9,13 +9,15 @@ import kotlinx.coroutines.launch
 
 class NavViewModel : ViewModel() {
 
-    private val _authState = MutableStateFlow(Auth.state)
-    val authState = _authState.asStateFlow()
-
-    fun updateAuthState(authState: Auth.State) {
-        viewModelScope.launch {
-            _authState.value = authState
+    private val _isSignedIn = MutableStateFlow(
+        when (Auth.state) {
+            Auth.State.SIGNED_IN -> true
+            Auth.State.SIGNED_OUT -> false
         }
-    }
+    )
+    val isSignedIn = _isSignedIn.asStateFlow()
+
+    fun setSignedIn() = viewModelScope.launch { _isSignedIn.value = true }
+    // fun setSignedOut() = viewModelScope.launch { _isSignedIn.value = false }
 
 }
