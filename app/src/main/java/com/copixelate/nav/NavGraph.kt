@@ -52,5 +52,9 @@ fun SetupNavGraph(
             OverviewScreen(navController)
         }
 
+        composable(route = NavInfo.Settings.route) {
+            OverviewScreen(navController)
+        }
+
     }
 }
