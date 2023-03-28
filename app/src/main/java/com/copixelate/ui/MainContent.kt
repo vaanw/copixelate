@@ -25,71 +25,57 @@ fun MainContent(navController: NavHostController) {
 
     val navViewModel: NavViewModel = viewModel()
 
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentDestination = navBackStackEntry?.destination
+
     CopixelateTheme {
         Scaffold(
             bottomBar = {
+
                 MainNavBar(
-                    navController = navController,
                     isSignedIn = navViewModel.isSignedIn.collectAsState().value,
-                )
-            }
+                    isSelected = { route ->
+                        currentDestination?.hierarchy?.any { navDest ->
+                            navDest.route == route
+                        } == true
+                    },
+                    onClick = { route ->
+                        navController.navigate(route) {
+                            popUpTo(navController.graph.findStartDestination().id)
+                            launchSingleTop = true
+                        }
+                    },
+                ) // End MainNavBar
+
+            } // End bottomBar
         ) { offsetPadding ->
-            // Account for bottom nav bar size
+
             Surface(Modifier.padding(offsetPadding)) {
                 SetupNavGraph(
                     navController = navController,
                     navViewModel = navViewModel
                 )
             }
-        }
 
-    }
+        } // End Scaffold
+    } // End CopixelateTheme
 
 }
 
 @Composable
 fun MainNavBar(
-    navController: NavHostController,
-    isSignedIn: Boolean
+    isSignedIn: Boolean,
+    isSelected: (route: String) -> Boolean,
+    onClick: (route: String) -> Unit,
 ) {
 
     NavBarBuilder(
-        navController = navController,
         navInfos = when (isSignedIn) {
             true -> listOf(NavInfo.Art, NavInfo.Library, NavInfo.Buds, NavInfo.Settings)
             false -> listOf(NavInfo.Art, NavInfo.Library, NavInfo.Login, NavInfo.Settings)
-        }
-    )
-
-}
-
-@Composable
-fun NavBarBuilder(
-    navController: NavHostController,
-    navInfos: List<NavInfo>
-) {
-
-    val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentDestination = navBackStackEntry?.destination
-
-    NavBarBuilder(
-        navInfos = navInfos,
-        onSelected = { route ->
-            currentDestination?.hierarchy?.any { navDest ->
-                navDest.route == route
-            } == true
         },
-        onClick = { route ->
-            navController.navigate(route) {
-                // Pop up to the start destination of the graph to
-                // avoid building up a large stack of destinations
-                // on the back stack as users select items
-                popUpTo(navController.graph.findStartDestination().id)
-                // Avoid multiple copies of the same destination when
-                // reselecting the same item
-                launchSingleTop = true
-            }
-        }
+        isSelected = isSelected,
+        onClick = onClick
     )
 
 }
@@ -97,7 +83,7 @@ fun NavBarBuilder(
 @Composable
 fun NavBarBuilder(
     navInfos: List<NavInfo>,
-    onSelected: (route: String) -> Boolean,
+    isSelected: (route: String) -> Boolean,
     onClick: (route: String) -> Unit,
 ) {
 
@@ -111,7 +97,7 @@ fun NavBarBuilder(
                     )
                 },
                 label = { Text(stringResource(navInfo.labelResId)) },
-                selected = onSelected(navInfo.route),
+                selected = isSelected(navInfo.route),
                 onClick = { onClick(navInfo.route) }
             ) // End NavigationBarItem
         } // End navBarItems.forEach
@@ -128,9 +114,11 @@ fun NavBarPreview() {
             Box {
                 Surface(modifier = Modifier.align(Alignment.BottomCenter)) {
 
-                    NavBarBuilder(
-                        navInfos = listOf(NavInfo.Art, NavInfo.Library, NavInfo.Login),
-                        onSelected = { false },
+                    MainNavBar(
+                        isSignedIn = true,
+                        isSelected = { route ->
+                            NavInfo.Art.route == route
+                        },
                         onClick = {}
                     )
                 }
