@@ -18,6 +18,6 @@ class NavViewModel : ViewModel() {
     val isSignedIn = _isSignedIn.asStateFlow()
 
     fun setSignedIn() = viewModelScope.launch { _isSignedIn.value = true }
-    // fun setSignedOut() = viewModelScope.launch { _isSignedIn.value = false }
+    fun setSignedOut() = viewModelScope.launch { _isSignedIn.value = false }
 
 }
