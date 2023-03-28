@@ -15,7 +15,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.copixelate.data.*
-import com.copixelate.nav.refresh
+import com.copixelate.nav.NavInfo
 import com.copixelate.ui.components.SecretTextInputField
 import com.copixelate.ui.components.ValidatedTextInputField
 import com.copixelate.ui.theme.CopixelateTheme
@@ -31,10 +31,10 @@ fun AuthScreen(navController: NavController, navViewModel: NavViewModel) {
                 is AuthResult.Success -> {
                     Log.d("onSignUp", "successful")
                     Auth.updateAccount(displayName) {
-                        // Only navigate away if we're still on this screen (???)
-                        // Refresh is a hack and shouldn't be necessary
                         navViewModel.setSignedIn()
-                        navController.refresh()
+                        if (navController.currentBackStackEntry?.destination?.route == NavInfo.Login.route) {
+                            navController.navigate(NavInfo.Buds.route)
+                        }
                     }
                 }
                 is AuthResult.Failure -> {
@@ -50,7 +50,9 @@ fun AuthScreen(navController: NavController, navViewModel: NavViewModel) {
                 is AuthResult.Success -> {
                     Log.d("onSignIn", "successful")
                     navViewModel.setSignedIn()
-                    navController.refresh()
+                    if (navController.currentBackStackEntry?.destination?.route == NavInfo.Login.route) {
+                        navController.navigate(NavInfo.Buds.route)
+                    }
                 }
                 is AuthResult.Failure -> {
                     Log.d("onSignIn", "failed: ${result.message}")
