@@ -27,14 +27,6 @@ fun MainContent(navController: NavHostController) {
 
     CopixelateTheme {
         Scaffold(
-            topBar = {
-                AppBarBuilder(
-                    navInfos = listOf(NavInfo.Settings),
-                    onClick = { route: String ->
-                        navController.navigate(route) { launchSingleTop = true }
-                    }
-                )
-            },
             bottomBar = {
                 MainNavBar(
                     navController = navController,
@@ -55,32 +47,6 @@ fun MainContent(navController: NavHostController) {
 
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun AppBarBuilder(
-    navInfos: List<NavInfo>,
-    onClick: (route: String) -> Unit,
-) {
-
-    CenterAlignedTopAppBar(
-        title = {},
-        actions = {
-            navInfos.forEach { navInfo ->
-                IconButton(
-                    onClick = { onClick(navInfo.route) }
-                ) {
-                    Icon(
-                        imageVector = navInfo.icon,
-                        contentDescription = stringResource(navInfo.contentDescriptionResId)
-                    )
-                }
-            }
-        }
-    )
-
-}
-
-
 @Composable
 fun MainNavBar(
     navController: NavHostController,
@@ -90,8 +56,8 @@ fun MainNavBar(
     NavBarBuilder(
         navController = navController,
         navInfos = when (isSignedIn) {
-            true -> listOf(NavInfo.Art, NavInfo.Library, NavInfo.Buds)
-            false -> listOf(NavInfo.Art, NavInfo.Library, NavInfo.Login)
+            true -> listOf(NavInfo.Art, NavInfo.Library, NavInfo.Buds, NavInfo.Settings)
+            false -> listOf(NavInfo.Art, NavInfo.Library, NavInfo.Login, NavInfo.Settings)
         }
     )
 
