@@ -3,9 +3,11 @@ package com.copixelate
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.copixelate.ui.MainContent
+import com.copixelate.viewmodel.SettingsViewModel
 
 class MainActivity : ComponentActivity() {
 
@@ -15,8 +17,16 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
+
             navController = rememberNavController()
-            MainContent(navController)
+
+            val settingsViewModel: SettingsViewModel by viewModels { SettingsViewModel.Factory }
+
+            MainContent(
+                navController = navController,
+                settingsViewModel = settingsViewModel
+            )
+
         }
 
     }

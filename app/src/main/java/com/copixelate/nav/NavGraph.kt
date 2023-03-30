@@ -8,12 +8,14 @@ import androidx.navigation.compose.composable
 import com.copixelate.ui.screens.*
 import com.copixelate.viewmodel.ArtViewModel
 import com.copixelate.viewmodel.NavViewModel
+import com.copixelate.viewmodel.SettingsViewModel
 
 @Composable
 fun SetupNavGraph(
     navController: NavHostController,
     navViewModel: NavViewModel,
-    artViewModel: ArtViewModel = viewModel()
+    artViewModel: ArtViewModel = viewModel(),
+    settingsViewModel: SettingsViewModel,
 ) {
 
     NavHost(
@@ -38,7 +40,10 @@ fun SetupNavGraph(
         }
 
         composable(route = NavInfo.Settings.route) {
-            SettingsScreen(navViewModel = navViewModel)
+            SettingsScreen(
+                settingsViewModel = settingsViewModel,
+                navViewModel = navViewModel
+            )
         }
 
     }

@@ -18,10 +18,14 @@ import com.copixelate.nav.NavInfo
 import com.copixelate.nav.SetupNavGraph
 import com.copixelate.ui.theme.CopixelateTheme
 import com.copixelate.viewmodel.NavViewModel
+import com.copixelate.viewmodel.SettingsViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainContent(navController: NavHostController) {
+fun MainContent(
+    navController: NavHostController,
+    settingsViewModel: SettingsViewModel
+) {
 
     val navViewModel: NavViewModel = viewModel()
 
@@ -53,7 +57,8 @@ fun MainContent(navController: NavHostController) {
             Surface(Modifier.padding(offsetPadding)) {
                 SetupNavGraph(
                     navController = navController,
-                    navViewModel = navViewModel
+                    navViewModel = navViewModel,
+                    settingsViewModel = settingsViewModel,
                 )
             }
 
