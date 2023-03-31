@@ -103,7 +103,7 @@ fun ThemePicker(
         SettingsRadioButton(
             text = "Light",
             selected = themeType == ThemeType.LIGHT,
-            onClick = { onSelectTheme(ThemeType.UNRECOGNIZED) }
+            onClick = { onSelectTheme(ThemeType.LIGHT) }
         )
 
     }
