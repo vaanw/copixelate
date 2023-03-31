@@ -13,7 +13,7 @@ import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
-import com.copixelate.ThemeType
+import com.copixelate.ThemeSetting
 import com.copixelate.nav.NavInfo
 import com.copixelate.nav.SetupNavGraph
 import com.copixelate.ui.theme.CopixelateTheme
@@ -34,14 +34,14 @@ fun MainContent(
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
 
-    val themeType = settingsViewModel
-        .themeTypeFlow
+    val themeSetting = settingsViewModel
+        .themeSettingFlow
         .collectAsState(initial = runBlocking {
-            settingsViewModel.themeTypeFlow.first()
+            settingsViewModel.themeSettingFlow.first()
         })
         .value
 
-    MainTheme(themeType = themeType) {
+    MainTheme(themeSetting = themeSetting) {
         Scaffold(
             bottomBar = {
 
@@ -78,16 +78,16 @@ fun MainContent(
 
 @Composable
 fun MainTheme(
-    themeType: ThemeType,
+    themeSetting: ThemeSetting,
     content: @Composable () -> Unit
 ) {
 
-    Crossfade(targetState = themeType) { newTheme ->
-        when (newTheme) {
-            ThemeType.DARK -> CopixelateTheme(content = content, darkTheme = true)
-            ThemeType.LIGHT -> CopixelateTheme(content = content, darkTheme = false)
-            ThemeType.DEFAULT,
-            ThemeType.UNRECOGNIZED -> CopixelateTheme(content = content)
+    Crossfade(targetState = themeSetting) { newSetting ->
+        when (newSetting) {
+            ThemeSetting.DARK -> CopixelateTheme(content = content, darkTheme = true)
+            ThemeSetting.LIGHT -> CopixelateTheme(content = content, darkTheme = false)
+            ThemeSetting.DEFAULT,
+            ThemeSetting.UNRECOGNIZED -> CopixelateTheme(content = content)
         }
     }
 

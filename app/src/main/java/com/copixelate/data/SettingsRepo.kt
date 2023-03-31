@@ -1,24 +1,24 @@
 package com.copixelate.data
 
 import androidx.datastore.core.DataStore
-import com.copixelate.ThemeType
+import com.copixelate.ThemeSetting
 import com.copixelate.UserSettings
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 class SettingsRepo(private val dataStore: DataStore<UserSettings>) {
 
-    suspend fun setThemeType(themeType: ThemeType) {
+    suspend fun setThemeSetting(themeSetting: ThemeSetting) {
         dataStore.updateData { settings ->
             settings.toBuilder()
-                .setThemeType(themeType)
+                .setThemeSetting(themeSetting)
                 .build()
         }
     }
 
-    val themeTypeFlow: Flow<ThemeType> = dataStore.data
+    val themeSettingFlow: Flow<ThemeSetting> = dataStore.data
         .map { settings ->
-            ThemeType.forNumber(settings.themeTypeValue)
+            ThemeSetting.forNumber(settings.themeSettingValue)
         }
 
 }
