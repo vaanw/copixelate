@@ -14,9 +14,9 @@ import kotlinx.coroutines.launch
 
 class SettingsViewModel(private val repo: SettingsRepo) : ViewModel() {
 
-    val settings = repo.settingsFlow
-    fun setTheme(type: ThemeType) = viewModelScope.launch {
-        repo.setTheme(type)
+    val themeTypeFlow = repo.themeTypeFlow
+    fun setThemeType(type: ThemeType) = viewModelScope.launch {
+        repo.setThemeType(type)
     }
 
     companion object {

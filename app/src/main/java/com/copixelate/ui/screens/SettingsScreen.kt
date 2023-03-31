@@ -25,14 +25,14 @@ fun SettingsScreen(
 ) {
 
     val themeType = settingsViewModel
-        .settings
+        .themeTypeFlow
         .collectAsState(initial = ThemeType.DEFAULT)
         .value
 
     SettingsScreenContent(
         themeType = themeType,
         onSelectTheme = { newTheme ->
-            settingsViewModel.setTheme(newTheme)
+            settingsViewModel.setThemeType(newTheme)
         },
         displayName = Auth.displayName,
         onClickLogout = {

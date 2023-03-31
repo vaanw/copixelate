@@ -1,10 +1,9 @@
 package com.copixelate.ui
 
+import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -14,11 +13,14 @@ import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
+import com.copixelate.ThemeType
 import com.copixelate.nav.NavInfo
 import com.copixelate.nav.SetupNavGraph
 import com.copixelate.ui.theme.CopixelateTheme
 import com.copixelate.viewmodel.NavViewModel
 import com.copixelate.viewmodel.SettingsViewModel
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -32,7 +34,14 @@ fun MainContent(
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
 
-    CopixelateTheme {
+    val themeType = settingsViewModel
+        .themeTypeFlow
+        .collectAsState(initial = runBlocking {
+            settingsViewModel.themeTypeFlow.first()
+        })
+        .value
+
+    MainTheme(themeType = themeType) {
         Scaffold(
             bottomBar = {
 
@@ -64,6 +73,23 @@ fun MainContent(
 
         } // End Scaffold
     } // End CopixelateTheme
+
+}
+
+@Composable
+fun MainTheme(
+    themeType: ThemeType,
+    content: @Composable () -> Unit
+) {
+
+    Crossfade(targetState = themeType) { newTheme ->
+        when (newTheme) {
+            ThemeType.DARK -> CopixelateTheme(content = content, darkTheme = true)
+            ThemeType.LIGHT -> CopixelateTheme(content = content, darkTheme = false)
+            ThemeType.DEFAULT,
+            ThemeType.UNRECOGNIZED -> CopixelateTheme(content = content)
+        }
+    }
 
 }
 

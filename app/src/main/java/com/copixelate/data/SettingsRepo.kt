@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.map
 
 class SettingsRepo(private val dataStore: DataStore<UserSettings>) {
 
-    suspend fun setTheme(themeType: ThemeType) {
+    suspend fun setThemeType(themeType: ThemeType) {
         dataStore.updateData { settings ->
             settings.toBuilder()
                 .setThemeType(themeType)
@@ -16,7 +16,7 @@ class SettingsRepo(private val dataStore: DataStore<UserSettings>) {
         }
     }
 
-    val settingsFlow: Flow<ThemeType> = dataStore.data
+    val themeTypeFlow: Flow<ThemeType> = dataStore.data
         .map { settings ->
             ThemeType.forNumber(settings.themeTypeValue)
         }
