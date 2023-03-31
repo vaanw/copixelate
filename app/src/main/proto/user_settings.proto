@@ -6,10 +6,10 @@ option java_multiple_files = true;
 option java_package = "com.copixelate";
 
 message UserSettings {
-  ThemeType theme_type = 1;
+  ThemeSetting theme_setting = 1;
 }
 
-enum ThemeType {
+enum ThemeSetting {
   DEFAULT = 0;
   DARK = 1;
   LIGHT = 2;

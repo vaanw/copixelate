@@ -12,7 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.copixelate.ThemeType
+import com.copixelate.ThemeSetting
 import com.copixelate.data.Auth
 import com.copixelate.ui.theme.CopixelateTheme
 import com.copixelate.viewmodel.NavViewModel
@@ -24,15 +24,15 @@ fun SettingsScreen(
     navViewModel: NavViewModel
 ) {
 
-    val themeType = settingsViewModel
-        .settings
-        .collectAsState(initial = ThemeType.DEFAULT)
+    val themeSetting = settingsViewModel
+        .themeSettingFlow
+        .collectAsState(initial = ThemeSetting.DEFAULT)
         .value
 
     SettingsScreenContent(
-        themeType = themeType,
+        themeSetting = themeSetting,
         onSelectTheme = { newTheme ->
-            settingsViewModel.setTheme(newTheme)
+            settingsViewModel.setThemeSetting(newTheme)
         },
         displayName = Auth.displayName,
         onClickLogout = {
@@ -44,8 +44,8 @@ fun SettingsScreen(
 
 @Composable
 fun SettingsScreenContent(
-    themeType: ThemeType,
-    onSelectTheme: (ThemeType) -> Unit,
+    themeSetting: ThemeSetting,
+    onSelectTheme: (ThemeSetting) -> Unit,
     displayName: String,
     onClickLogout: () -> Unit
 ) {
@@ -69,7 +69,7 @@ fun SettingsScreenContent(
         }
 
         ThemePicker(
-            themeType = themeType,
+            themeSetting = themeSetting,
             onSelectTheme = onSelectTheme
         )
 
@@ -79,8 +79,8 @@ fun SettingsScreenContent(
 
 @Composable
 fun ThemePicker(
-    themeType: ThemeType,
-    onSelectTheme: (ThemeType) -> Unit,
+    themeSetting: ThemeSetting,
+    onSelectTheme: (ThemeSetting) -> Unit,
 ) {
 
     Column(Modifier.selectableGroup()) {
@@ -92,18 +92,18 @@ fun ThemePicker(
         )
         SettingsRadioButton(
             text = "System Default",
-            selected = themeType == ThemeType.DEFAULT,
-            onClick = { onSelectTheme(ThemeType.DEFAULT) }
+            selected = themeSetting == ThemeSetting.DEFAULT,
+            onClick = { onSelectTheme(ThemeSetting.DEFAULT) }
         )
         SettingsRadioButton(
             text = "Dark",
-            selected = themeType == ThemeType.DARK,
-            onClick = { onSelectTheme(ThemeType.DARK) }
+            selected = themeSetting == ThemeSetting.DARK,
+            onClick = { onSelectTheme(ThemeSetting.DARK) }
         )
         SettingsRadioButton(
             text = "Light",
-            selected = themeType == ThemeType.LIGHT,
-            onClick = { onSelectTheme(ThemeType.LIGHT) }
+            selected = themeSetting == ThemeSetting.LIGHT,
+            onClick = { onSelectTheme(ThemeSetting.LIGHT) }
         )
 
     }
@@ -145,7 +145,6 @@ fun SettingsRadioButton(
 
 }
 
-
 @Preview
 @Composable
 fun SettingsScreenPreview() {
@@ -156,7 +155,7 @@ fun SettingsScreenPreview() {
                 displayName = "xXCoolUserXx",
                 onClickLogout = {},
                 onSelectTheme = {},
-                themeType = ThemeType.DARK
+                themeSetting = ThemeSetting.DARK
             )
         }
     }

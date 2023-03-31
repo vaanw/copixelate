@@ -7,16 +7,16 @@ import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.AP
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
-import com.copixelate.ThemeType
+import com.copixelate.ThemeSetting
 import com.copixelate.data.SettingsRepo
 import com.copixelate.data.proto.settingsDataStore
 import kotlinx.coroutines.launch
 
 class SettingsViewModel(private val repo: SettingsRepo) : ViewModel() {
 
-    val settings = repo.settingsFlow
-    fun setTheme(type: ThemeType) = viewModelScope.launch {
-        repo.setTheme(type)
+    val themeSettingFlow = repo.themeSettingFlow
+    fun setThemeSetting(setting: ThemeSetting) = viewModelScope.launch {
+        repo.setThemeSetting(setting)
     }
 
     companion object {
