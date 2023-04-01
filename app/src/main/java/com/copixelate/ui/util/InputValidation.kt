@@ -1,4 +1,4 @@
-package com.copixelate.data
+package com.copixelate.ui.util
 
 import android.util.Patterns
 

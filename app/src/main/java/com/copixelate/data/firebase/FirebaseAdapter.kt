@@ -1,4 +1,4 @@
-package com.copixelate.data.remote
+package com.copixelate.data.firebase
 
 import com.google.firebase.database.*
 import com.google.firebase.database.ktx.database

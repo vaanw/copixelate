@@ -20,7 +20,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import com.copixelate.R
-import com.copixelate.data.InputValidity
+import com.copixelate.ui.util.InputValidity
 
 @Composable
 fun ValidatedTextInputField(

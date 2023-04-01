@@ -19,6 +19,7 @@ import com.copixelate.nav.NavInfo
 import com.copixelate.ui.components.SecretTextInputField
 import com.copixelate.ui.components.ValidatedTextInputField
 import com.copixelate.ui.theme.CopixelateTheme
+import com.copixelate.ui.util.InputValidation
 import com.copixelate.viewmodel.NavViewModel
 import kotlinx.coroutines.launch
 

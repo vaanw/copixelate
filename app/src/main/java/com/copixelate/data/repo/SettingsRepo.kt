@@ -1,4 +1,4 @@
-package com.copixelate.data
+package com.copixelate.data.repo
 
 import androidx.datastore.core.DataStore
 import com.copixelate.ThemeSetting

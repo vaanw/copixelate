@@ -1,9 +1,9 @@
-package com.copixelate.data
+package com.copixelate.data.repo
 
 import android.content.Context
-import com.copixelate.data.local.*
+import com.copixelate.data.room.*
 import com.copixelate.data.model.*
-import com.copixelate.data.remote.FirebaseAdapter
+import com.copixelate.data.firebase.FirebaseAdapter
 
 class ArtRepo(applicationContext: Context) {
 
