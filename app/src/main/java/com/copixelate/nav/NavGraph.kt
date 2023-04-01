@@ -1,7 +1,6 @@
 package com.copixelate.nav
 
 import androidx.compose.runtime.Composable
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -14,7 +13,7 @@ import com.copixelate.viewmodel.SettingsViewModel
 fun SetupNavGraph(
     navController: NavHostController,
     navViewModel: NavViewModel,
-    artViewModel: ArtViewModel = viewModel(),
+    artViewModel: ArtViewModel,
     settingsViewModel: SettingsViewModel,
 ) {
 

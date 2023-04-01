@@ -2,26 +2,28 @@ package com.copixelate.viewmodel
 
 import android.app.Application
 import android.util.Log
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
 import androidx.lifecycle.viewModelScope
-import com.copixelate.data.repo.ArtRepo
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import com.copixelate.art.ArtSpace
 import com.copixelate.art.ArtSpaceResult
 import com.copixelate.art.PointF
+import com.copixelate.data.repo.ArtRepo
+import com.copixelate.data.room.RoomAdapter
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 
-class ArtViewModel(application: Application) : AndroidViewModel(application) {
+class ArtViewModel(private val repo: ArtRepo) : ViewModel() {
 
     private val artSpace = ArtSpace()
 
-    private val repo = ArtRepo(application.applicationContext)
-
     init {
         viewModelScope.launch {
-//            repo.saveSpace()
-//            artSpace.state.drawing
+            repo.stub()
         }
     }
 
@@ -74,5 +76,18 @@ class ArtViewModel(application: Application) : AndroidViewModel(application) {
             _brushPreview.value = artSpace.state.brushPreview
 
         }
+
+    companion object {
+        val Factory: ViewModelProvider.Factory = viewModelFactory {
+            initializer {
+                val context = (this[APPLICATION_KEY] as Application).applicationContext
+                ArtViewModel(
+                    repo = ArtRepo(
+                        roomAdapter = RoomAdapter(context)
+                    )
+                )
+            }
+        }
+    }
 
 }
