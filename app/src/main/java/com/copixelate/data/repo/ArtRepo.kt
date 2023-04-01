@@ -1,37 +1,37 @@
 package com.copixelate.data.repo
 
-import android.content.Context
+import android.util.Log
 import com.copixelate.data.room.*
 import com.copixelate.data.model.*
 import com.copixelate.data.firebase.FirebaseAdapter
 
-class ArtRepo(applicationContext: Context) {
-
-    private val local: RoomAdapter = RoomAdapter(applicationContext)
-    private val remote: FirebaseAdapter = FirebaseAdapter()
+class ArtRepo(
+    private val roomAdapter: RoomAdapter,
+    private val firebaseAdapter: FirebaseAdapter = FirebaseAdapter()
+) {
 
     suspend fun stub() {
-
+        Log.d("ArtRepo", "Stub!!!")
     }
 
     suspend fun getAllSpaces(): List<SpaceModel> =
-        local.getAllSpaces().map { entity ->
+        roomAdapter.getAllSpaces().map { entity ->
             entity.toModel()
         }
 
     suspend fun getSpaceByID(model: IDModel): SpaceModel =
-        local.getSpace(model.localID!!).toModel()
+        roomAdapter.getSpace(model.localID!!).toModel()
 
     suspend fun saveSpace(model: SpaceModel) {
-        local.saveSpace(model.toEntity())
+        roomAdapter.saveSpace(model.toEntity())
     }
 
     suspend fun saveDrawing(model: DrawingModel) {
-        local.saveDrawing(model.toEntity())
+        roomAdapter.saveDrawing(model.toEntity())
     }
 
     suspend fun savePalette(model: PaletteModel) {
-        local.savePalette(model.toEntity())
+        roomAdapter.savePalette(model.toEntity())
     }
 
 }

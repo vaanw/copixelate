@@ -23,8 +23,11 @@ class SettingsViewModel(private val repo: SettingsRepo) : ViewModel() {
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
                 val context = (this[APPLICATION_KEY] as Application).applicationContext
-                val dataStore = context.settingsDataStore
-                SettingsViewModel(repo = SettingsRepo(dataStore))
+                SettingsViewModel(
+                    repo = SettingsRepo(
+                        dataStore = context.settingsDataStore
+                    )
+                )
             }
         }
     }

@@ -17,6 +17,7 @@ import com.copixelate.ThemeSetting
 import com.copixelate.nav.NavInfo
 import com.copixelate.nav.SetupNavGraph
 import com.copixelate.ui.theme.CopixelateTheme
+import com.copixelate.viewmodel.ArtViewModel
 import com.copixelate.viewmodel.NavViewModel
 import com.copixelate.viewmodel.SettingsViewModel
 import kotlinx.coroutines.flow.first
@@ -26,6 +27,7 @@ import kotlinx.coroutines.runBlocking
 @Composable
 fun MainContent(
     navController: NavHostController,
+    artViewModel: ArtViewModel,
     settingsViewModel: SettingsViewModel
 ) {
 
@@ -67,6 +69,7 @@ fun MainContent(
                 SetupNavGraph(
                     navController = navController,
                     navViewModel = navViewModel,
+                    artViewModel = artViewModel,
                     settingsViewModel = settingsViewModel,
                 )
             }
