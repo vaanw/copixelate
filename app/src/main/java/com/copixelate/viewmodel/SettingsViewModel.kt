@@ -8,7 +8,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.copixelate.ThemeSetting
-import com.copixelate.data.SettingsRepo
+import com.copixelate.data.repo.SettingsRepo
 import com.copixelate.data.proto.settingsDataStore
 import kotlinx.coroutines.launch
 

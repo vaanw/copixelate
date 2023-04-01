@@ -1,4 +1,4 @@
-package com.copixelate.data.local
+package com.copixelate.data.room
 
 import android.content.Context
 import androidx.room.Room

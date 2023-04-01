@@ -1,4 +1,4 @@
-package com.copixelate.data.local
+package com.copixelate.data.room
 
 import androidx.room.*
 import kotlinx.serialization.json.Json
