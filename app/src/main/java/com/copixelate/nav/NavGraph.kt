@@ -6,6 +6,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.copixelate.ui.screens.*
 import com.copixelate.viewmodel.ArtViewModel
+import com.copixelate.viewmodel.LibraryViewModel
 import com.copixelate.viewmodel.NavViewModel
 import com.copixelate.viewmodel.SettingsViewModel
 
@@ -14,6 +15,7 @@ fun SetupNavGraph(
     navController: NavHostController,
     navViewModel: NavViewModel,
     artViewModel: ArtViewModel,
+    libraryViewModel: LibraryViewModel,
     settingsViewModel: SettingsViewModel,
 ) {
 
@@ -27,7 +29,7 @@ fun SetupNavGraph(
         }
 
         composable(route = NavInfo.Library.route) {
-            LibraryScreen()
+            LibraryScreen(libraryViewModel = libraryViewModel)
         }
 
         composable(route = NavInfo.Login.route) {

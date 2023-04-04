@@ -1,11 +1,9 @@
 package com.copixelate.ui.screens
 
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import com.copixelate.viewmodel.LibraryViewModel
 
 @Composable
-fun LibraryScreen() {
-
-    Text(text = "Library")
+fun LibraryScreen(libraryViewModel: LibraryViewModel) {
 
 }

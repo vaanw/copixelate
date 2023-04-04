@@ -8,6 +8,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.copixelate.ui.MainContent
 import com.copixelate.viewmodel.ArtViewModel
+import com.copixelate.viewmodel.LibraryViewModel
 import com.copixelate.viewmodel.SettingsViewModel
 
 class MainActivity : ComponentActivity() {
@@ -15,6 +16,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var navController: NavHostController
 
     private val artViewModel: ArtViewModel by viewModels { ArtViewModel.Factory }
+    private val libraryViewModel: LibraryViewModel by viewModels { LibraryViewModel.Factory }
     private val settingsViewModel: SettingsViewModel by viewModels { SettingsViewModel.Factory }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -27,6 +29,7 @@ class MainActivity : ComponentActivity() {
             MainContent(
                 navController = navController,
                 artViewModel = artViewModel,
+                libraryViewModel = libraryViewModel,
                 settingsViewModel = settingsViewModel
             )
 

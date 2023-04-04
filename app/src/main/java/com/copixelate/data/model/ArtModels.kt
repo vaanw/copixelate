@@ -1,7 +1,7 @@
 package com.copixelate.data.model
 
 data class IDModel(
-    val localID: Int? = null,
+    val localID: Long? = null,
     val remoteID: String? = null,
 )
 
@@ -9,18 +9,27 @@ data class SpaceModel(
     val id: IDModel = IDModel(),
     val drawing: DrawingModel,
     val palette: PaletteModel,
-)
+) {
+    override fun equals(other: Any?): Boolean {
+        if(other !is SpaceModel) return false
+        return this.id.localID == other.id.localID
+    }
 
-class DrawingModel(
+    override fun hashCode(): Int {
+        return id.localID.hashCode()
+    }
+}
+
+data class DrawingModel(
     val id: IDModel = IDModel(),
     val size: SizeModel = SizeModel(),
-    val pixels: IntArray = IntArray(0),
+    val pixels: List<Int> = emptyList(),
 )
 
-class PaletteModel(
+data class PaletteModel(
     val id: IDModel = IDModel(),
     val size: SizeModel = SizeModel(),
-    val pixels: IntArray = IntArray(0),
+    val pixels: List<Int> = emptyList(),
 )
 
 data class SizeModel(
