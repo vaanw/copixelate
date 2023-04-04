@@ -18,16 +18,16 @@ import com.copixelate.nav.NavInfo
 import com.copixelate.nav.SetupNavGraph
 import com.copixelate.ui.theme.CopixelateTheme
 import com.copixelate.viewmodel.ArtViewModel
+import com.copixelate.viewmodel.LibraryViewModel
 import com.copixelate.viewmodel.NavViewModel
 import com.copixelate.viewmodel.SettingsViewModel
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.runBlocking
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainContent(
     navController: NavHostController,
     artViewModel: ArtViewModel,
+    libraryViewModel: LibraryViewModel,
     settingsViewModel: SettingsViewModel
 ) {
 
@@ -36,12 +36,8 @@ fun MainContent(
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
 
-    val themeSetting = settingsViewModel
-        .themeSettingFlow
-        .collectAsState(initial = runBlocking {
-            settingsViewModel.themeSettingFlow.first()
-        })
-        .value
+    val themeSetting = settingsViewModel.themeSetting.collectAsState().value
+
 
     MainTheme(themeSetting = themeSetting) {
         Scaffold(
@@ -70,6 +66,7 @@ fun MainContent(
                     navController = navController,
                     navViewModel = navViewModel,
                     artViewModel = artViewModel,
+                    libraryViewModel = libraryViewModel,
                     settingsViewModel = settingsViewModel,
                 )
             }

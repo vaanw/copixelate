@@ -10,13 +10,24 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.copixelate.ThemeSetting
 import com.copixelate.data.repo.SettingsRepo
 import com.copixelate.data.proto.settingsDataStore
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 class SettingsViewModel(private val repo: SettingsRepo) : ViewModel() {
 
-    val themeSettingFlow = repo.themeSettingFlow
-    fun setThemeSetting(setting: ThemeSetting) = viewModelScope.launch {
-        repo.setThemeSetting(setting)
+    val themeSetting: StateFlow<ThemeSetting> =
+        repo.themeSettingFlow.stateIn(
+            scope = viewModelScope,
+            initialValue = runBlocking { repo.themeSettingFlow.first() },
+            started = SharingStarted.WhileSubscribed()
+        )
+
+    fun saveThemeSetting(setting: ThemeSetting) = viewModelScope.launch {
+        repo.saveThemeSetting(setting)
     }
 
     companion object {

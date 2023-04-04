@@ -1,6 +1,7 @@
 package com.copixelate.data.room
 
 import androidx.room.*
+import kotlinx.coroutines.flow.Flow
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
@@ -11,25 +12,53 @@ import kotlinx.serialization.encodeToString
 )
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
-    abstract fun spaceDao(): SpaceDao
-    abstract fun drawingDao(): DrawingDao
-    abstract fun paletteDao(): PaletteDao
+    abstract fun artDao(): ArtDao
 }
 
 class Converters {
     @TypeConverter
-    fun serializeIntArray(value: IntArray): String = Json.encodeToString(value)
+    fun serializeIntList(value: List<Int>): String = Json.encodeToString(value)
 
     @TypeConverter
-    fun deserializeIntArray(value: String): IntArray = Json.decodeFromString(value)
+    fun deserializeIntList(value: String): List<Int> = Json.decodeFromString(value)
 }
 
+@Entity(tableName = "drawing")
+class DrawingEntity(
+    @PrimaryKey(autoGenerate = true) val id: Long,
+    @ColumnInfo(name = "pixels") val pixels: List<Int>,
+    @ColumnInfo(name = "size") val size: List<Int>,
+    @ColumnInfo(name = "remote_key") val remoteKey: String?
+)
 
-@Entity(tableName = "space")
+@Entity(tableName = "palette")
+class PaletteEntity(
+    @PrimaryKey(autoGenerate = true) val id: Long,
+    @ColumnInfo(name = "pixels") val pixels: List<Int>,
+    @ColumnInfo(name = "size") val size: List<Int>,
+    @ColumnInfo(name = "remote_key") val remoteKey: String?
+)
+
+@Entity(
+    tableName = "space",
+    indices = [
+        Index(value = ["drawing_id"]),
+        Index(value = ["palette_id"])
+    ],
+    foreignKeys = [ForeignKey(
+        entity = DrawingEntity::class,
+        parentColumns = ["id"],
+        childColumns = ["drawing_id"]
+    ), ForeignKey(
+        entity = PaletteEntity::class,
+        parentColumns = ["id"],
+        childColumns = ["palette_id"]
+    )]
+)
 data class SpaceEntity(
-    @PrimaryKey(autoGenerate = true) val id: Int,
-    @ColumnInfo(name = "drawing_id") val drawingId: Int,
-    @ColumnInfo(name = "palette_id") val paletteId: Int,
+    @PrimaryKey(autoGenerate = true) val id: Long,
+    @ColumnInfo(name = "drawing_id") var drawingId: Long,
+    @ColumnInfo(name = "palette_id") var paletteId: Long,
     @ColumnInfo(name = "remote_key") val remoteKey: String?
 )
 
@@ -49,71 +78,59 @@ data class SpaceEntityWithArt(
 )
 
 @Dao
-interface SpaceDao {
+interface ArtDao {
 
-    @Query("SELECT * FROM space")
-    suspend fun getAll(): List<SpaceEntity>
+    // Space Queries
 
     @Transaction
     @Query("SELECT * FROM space")
-    suspend fun getAllWithArt(): List<SpaceEntityWithArt>
-
-    @Query("SELECT * FROM space WHERE id = (:entityId) LIMIT 1")
-    suspend fun findById(entityId: Int): SpaceEntity
+    fun getAllSpaces(): Flow<List<SpaceEntityWithArt>>
 
     @Transaction
     @Query("SELECT * FROM space WHERE id = (:entityId) LIMIT 1")
-    suspend fun findByIdWithArt(entityId: Int): SpaceEntityWithArt
+    suspend fun findSpaceById(entityId: Int): SpaceEntityWithArt
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertAll(vararg entities: SpaceEntity)
+    suspend fun insertSpaces(vararg entities: SpaceEntity)
+
+
+    @Insert
+    suspend fun insertSpaces(vararg spaces: SpaceEntityWithArt) =
+        spaces.forEach { entity ->
+            entity.space.drawingId = insertDrawings(entity.drawing)[0]
+            entity.space.paletteId = insertPalettes(entity.palette)[0]
+            insertSpaces(entity.space)
+        }
 
     @Delete
-    suspend fun delete(entity: SpaceEntity)
-}
+    suspend fun deleteSpace(entity: SpaceEntity)
 
-@Entity(tableName = "drawing")
-class DrawingEntity(
-    @PrimaryKey(autoGenerate = true) val id: Int,
-    @ColumnInfo(name = "pixels") val pixels: IntArray,
-    @ColumnInfo(name = "size") val size: IntArray,
-    @ColumnInfo(name = "remote_key") val remoteKey: String?
-)
+    // Drawing Queries
 
-@Dao
-interface DrawingDao {
     @Query("SELECT * FROM drawing")
-    suspend fun getAll(): List<DrawingEntity>
+    suspend fun getAllDrawings(): List<DrawingEntity>
 
     @Query("SELECT * FROM drawing WHERE id = (:entityId) LIMIT 1")
-    suspend fun findById(entityId: Int): DrawingEntity
+    suspend fun findDrawingById(entityId: Int): DrawingEntity
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertAll(vararg entities: DrawingEntity)
+    suspend fun insertDrawings(vararg entities: DrawingEntity): LongArray
 
     @Delete
-    suspend fun delete(entity: DrawingEntity)
-}
+    suspend fun deleteDrawing(entity: DrawingEntity)
 
-@Entity(tableName = "palette")
-class PaletteEntity(
-    @PrimaryKey(autoGenerate = true) val id: Int,
-    @ColumnInfo(name = "pixels") val pixels: IntArray,
-    @ColumnInfo(name = "size") val size: IntArray,
-    @ColumnInfo(name = "remote_key") val remoteKey: String?
-)
+    // Palette Queries
 
-@Dao
-interface PaletteDao {
     @Query("SELECT * FROM palette")
-    suspend fun getAll(): List<PaletteEntity>
+    suspend fun getAllPalettes(): List<PaletteEntity>
 
     @Query("SELECT * FROM palette WHERE id = (:entityId) LIMIT 1")
-    suspend fun findById(entityId: Int): PaletteEntity
+    suspend fun findPaletteById(entityId: Int): PaletteEntity
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertAll(vararg entities: PaletteEntity)
+    suspend fun insertPalettes(vararg entities: PaletteEntity): LongArray
 
     @Delete
-    suspend fun delete(entity: PaletteEntity)
+    suspend fun deletePalette(entity: PaletteEntity)
+
 }
