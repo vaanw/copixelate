@@ -13,12 +13,9 @@ class SettingsRepo(private val dataStore: DataStore<UserSettings>) {
             ThemeSetting.forNumber(settings.themeSettingValue)
         }
 
-    suspend fun saveThemeSetting(themeSetting: ThemeSetting) {
+    suspend fun saveThemeSetting(themeSetting: ThemeSetting) =
         dataStore.updateData { settings ->
-            settings.toBuilder()
-                .setThemeSetting(themeSetting)
-                .build()
+            settings.toBuilder().setThemeSetting(themeSetting).build()
         }
-    }
 
 }

@@ -11,19 +11,24 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.copixelate.art.ArtSpace
 import com.copixelate.art.ArtSpaceResult
 import com.copixelate.art.PointF
+import com.copixelate.data.proto.uiStateDataStore
 import com.copixelate.data.repo.ArtRepo
+import com.copixelate.data.repo.UiRepo
 import com.copixelate.data.room.RoomAdapter
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-class ArtViewModel(private val repo: ArtRepo) : ViewModel() {
+class ArtViewModel(
+    private val artRepo: ArtRepo,
+    private val uiRepo: UiRepo
+) : ViewModel() {
 
     private val artSpace = ArtSpace()
 
     init {
         viewModelScope.launch {
-            repo.stub()
+            artRepo.stub()
         }
     }
 
@@ -82,9 +87,8 @@ class ArtViewModel(private val repo: ArtRepo) : ViewModel() {
             initializer {
                 val context = (this[APPLICATION_KEY] as Application).applicationContext
                 ArtViewModel(
-                    repo = ArtRepo(
-                        roomAdapter = RoomAdapter(context)
-                    )
+                    artRepo = ArtRepo(roomAdapter = RoomAdapter(context)),
+                    uiRepo = UiRepo(dataStore = context.uiStateDataStore)
                 )
             }
         }

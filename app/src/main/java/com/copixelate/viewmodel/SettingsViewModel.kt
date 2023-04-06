@@ -35,9 +35,7 @@ class SettingsViewModel(private val repo: SettingsRepo) : ViewModel() {
             initializer {
                 val context = (this[APPLICATION_KEY] as Application).applicationContext
                 SettingsViewModel(
-                    repo = SettingsRepo(
-                        dataStore = context.settingsDataStore
-                    )
+                    repo = SettingsRepo(dataStore = context.settingsDataStore)
                 )
             }
         }
