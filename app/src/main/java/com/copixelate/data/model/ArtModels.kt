@@ -9,16 +9,7 @@ data class SpaceModel(
     val id: IDModel = IDModel(),
     val drawing: DrawingModel,
     val palette: PaletteModel,
-) {
-    override fun equals(other: Any?): Boolean {
-        if(other !is SpaceModel) return false
-        return this.id.localID == other.id.localID
-    }
-
-    override fun hashCode(): Int {
-        return id.localID.hashCode()
-    }
-}
+)
 
 data class DrawingModel(
     val id: IDModel = IDModel(),

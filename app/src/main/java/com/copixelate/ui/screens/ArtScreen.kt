@@ -35,7 +35,7 @@ fun ArtScreen(viewModel: ArtViewModel) {
         palette = viewModel.palette.collectAsState().value,
         activeColor = viewModel.activeColor.collectAsState().value,
         brushPreview = viewModel.brushPreview.collectAsState().value,
-        initialBrushSize = viewModel.brushSize,
+        initialBrushSize = viewModel.brushSize.collectAsState().value,
         onTouchDrawing = { unitPosition -> viewModel.updateDrawing(unitPosition) },
         onTouchPalette = { unitPosition -> viewModel.updatePalette(unitPosition) },
         onBrushSizeUpdate = { size -> viewModel.updateBrush(size) }
@@ -53,7 +53,7 @@ fun ArtScreenPreview() {
         Surface(modifier = Modifier.fillMaxSize()) {
 
             ArtScreenContent(
-                drawing = phonyState.drawing,
+                drawing = phonyState.colorDrawing,
                 palette = phonyState.palette,
                 activeColor = phonyState.activeColor,
                 brushPreview = phonyState.brushPreview,
@@ -237,7 +237,7 @@ private fun BrushSizeSlider(
  * @param contentDescription text used by accessibility services to describe what this image
  */
 @Composable
-private fun BitmapImage(
+internal fun BitmapImage(
     pixelGrid: PixelGrid,
     contentDescription: String,
     modifier: Modifier = Modifier,

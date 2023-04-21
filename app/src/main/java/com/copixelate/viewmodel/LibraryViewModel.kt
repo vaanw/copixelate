@@ -12,23 +12,18 @@ import com.copixelate.data.repo.ArtRepo
 import com.copixelate.data.room.RoomAdapter
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class LibraryViewModel(private val repo: ArtRepo) : ViewModel() {
 
     val allSpaces: StateFlow<List<SpaceModel>> =
-        repo.getAllSpaces()
-            .onEach { list ->
-                if (list.isEmpty()) repo.saveSpace(artSpace = ArtSpace())
-            }.stateIn(
+        repo.allSpacesFlow()
+            .stateIn(
                 scope = viewModelScope,
-                initialValue =  emptyList(),
+                initialValue = emptyList(),
                 started = SharingStarted.WhileSubscribed()
-            ).apply {
-                value
-            }
+            )
 
     fun saveArtSpace() {
         viewModelScope.launch {
@@ -36,6 +31,7 @@ class LibraryViewModel(private val repo: ArtRepo) : ViewModel() {
         }
     }
 
+    // ViewModel Factory for using custom arguments
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
