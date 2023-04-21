@@ -16,6 +16,8 @@ class ArtSpace {
     val state = PublicState(this)
 
     class PublicState(private val space: ArtSpace) {
+        val colorDrawing: PixelGrid
+            get() = space.drawing.colorState
         val drawing: PixelGrid
             get() = space.drawing.state
         val palette: PixelGrid
@@ -23,7 +25,7 @@ class ArtSpace {
         val activeColor: PixelGrid
             get() = space.palette.activeColorState
         val brushPreview: PixelGrid
-            get() = space.brushPreview.state
+            get() = space.brushPreview.colorState
         val brushSize get() = space.brush.size
     }
 
@@ -85,13 +87,15 @@ class ArtSpace {
             if (result.isFailure) return result
         }
 
-        clearDrawing(paletteState).let { result ->
+        clearDrawing(drawingState).let { result ->
             if (result.isFailure) {
                 // Restore palette state since we got a bad drawing
                 clearPalette(ogPaletteState)
                 return result
             }
         }
+
+        refreshBrushPreviewBitmap()
 
         return ArtSpaceResult.Success(Unit)
     }
@@ -127,8 +131,6 @@ class ArtSpace {
         palette
             .resize(paletteState.size)
             .clear(paletteState.pixels)
-        drawing
-            .recolor(palette.colors)
 
         return ArtSpaceResult.Success(Unit)
     }

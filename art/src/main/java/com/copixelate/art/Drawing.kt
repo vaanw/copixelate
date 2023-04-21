@@ -8,7 +8,8 @@ internal class Drawing {
     internal var size: Point = Point()
         private set
 
-    val state get() = PixelGrid(size, colorPixels)
+    val colorState get() = PixelGrid(size, colorPixels)
+    val state get() = PixelGrid(size, indexPixels)
 
     internal val lastIndex get() = indexPixels.lastIndex
 

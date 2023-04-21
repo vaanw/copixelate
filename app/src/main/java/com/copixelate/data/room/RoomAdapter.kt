@@ -11,9 +11,10 @@ class RoomAdapter(applicationContext: Context) {
         AppDatabase::class.java, "copixelate-db"
     ).build()
 
-    fun getAllSpaces(): Flow<List<SpaceEntityWithArt>> = db.artDao().getAllSpaces()
-//    suspend fun getSpace(id: Int): SpaceEntityWithArt = db.artDao().findByIdWithArt(id)
-    suspend fun saveSpace(entity: SpaceEntityWithArt): Unit = db.artDao().insertSpaces(entity)
+    fun allSpacesFlow(): Flow<List<SpaceEntityWithArt>> = db.artDao().allSpacesFlow()
+    suspend fun getSpace(id: Long): SpaceEntityWithArt? = db.artDao().findSpaceById(id)
+    suspend fun getDefaultSpace(): SpaceEntityWithArt? = db.artDao().getDefaultSpace()
+    suspend fun saveSpace(entity: SpaceEntityWithArt): List<Long> = db.artDao().insertSpaces(entity)
 
 //    suspend fun saveDrawing(entity: DrawingEntity) = db.artDao().insertAll()
 //    suspend fun savePalette(entity: PaletteEntity) = db.artDao().insertAll()

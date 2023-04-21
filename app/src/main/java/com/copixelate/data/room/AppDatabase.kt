@@ -84,22 +84,28 @@ interface ArtDao {
 
     @Transaction
     @Query("SELECT * FROM space")
-    fun getAllSpaces(): Flow<List<SpaceEntityWithArt>>
+    fun allSpacesFlow(): Flow<List<SpaceEntityWithArt>>
 
     @Transaction
     @Query("SELECT * FROM space WHERE id = (:entityId) LIMIT 1")
-    suspend fun findSpaceById(entityId: Int): SpaceEntityWithArt
+    suspend fun findSpaceById(entityId: Long): SpaceEntityWithArt?
+
+    @Transaction
+    @Query("SELECT * FROM space ORDER BY id ASC LIMIT 1")
+    suspend fun getDefaultSpace(): SpaceEntityWithArt?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertSpaces(vararg entities: SpaceEntity)
+    suspend fun insertSpaces(vararg entities: SpaceEntity): List<Long>
 
-
+    @Transaction
     @Insert
-    suspend fun insertSpaces(vararg spaces: SpaceEntityWithArt) =
-        spaces.forEach { entity ->
-            entity.space.drawingId = insertDrawings(entity.drawing)[0]
-            entity.space.paletteId = insertPalettes(entity.palette)[0]
-            insertSpaces(entity.space)
+    suspend fun insertSpaces(vararg spaces: SpaceEntityWithArt): List<Long> =
+        mutableListOf<Long>().apply {
+            spaces.forEach { entity ->
+                entity.space.drawingId = insertDrawings(entity.drawing)[0]
+                entity.space.paletteId = insertPalettes(entity.palette)[0]
+                add(insertSpaces(entity.space)[0])
+            }
         }
 
     @Delete
