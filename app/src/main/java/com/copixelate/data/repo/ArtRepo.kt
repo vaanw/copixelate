@@ -33,6 +33,9 @@ class ArtRepo(
     private suspend fun getDefaultSpace(): SpaceModel? =
         roomAdapter.getDefaultSpace()?.toModel()
 
+    suspend fun loseSpace(spaceModel: SpaceModel) =
+        roomAdapter.loseSpace(spaceModel.toEntityWithArt())
+
 }
 
 fun ArtSpace.toSpaceModel() =

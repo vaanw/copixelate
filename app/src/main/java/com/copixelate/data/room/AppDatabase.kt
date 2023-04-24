@@ -48,11 +48,13 @@ class PaletteEntity(
     foreignKeys = [ForeignKey(
         entity = DrawingEntity::class,
         parentColumns = ["id"],
-        childColumns = ["drawing_id"]
+        childColumns = ["drawing_id"],
+        onDelete = ForeignKey.CASCADE
     ), ForeignKey(
         entity = PaletteEntity::class,
         parentColumns = ["id"],
-        childColumns = ["palette_id"]
+        childColumns = ["palette_id"],
+        onDelete = ForeignKey.CASCADE
     )]
 )
 data class SpaceEntity(
@@ -92,7 +94,7 @@ interface ArtDao {
 
     @Transaction
     @Query("SELECT * FROM space ORDER BY id ASC LIMIT 1")
-    suspend fun getDefaultSpace(): SpaceEntityWithArt?
+    suspend fun findDefaultSpace(): SpaceEntityWithArt?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertSpaces(vararg entities: SpaceEntity): List<Long>
@@ -113,8 +115,8 @@ interface ArtDao {
 
     // Drawing Queries
 
-    @Query("SELECT * FROM drawing")
-    suspend fun getAllDrawings(): List<DrawingEntity>
+    // @Query("SELECT * FROM drawing")
+    // suspend fun getAllDrawings(): List<DrawingEntity>
 
     @Query("SELECT * FROM drawing WHERE id = (:entityId) LIMIT 1")
     suspend fun findDrawingById(entityId: Int): DrawingEntity
@@ -127,8 +129,8 @@ interface ArtDao {
 
     // Palette Queries
 
-    @Query("SELECT * FROM palette")
-    suspend fun getAllPalettes(): List<PaletteEntity>
+    // @Query("SELECT * FROM palette")
+    // suspend fun getAllPalettes(): List<PaletteEntity>
 
     @Query("SELECT * FROM palette WHERE id = (:entityId) LIMIT 1")
     suspend fun findPaletteById(entityId: Int): PaletteEntity
