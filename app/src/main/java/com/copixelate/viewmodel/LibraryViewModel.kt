@@ -25,9 +25,15 @@ class LibraryViewModel(private val repo: ArtRepo) : ViewModel() {
                 started = SharingStarted.WhileSubscribed()
             )
 
-    fun saveArtSpace() {
+    fun saveArtSpace(artSpace: ArtSpace = ArtSpace()) {
         viewModelScope.launch {
-            repo.saveSpace(artSpace = ArtSpace())
+            repo.saveSpace(artSpace = artSpace)
+        }
+    }
+
+    fun loseArtSpace(spaceModel: SpaceModel) {
+        viewModelScope.launch {
+            repo.loseSpace(spaceModel = spaceModel)
         }
     }
 

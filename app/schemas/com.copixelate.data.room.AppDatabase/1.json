@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "5aacb42bed4f5de877cd5f0ac8192101",
+    "identityHash": "9625fe3aca1de809232aba0ff51c35d4",
     "entities": [
       {
         "tableName": "space",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `drawing_id` INTEGER NOT NULL, `palette_id` INTEGER NOT NULL, `remote_key` TEXT, FOREIGN KEY(`drawing_id`) REFERENCES `drawing`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`palette_id`) REFERENCES `palette`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `drawing_id` INTEGER NOT NULL, `palette_id` INTEGER NOT NULL, `remote_key` TEXT, FOREIGN KEY(`drawing_id`) REFERENCES `drawing`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`palette_id`) REFERENCES `palette`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
@@ -62,7 +62,7 @@
         "foreignKeys": [
           {
             "table": "drawing",
-            "onDelete": "NO ACTION",
+            "onDelete": "CASCADE",
             "onUpdate": "NO ACTION",
             "columns": [
               "drawing_id"
@@ -73,7 +73,7 @@
           },
           {
             "table": "palette",
-            "onDelete": "NO ACTION",
+            "onDelete": "CASCADE",
             "onUpdate": "NO ACTION",
             "columns": [
               "palette_id"
@@ -164,7 +164,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '5aacb42bed4f5de877cd5f0ac8192101')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '9625fe3aca1de809232aba0ff51c35d4')"
     ]
   }
 }

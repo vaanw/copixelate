@@ -1,20 +1,23 @@
 package com.copixelate.ui.screens
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.copixelate.art.ArtSpace
@@ -27,51 +30,178 @@ import com.copixelate.viewmodel.LibraryViewModel
 @Composable
 fun LibraryScreen(libraryViewModel: LibraryViewModel) {
     LibraryScreenContent(
-        spaces = libraryViewModel.allSpaces.collectAsState().value
+        spaces = libraryViewModel.allSpaces.collectAsState().value,
+        onCreateNew = { libraryViewModel.saveArtSpace() },
+        onDelete = { spaceModel -> libraryViewModel.loseArtSpace(spaceModel) }
     )
 }
 
 @Composable
 fun LibraryScreenContent(
-    spaces: List<SpaceModel>
+    spaces: List<SpaceModel>,
+    onCreateNew: () -> Unit,
+    onDelete: (SpaceModel) -> Unit,
 ) {
 
+    val scrollState = rememberLazyListState()
+    var addItemJustOccurred by remember { mutableStateOf(false) }
+
+    val fabHeight = remember { mutableStateOf(0) }
+    val fabClearance = with(LocalDensity.current) { fabHeight.value.toDp() + 16.dp + 16.dp }
+
+    // Scroll to the bottom when a new item is added
+    LaunchedEffect(spaces.size) {
+        if (addItemJustOccurred) {
+            scrollState.scrollToItem(index = spaces.lastIndex)
+            addItemJustOccurred = false
+        }
+    }
+
+    // Library items
+    LazyColumn(
+        state = scrollState,
+        contentPadding = PaddingValues(
+            bottom = fabClearance,
+            top = 16.dp, start = 16.dp, end = 16.dp
+        ),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+
+        itemsIndexed(items = spaces) { index, spaceModel ->
+            LibraryArtSpaceItem(
+                spaceModel = spaceModel,
+                onDelete = onDelete,
+                isNew = addItemJustOccurred && (spaces.lastIndex == index)
+            )
+        }
+
+    }
+    // Fab, add item
     Box(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
     ) {
-        LazyColumn() {
-            items(items = spaces) { spaceModel ->
-                LibraryArtSpaceItem(spaceModel = spaceModel)
-            }
-        }
-        AddItemFab(modifier = Modifier.align(Alignment.BottomEnd))
+        AddItemFab(
+            onClick = {
+                onCreateNew()
+                addItemJustOccurred = true
+            },
+            modifier = Modifier
+                .onGloballyPositioned { coordinates ->
+                    fabHeight.value = coordinates.size.height
+                }
+                .align(Alignment.BottomEnd)
+        )
     }
 
 }
 
 @Composable
-fun LibraryArtSpaceItem(spaceModel: SpaceModel) {
+fun LibraryArtSpaceItem(
+    spaceModel: SpaceModel,
+    isNew: Boolean,
+    onDelete: (SpaceModel) -> Unit
+) {
+
     val artSpace = spaceModel.toArtSpace()
-    BitmapImage(
-        pixelGrid = artSpace.state.colorDrawing,
-        contentDescription = "Localized description",
-        contentScale = ContentScale.FillWidth,
-        modifier = Modifier.fillMaxWidth()
+    val cardShape = CardDefaults.shape
+
+    // Opacity animation for newly created items, out -> in
+    var targetAlpha by remember {
+        mutableStateOf(
+            when (isNew) {
+                true -> 0f; false -> 1f
+            }
+        )
+    }
+    val animatedAlpha: Float by animateFloatAsState(
+        targetValue = targetAlpha,
+        animationSpec = tween(
+            durationMillis = 1000,
+            easing = LinearOutSlowInEasing,
+        ),
     )
-    BitmapImage(
-        pixelGrid = artSpace.state.palette,
-        contentDescription = "Localized description",
-        contentScale = ContentScale.FillWidth,
-        modifier = Modifier.fillMaxWidth()
-    )
+    // Begins the alpha float animation, 0f -> 1f
+    if (isNew) targetAlpha = 1f
+
+    Card(
+        shape = cardShape,
+        modifier = Modifier
+            .fillMaxWidth()
+            .alpha(alpha = animatedAlpha)
+    ) {
+
+        Column {
+            // Drawing image
+            BitmapImage(
+                pixelGrid = artSpace.state.colorDrawing,
+                contentDescription = "Localized description",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(cardShape),
+            )
+            // Icon button row
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(all = 4.dp)
+            ) {
+                // Delete icon button
+                IconButton(
+                    onClick = { onDelete(spaceModel) }
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Delete,
+                        contentDescription = "Localized description"
+                    )
+                }
+                // Dominant-hand icons
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    // Export icon button
+                    IconButton(onClick = { /* Handle click */ }) {
+                        Icon(
+                            imageVector = Icons.Filled.Save,
+                            contentDescription = "Localized description"
+                        )
+                    }
+                    // Share icon button
+                    IconButton(onClick = { /* Handle click */ }) {
+                        Icon(
+                            imageVector = Icons.Filled.Share,
+                            contentDescription = "Localized description"
+                        )
+                    }
+                    // Draw icon button
+                    IconButton(onClick = { /* Handle click */ }) {
+                        Icon(
+                            imageVector = Icons.Filled.Draw,
+                            contentDescription = "Localized description"
+                        )
+                    }
+                }
+
+            } // End Box
+
+        } // End Column
+
+    } // End Card
+
 }
 
 @Composable
-fun AddItemFab(modifier: Modifier = Modifier) {
+fun AddItemFab(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     FloatingActionButton(
-        onClick = { /* do something */ },
+        onClick = onClick,
         modifier = modifier,
     ) {
         Icon(
@@ -90,7 +220,9 @@ fun LibraryScreenPreview() {
                 ArtSpace().toSpaceModel(),
                 ArtSpace().toSpaceModel(),
                 ArtSpace().toSpaceModel(),
-            )
+            ),
+            onCreateNew = {},
+            onDelete = {}
         )
     }
 }
