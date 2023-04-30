@@ -65,18 +65,18 @@ private fun PixelGrid.toPaletteModel() =
 
 private fun Point.toSizeModel() = SizeModel(x = x, y = y)
 
-private fun Long.toIDModel() = IDModel(localID = this)
+private fun Long.toIDModel() = IdModel(localId = this)
 
 private fun List<Int>.toSizeModel() = SizeModel(x = this[0], y = this[1])
 
 private fun DrawingEntity.toModel() = DrawingModel(
-    id = IDModel(localID = id),
+    id = IdModel(localId = id),
     size = size.toSizeModel(),
     pixels = pixels
 )
 
 private fun PaletteEntity.toModel() = PaletteModel(
-    id = IDModel(localID = id),
+    id = IdModel(localId = id),
     size = size.toSizeModel(),
     pixels = pixels
 )
@@ -90,10 +90,10 @@ private fun SpaceEntityWithArt.toModel(): SpaceModel = SpaceModel(
 private fun SizeModel.toIntList() = listOf(x, y)
 
 private fun SpaceModel.toEntity() = SpaceEntity(
-    id = id.localID ?: 0,
-    drawingId = drawing.id.localID ?: 0,
-    paletteId = palette.id.localID ?: 0,
-    remoteKey = id.remoteID
+    id = id.localId ?: 0,
+    drawingId = drawing.id.localId ?: 0,
+    paletteId = palette.id.localId ?: 0,
+    remoteKey = id.remoteId
 )
 
 private fun SpaceModel.toEntityWithArt() = SpaceEntityWithArt(
@@ -103,17 +103,17 @@ private fun SpaceModel.toEntityWithArt() = SpaceEntityWithArt(
 )
 
 private fun DrawingModel.toEntity() = DrawingEntity(
-    id = id.localID ?: 0,
+    id = id.localId ?: 0,
     pixels = pixels,
     size = this.size.toIntList(),
-    remoteKey = id.remoteID
+    remoteKey = id.remoteId
 )
 
 private fun PaletteModel.toEntity() = PaletteEntity(
-    id = id.localID ?: 0,
+    id = id.localId ?: 0,
     pixels = pixels,
     size = this.size.toIntList(),
-    remoteKey = id.remoteID
+    remoteKey = id.remoteId
 )
 
 private fun DrawingModel.toPixelGrid() = PixelGrid(

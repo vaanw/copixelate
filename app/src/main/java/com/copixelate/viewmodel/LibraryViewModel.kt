@@ -7,7 +7,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.copixelate.art.ArtSpace
-import com.copixelate.data.model.IDModel
+import com.copixelate.data.model.IdModel
 import com.copixelate.data.model.SpaceModel
 import com.copixelate.data.proto.uiStateDataStore
 import com.copixelate.data.repo.ArtRepo
@@ -41,9 +41,9 @@ class LibraryViewModel(
             artRepo.loseSpace(spaceModel = spaceModel)
         }
 
-    fun updateCurrentSpaceId(newId: IDModel) =
+    fun updateCurrentSpaceId(newId: IdModel) =
         viewModelScope.launch {
-            newId.localID?.let {
+            newId.localId?.let {
                 uiRepo.saveCurrentSpaceId(spaceId = it)
             }
         }
