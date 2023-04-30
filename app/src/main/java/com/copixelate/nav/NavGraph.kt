@@ -29,7 +29,10 @@ fun SetupNavGraph(
         }
 
         composable(route = NavInfo.Library.route) {
-            LibraryScreen(libraryViewModel = libraryViewModel)
+            LibraryScreen(
+                navController = navController,
+                libraryViewModel = libraryViewModel
+            )
         }
 
         composable(route = NavInfo.Login.route) {

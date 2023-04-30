@@ -20,19 +20,27 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import com.copixelate.art.ArtSpace
 import com.copixelate.data.model.SpaceModel
 import com.copixelate.data.repo.toArtSpace
 import com.copixelate.data.repo.toSpaceModel
+import com.copixelate.nav.NavInfo
 import com.copixelate.ui.util.PreviewSurface
 import com.copixelate.viewmodel.LibraryViewModel
 
 @Composable
-fun LibraryScreen(libraryViewModel: LibraryViewModel) {
+fun LibraryScreen(navController: NavHostController, libraryViewModel: LibraryViewModel) {
     LibraryScreenContent(
         spaces = libraryViewModel.allSpaces.collectAsState().value,
         onCreateNew = { libraryViewModel.saveArtSpace() },
-        onDelete = { spaceModel -> libraryViewModel.loseArtSpace(spaceModel) }
+        onDelete = { spaceModel ->
+            libraryViewModel.loseArtSpace(spaceModel)
+        },
+        onOpen = { spaceModel ->
+            libraryViewModel.updateCurrentSpaceId(spaceModel.id)
+            navController.navigate(NavInfo.Art.route)
+        }
     )
 }
 
@@ -41,6 +49,7 @@ fun LibraryScreenContent(
     spaces: List<SpaceModel>,
     onCreateNew: () -> Unit,
     onDelete: (SpaceModel) -> Unit,
+    onOpen: (SpaceModel) -> Unit,
 ) {
 
     val scrollState = rememberLazyListState()
@@ -70,8 +79,9 @@ fun LibraryScreenContent(
         itemsIndexed(items = spaces) { index, spaceModel ->
             LibraryArtSpaceItem(
                 spaceModel = spaceModel,
+                isNew = addItemJustOccurred && (spaces.lastIndex == index),
                 onDelete = onDelete,
-                isNew = addItemJustOccurred && (spaces.lastIndex == index)
+                onOpen = onOpen,
             )
         }
 
@@ -101,7 +111,8 @@ fun LibraryScreenContent(
 fun LibraryArtSpaceItem(
     spaceModel: SpaceModel,
     isNew: Boolean,
-    onDelete: (SpaceModel) -> Unit
+    onDelete: (SpaceModel) -> Unit,
+    onOpen: (SpaceModel) -> Unit
 ) {
 
     val artSpace = spaceModel.toArtSpace()
@@ -178,8 +189,10 @@ fun LibraryArtSpaceItem(
                             contentDescription = "Localized description"
                         )
                     }
-                    // Draw icon button
-                    IconButton(onClick = { /* Handle click */ }) {
+                    // Open icon button
+                    IconButton(
+                        onClick = { onOpen(spaceModel) }
+                    ) {
                         Icon(
                             imageVector = Icons.Filled.Draw,
                             contentDescription = "Localized description"
@@ -222,7 +235,8 @@ fun LibraryScreenPreview() {
                 ArtSpace().toSpaceModel(),
             ),
             onCreateNew = {},
-            onDelete = {}
+            onDelete = {},
+            onOpen = {},
         )
     }
 }
