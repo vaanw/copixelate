@@ -18,8 +18,8 @@ import com.copixelate.data.*
 import com.copixelate.nav.NavInfo
 import com.copixelate.ui.components.SecretTextInputField
 import com.copixelate.ui.components.ValidatedTextInputField
-import com.copixelate.ui.theme.CopixelateTheme
 import com.copixelate.ui.util.InputValidation
+import com.copixelate.ui.util.PreviewSurface
 import com.copixelate.viewmodel.NavViewModel
 import kotlinx.coroutines.launch
 
@@ -66,19 +66,6 @@ fun AuthScreen(navController: NavController, navViewModel: NavViewModel) {
         onSignUp = onSignUp,
         onSignIn = onSignIn
     )
-
-}
-
-@Preview
-@Composable
-fun AuthScreenPreview() {
-
-    CopixelateTheme(darkTheme = true) {
-        AuthScreenContent(
-            onSignUp = { _, _, _ -> },
-            onSignIn = { _, _ -> }
-        )
-    }
 
 }
 
@@ -253,3 +240,16 @@ private fun AuthForm(
     }// End Column
 
 }// End AuthForm
+
+@Preview
+@Composable
+fun AuthScreenPreview() {
+
+    PreviewSurface {
+        AuthScreenContent(
+            onSignUp = { _, _, _ -> },
+            onSignIn = { _, _ -> }
+        )
+    }
+
+}

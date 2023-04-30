@@ -6,7 +6,6 @@ import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Slider
-import androidx.compose.material3.Surface
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -20,12 +19,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
-import com.copixelate.ui.theme.CopixelateTheme
-import com.copixelate.art.Point
-import com.copixelate.art.PointF
-import com.copixelate.viewmodel.ArtViewModel
 import com.copixelate.art.ArtSpace
 import com.copixelate.art.PixelGrid
+import com.copixelate.art.Point
+import com.copixelate.art.PointF
+import com.copixelate.ui.util.PreviewSurface
+import com.copixelate.viewmodel.ArtViewModel
 
 @Composable
 fun ArtScreen(viewModel: ArtViewModel) {
@@ -40,31 +39,6 @@ fun ArtScreen(viewModel: ArtViewModel) {
         onTouchPalette = { unitPosition -> viewModel.updatePalette(unitPosition) },
         onBrushSizeUpdate = { size -> viewModel.updateBrush(size) }
     )
-
-}
-
-@Preview
-@Composable
-fun ArtScreenPreview() {
-
-    val phonyState = ArtSpace().state
-
-    CopixelateTheme(darkTheme = true) {
-        Surface(modifier = Modifier.fillMaxSize()) {
-
-            ArtScreenContent(
-                drawing = phonyState.colorDrawing,
-                palette = phonyState.palette,
-                activeColor = phonyState.activeColor,
-                brushPreview = phonyState.brushPreview,
-                initialBrushSize = phonyState.brushSize,
-                onTouchDrawing = {},
-                onTouchPalette = {},
-                onBrushSizeUpdate = {}
-            )
-
-        }
-    }
 
 }
 
@@ -258,4 +232,25 @@ internal fun BitmapImage(
         modifier = modifier,
         contentScale = contentScale
     )
+}
+
+@Preview
+@Composable
+fun ArtScreenPreview() {
+
+    val phonyState = ArtSpace().state
+
+    PreviewSurface {
+        ArtScreenContent(
+            drawing = phonyState.colorDrawing,
+            palette = phonyState.palette,
+            activeColor = phonyState.activeColor,
+            brushPreview = phonyState.brushPreview,
+            initialBrushSize = phonyState.brushSize,
+            onTouchDrawing = {},
+            onTouchPalette = {},
+            onBrushSizeUpdate = {}
+        )
+    }
+
 }
