@@ -19,7 +19,6 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
-import com.copixelate.R
 import com.copixelate.ui.util.InputValidity
 
 @Composable
@@ -55,31 +54,14 @@ fun ValidatedTextInputField(
 
             )
 
-        if (isError) {
-
-            val resourceId: Int = when (validity as InputValidity.Invalid) {
-                InputValidity.Invalid.Email.Invalid -> R.string.invalid_email
-
-                InputValidity.Invalid.DisplayName.TooShort -> R.string.invalid_display_name_too_short
-                InputValidity.Invalid.DisplayName.TooLong -> R.string.invalid_display_name_too_long
-
-                InputValidity.Invalid.Password.TooShort -> R.string.invalid_password_too_short
-                InputValidity.Invalid.Password.TooLong -> R.string.invalid_password_too_long
-                InputValidity.Invalid.Password.NoMatch -> R.string.invalid_password_no_match
-            }
-
-            if (resourceId != 0) {
-                val errorText: String = stringResource(resourceId)
-
-                Text(
-                    text = errorText,
-                    color = MaterialTheme.colorScheme.error,
-                    style = MaterialTheme.typography.labelSmall,
-                    modifier = Modifier.padding(start = 8.dp, bottom = 0.dp)
-                )
-            }
-
-        }// End "if (isError)"
+        if (isError && validity is InputValidity.Invalid) {
+            Text(
+                text = stringResource(validity.stringId),
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.labelSmall,
+                modifier = Modifier.padding(start = 8.dp, bottom = 0.dp)
+            )
+        }
 
     }// End Column
 

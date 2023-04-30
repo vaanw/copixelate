@@ -17,6 +17,7 @@ import com.copixelate.ThemeSetting
 import com.copixelate.nav.NavInfo
 import com.copixelate.nav.SetupNavGraph
 import com.copixelate.ui.theme.CopixelateTheme
+import com.copixelate.ui.util.PreviewSurface
 import com.copixelate.viewmodel.ArtViewModel
 import com.copixelate.viewmodel.LibraryViewModel
 import com.copixelate.viewmodel.NavViewModel
@@ -140,8 +141,7 @@ fun NavBarBuilder(
 @Composable
 fun NavBarPreview() {
 
-    CopixelateTheme(darkTheme = true) {
-        Surface(modifier = Modifier.fillMaxSize()) {
+    PreviewSurface {
             Box {
                 Surface(modifier = Modifier.align(Alignment.BottomCenter)) {
 
@@ -155,7 +155,6 @@ fun NavBarPreview() {
                 }
 
             } // End Box
-        } // End Surface
-    } // End CopixelateTheme
+    } // End PreviewSurface
 
 }

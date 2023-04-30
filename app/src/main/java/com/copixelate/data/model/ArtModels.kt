@@ -1,24 +1,24 @@
 package com.copixelate.data.model
 
-data class IDModel(
-    val localID: Long? = null,
-    val remoteID: String? = null,
+data class IdModel(
+    val localId: Long? = null,
+    val remoteId: String? = null,
 )
 
 data class SpaceModel(
-    val id: IDModel = IDModel(),
+    val id: IdModel = IdModel(),
     val drawing: DrawingModel,
     val palette: PaletteModel,
 )
 
 data class DrawingModel(
-    val id: IDModel = IDModel(),
+    val id: IdModel = IdModel(),
     val size: SizeModel = SizeModel(),
     val pixels: List<Int> = emptyList(),
 )
 
 data class PaletteModel(
-    val id: IDModel = IDModel(),
+    val id: IdModel = IdModel(),
     val size: SizeModel = SizeModel(),
     val pixels: List<Int> = emptyList(),
 )
