@@ -1,27 +1,26 @@
 package com.copixelate.viewmodel
 
-import android.app.Application
 import android.util.Log
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.initializer
-import androidx.lifecycle.viewmodel.viewModelFactory
-import com.copixelate.art.*
-import com.copixelate.data.proto.uiStateDataStore
+import com.copixelate.art.ArtSpace
+import com.copixelate.art.ArtSpaceResult
+import com.copixelate.art.PointF
+import com.copixelate.data.model.SpaceModel
 import com.copixelate.data.repo.ArtRepo
 import com.copixelate.data.repo.UiRepo
 import com.copixelate.data.repo.toArtSpace
-import com.copixelate.data.room.RoomAdapter
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
-class ArtViewModel(
-    private val artRepo: ArtRepo,
-    private val uiRepo: UiRepo
-) : ViewModel() {
+class ArtViewModel : ViewModel() {
+
+    private val artRepo = ArtRepo
+    private val uiRepo = UiRepo
 
     private var artSpace = ArtSpace()
 
@@ -37,25 +36,32 @@ class ArtViewModel(
     val brushPreview = _brushPreview.asStateFlow()
     val brushSize = _brushSize.asStateFlow()
 
-
     init {
         viewModelScope.launch {
             @OptIn(ExperimentalCoroutinesApi::class)
-            uiRepo.currentSpaceIdFlow
+            uiRepo.currentSpaceIdFlow()
                 .flatMapLatest { currentId ->
-                    flowOf<ArtSpace>(getSpaceByIdOrCreateDefault(spaceId = currentId))
+                    // Find SpaceModel using currentId
+                    artRepo.spaceByIdFlow(id = currentId)
+                        .map { model: SpaceModel? ->
+                            model?.toArtSpace()
+                            // if SpaceModel is not found, find a default
+                                ?: artRepo.getDefaultSpace()?.also { spaceModel ->
+                                    // localId should never be null since it's provided by Room
+                                    uiRepo.saveCurrentSpaceId(spaceId = spaceModel.id.localId!!)
+                                }?.toArtSpace()
+                                // if a default SpaceModel is not found, create a new one
+                                ?: artSpace.also { value ->
+                                    val newId = artRepo.saveSpace(artSpace = value)[0]
+                                    uiRepo.saveCurrentSpaceId(spaceId = newId)
+                                }
+                        }
                 }.collect { newArtSpace ->
                     refreshArtSpace(newArtSpace = newArtSpace)
                 }
-        }
-    }
 
-    private suspend fun getSpaceByIdOrCreateDefault(spaceId: Long): ArtSpace =
-        artRepo.getSpaceByIdOrDefault(id = spaceId)?.toArtSpace()
-            ?: artSpace.also { artSpace: ArtSpace ->
-                val newId = artRepo.saveSpace(artSpace = artSpace)[0]
-                uiRepo.saveCurrentSpaceId(spaceId = newId)
-            }
+        } // End viewModelScope.launch()
+    } // End init()
 
     private fun refreshArtSpace(newArtSpace: ArtSpace) {
         artSpace = newArtSpace
@@ -64,7 +70,6 @@ class ArtViewModel(
         _activeColor.value = artSpace.state.activeColor
         _brushPreview.value = artSpace.state.brushPreview
     }
-
 
     fun updateDrawing(unitPosition: PointF) =
         viewModelScope.launch {
@@ -100,18 +105,5 @@ class ArtViewModel(
             _brushSize.value = artSpace.state.brushSize
             _brushPreview.value = artSpace.state.brushPreview
         }
-
-    // ViewModel Factory for using custom arguments
-    companion object {
-        val Factory: ViewModelProvider.Factory = viewModelFactory {
-            initializer {
-                val context = (this[APPLICATION_KEY] as Application).applicationContext
-                ArtViewModel(
-                    artRepo = ArtRepo(roomAdapter = RoomAdapter(context)),
-                    uiRepo = UiRepo(dataStore = context.uiStateDataStore)
-                )
-            }
-        }
-    }
 
 }

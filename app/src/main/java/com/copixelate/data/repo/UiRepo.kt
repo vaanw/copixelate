@@ -5,9 +5,15 @@ import com.copixelate.UiState
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
-class UiRepo(private val dataStore: DataStore<UiState>) {
+object UiRepo {
 
-    val currentSpaceIdFlow: Flow<Long> = dataStore.data
+    private lateinit var dataStore: DataStore<UiState>
+
+    fun init(dataStore: DataStore<UiState>){
+        this.dataStore = dataStore
+    }
+
+    fun currentSpaceIdFlow(): Flow<Long> = dataStore.data
         .map { uiState -> uiState.currentSpaceId }
 
     suspend fun saveCurrentSpaceId(spaceId: Long) =

@@ -1,5 +1,6 @@
 package com.copixelate.data.repo
 
+import android.content.Context
 import com.copixelate.art.ArtSpace
 import com.copixelate.art.PixelGrid
 import com.copixelate.art.Point
@@ -7,30 +8,32 @@ import com.copixelate.data.firebase.FirebaseAdapter
 import com.copixelate.data.model.*
 import com.copixelate.data.room.*
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 
-class ArtRepo(
-    private val roomAdapter: RoomAdapter,
-    private val firebaseAdapter: FirebaseAdapter = FirebaseAdapter()
-) {
+object ArtRepo {
+
+    private val roomAdapter = RoomAdapter
+    private val firebaseAdapter = FirebaseAdapter
+
+    fun init(applicationContext: Context) = RoomAdapter.init(applicationContext)
 
     suspend fun saveSpace(artSpace: ArtSpace): List<Long> =
         roomAdapter.saveSpace(artSpace.toSpaceModel().toEntityWithArt())
 
     fun allSpacesFlow(): Flow<List<SpaceModel>> =
         roomAdapter.allSpacesFlow().map { list ->
-            list.map { entity ->
+            list.map { entity: SpaceEntityWithArt ->
                 entity.toModel()
             }
         }
 
-    suspend fun getSpaceByIdOrDefault(id: Long): SpaceModel? =
-        getSpaceById(id) ?: getDefaultSpace()
+    fun spaceByIdFlow(id: Long): Flow<SpaceModel?> =
+        roomAdapter.spaceByIdFlow(id = id).map { entity: SpaceEntityWithArt? ->
+            entity?.toModel()
+        }.distinctUntilChanged()
 
-    private suspend fun getSpaceById(id: Long): SpaceModel? =
-        roomAdapter.getSpace(id)?.toModel()
-
-    private suspend fun getDefaultSpace(): SpaceModel? =
+    suspend fun getDefaultSpace(): SpaceModel? =
         roomAdapter.getDefaultSpace()?.toModel()
 
     suspend fun loseSpace(spaceModel: SpaceModel) =

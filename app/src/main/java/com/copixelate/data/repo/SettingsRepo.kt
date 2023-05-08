@@ -6,9 +6,15 @@ import com.copixelate.UserSettings
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
-class SettingsRepo(private val dataStore: DataStore<UserSettings>) {
+object SettingsRepo {
 
-    val themeSettingFlow: Flow<ThemeSetting> = dataStore.data
+    private lateinit var dataStore: DataStore<UserSettings>
+
+    fun init(dataStore: DataStore<UserSettings>) {
+        this.dataStore = dataStore
+    }
+
+    fun themeSettingFlow(): Flow<ThemeSetting> = dataStore.data
         .map { settings ->
             ThemeSetting.forNumber(settings.themeSettingValue)
         }
