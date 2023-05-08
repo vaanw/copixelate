@@ -2,9 +2,9 @@ package com.copixelate.data.room
 
 import androidx.room.*
 import kotlinx.coroutines.flow.Flow
-import kotlinx.serialization.json.Json
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 
 @Database(
     entities = [SpaceEntity::class, DrawingEntity::class, PaletteEntity::class],
@@ -84,15 +84,12 @@ interface ArtDao {
 
     // Space Queries
 
-    @Transaction
     @Query("SELECT * FROM space")
     fun allSpacesFlow(): Flow<List<SpaceEntityWithArt>>
 
-    @Transaction
     @Query("SELECT * FROM space WHERE id = (:entityId) LIMIT 1")
-    suspend fun findSpaceById(entityId: Long): SpaceEntityWithArt?
+    fun spaceByIdFlow(entityId: Long): Flow<SpaceEntityWithArt?>
 
-    @Transaction
     @Query("SELECT * FROM space ORDER BY id ASC LIMIT 1")
     suspend fun findDefaultSpace(): SpaceEntityWithArt?
 
