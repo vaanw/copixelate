@@ -1,5 +1,9 @@
 package com.copixelate.data.model
 
+import com.copixelate.art.ArtSpace
+import com.copixelate.data.repo.toDrawingModel
+import com.copixelate.data.repo.toPaletteModel
+
 data class IdModel(
     val localId: Long? = null,
     val remoteId: String? = null,
@@ -31,4 +35,9 @@ data class SizeModel(
 data class UpdateModel(
     val key: Int,
     val value: Int
+)
+
+fun SpaceModel.copyFrom(artSpace: ArtSpace) = copy(
+    drawing = artSpace.state.drawing.toDrawingModel().copy(id = this.drawing.id),
+    palette = artSpace.state.palette.toPaletteModel().copy(id = this.palette.id)
 )
