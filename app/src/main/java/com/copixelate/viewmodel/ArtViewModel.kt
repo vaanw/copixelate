@@ -7,14 +7,13 @@ import com.copixelate.art.ArtSpace
 import com.copixelate.art.ArtSpaceResult
 import com.copixelate.art.PointF
 import com.copixelate.data.model.SpaceModel
+import com.copixelate.data.model.copyFrom
 import com.copixelate.data.repo.ArtRepo
 import com.copixelate.data.repo.UiRepo
 import com.copixelate.data.repo.toArtSpace
+import com.copixelate.data.repo.toSpaceModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 class ArtViewModel : ViewModel() {
@@ -23,6 +22,7 @@ class ArtViewModel : ViewModel() {
     private val uiRepo = UiRepo
 
     private var artSpace = ArtSpace()
+    private var spaceModel = artSpace.toSpaceModel()
 
     private val _drawing = MutableStateFlow(artSpace.state.colorDrawing)
     private val _palette = MutableStateFlow(artSpace.state.palette)
@@ -37,29 +37,37 @@ class ArtViewModel : ViewModel() {
     val brushSize = _brushSize.asStateFlow()
 
     init {
+        // Determine appropriate SpaceModel to display
         viewModelScope.launch {
             @OptIn(ExperimentalCoroutinesApi::class)
+            // Find SpaceModel using currentId
             uiRepo.currentSpaceIdFlow()
                 .flatMapLatest { currentId ->
-                    // Find SpaceModel using currentId
                     artRepo.spaceByIdFlow(id = currentId)
-                        .map { model: SpaceModel? ->
-                            model?.toArtSpace()
-                            // if SpaceModel is not found, find a default
-                                ?: artRepo.getDefaultSpace()?.also { spaceModel ->
-                                    // localId should never be null since it's provided by Room
-                                    uiRepo.saveCurrentSpaceId(spaceId = spaceModel.id.localId!!)
-                                }?.toArtSpace()
-                                // if a default SpaceModel is not found, create a new one
-                                ?: artSpace.also { value ->
-                                    val newId = artRepo.saveSpace(artSpace = value)[0]
-                                    uiRepo.saveCurrentSpaceId(spaceId = newId)
-                                }
-                        }
-                }.collect { newArtSpace ->
-                    refreshArtSpace(newArtSpace = newArtSpace)
                 }
+                .collect { newSpaceModel: SpaceModel? ->
 
+                    if (newSpaceModel?.id == spaceModel.id) return@collect
+
+                    newSpaceModel
+                        // if SpaceModel is found, refresh
+                        ?.let { value: SpaceModel ->
+                            spaceModel = value
+                            refreshArtSpace(newArtSpace = value.toArtSpace())
+                        }
+                    // if SpaceModel is not found, find a default
+                        ?: artRepo.getDefaultSpace()
+                            ?.also { value: SpaceModel ->
+                                // localId should never be null since it's provided by Room
+                                uiRepo.saveCurrentSpaceId(spaceId = value.id.localId!!)
+                            }
+                        // if a default SpaceModel is not found, create a new one
+                        ?: run {
+                            val newId = artRepo.saveSpace(artSpace = artSpace)
+                            uiRepo.saveCurrentSpaceId(spaceId = newId)
+                        }
+
+                } // End collect()
         } // End viewModelScope.launch()
     } // End init()
 
@@ -76,7 +84,12 @@ class ArtViewModel : ViewModel() {
 
             artSpace.updateDrawing(unitPosition).let { result ->
                 when (result) {
-                    is ArtSpaceResult.Success -> _drawing.value = artSpace.state.colorDrawing
+                    is ArtSpaceResult.Success -> {
+                        _drawing.value = artSpace.state.colorDrawing
+                        artRepo.saveSpace(
+                            spaceModel = spaceModel.copyFrom(artSpace = artSpace)
+                        )
+                    }
                     is ArtSpaceResult.Failure -> Log.d(javaClass.simpleName, result.toString())
                 }
             }

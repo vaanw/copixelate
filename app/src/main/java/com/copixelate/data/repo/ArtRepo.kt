@@ -18,8 +18,11 @@ object ArtRepo {
 
     fun init(applicationContext: Context) = RoomAdapter.init(applicationContext)
 
-    suspend fun saveSpace(artSpace: ArtSpace): List<Long> =
-        roomAdapter.saveSpace(artSpace.toSpaceModel().toEntityWithArt())
+    suspend fun saveSpace(spaceModel: SpaceModel): Long =
+        roomAdapter.saveSpace(spaceModel.toEntityWithArt())[0]
+
+    suspend fun saveSpace(artSpace: ArtSpace): Long =
+        saveSpace(artSpace.toSpaceModel())
 
     fun allSpacesFlow(): Flow<List<SpaceModel>> =
         roomAdapter.allSpacesFlow().map { list ->
@@ -54,13 +57,13 @@ fun SpaceModel.toArtSpace() = ArtSpace().apply {
     )
 }
 
-private fun PixelGrid.toDrawingModel() =
+fun PixelGrid.toDrawingModel() =
     DrawingModel(
         size = this.size.toSizeModel(),
         pixels = this.pixels.asList()
     )
 
-private fun PixelGrid.toPaletteModel() =
+fun PixelGrid.toPaletteModel() =
     PaletteModel(
         size = this.size.toSizeModel(),
         pixels = this.pixels.asList()

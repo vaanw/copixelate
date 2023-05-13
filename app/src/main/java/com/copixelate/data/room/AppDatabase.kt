@@ -97,7 +97,6 @@ interface ArtDao {
     suspend fun insertSpaces(vararg entities: SpaceEntity): List<Long>
 
     @Transaction
-    @Insert
     suspend fun insertSpaces(vararg spaces: SpaceEntityWithArt): List<Long> =
         mutableListOf<Long>().apply {
             spaces.forEach { entity ->
