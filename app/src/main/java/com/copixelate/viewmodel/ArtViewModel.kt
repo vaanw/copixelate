@@ -26,13 +26,11 @@ class ArtViewModel : ViewModel() {
 
     private val _drawing = MutableStateFlow(artSpace.state.colorDrawing)
     private val _palette = MutableStateFlow(artSpace.state.palette)
-    private val _activeColor = MutableStateFlow(artSpace.state.activeColor)
     private val _brushPreview = MutableStateFlow(artSpace.state.brushPreview)
     private val _brushSize = MutableStateFlow(artSpace.state.brushSize)
 
     val drawing = _drawing.asStateFlow()
     val palette = _palette.asStateFlow()
-    val activeColor = _activeColor.asStateFlow()
     val brushPreview = _brushPreview.asStateFlow()
     val brushSize = _brushSize.asStateFlow()
 
@@ -75,7 +73,6 @@ class ArtViewModel : ViewModel() {
         artSpace = newArtSpace
         _drawing.value = artSpace.state.colorDrawing
         _palette.value = artSpace.state.palette
-        _activeColor.value = artSpace.state.activeColor
         _brushPreview.value = artSpace.state.brushPreview
     }
 
@@ -96,19 +93,19 @@ class ArtViewModel : ViewModel() {
 
         }
 
-    fun updatePalette(unitPosition: PointF) =
+    fun updatePaletteActiveIndex(paletteIndex: Int) =
         viewModelScope.launch {
 
-            artSpace.updatePalette(unitPosition).let { result ->
-                when (result) {
-                    is ArtSpaceResult.Success -> {
-                        _palette.value = artSpace.state.palette
-                        _activeColor.value = artSpace.state.activeColor
-                        _brushPreview.value = artSpace.state.brushPreview
+            artSpace.updatePaletteActiveIndex(paletteIndex = paletteIndex)
+                .let { result ->
+                    when (result) {
+                        is ArtSpaceResult.Success -> {
+                            _palette.value = artSpace.state.palette
+                            _brushPreview.value = artSpace.state.brushPreview
+                        }
+                        is ArtSpaceResult.Failure -> Log.d(javaClass.simpleName, result.toString())
                     }
-                    is ArtSpaceResult.Failure -> Log.d(javaClass.simpleName, result.toString())
                 }
-            }
 
         }
 
