@@ -6,12 +6,12 @@ import androidx.lifecycle.viewModelScope
 import com.copixelate.art.ArtSpace
 import com.copixelate.art.ArtSpaceResult
 import com.copixelate.art.PointF
-import com.copixelate.data.model.SpaceModel
-import com.copixelate.data.model.copyFrom
 import com.copixelate.data.repo.ArtRepo
 import com.copixelate.data.repo.UiRepo
-import com.copixelate.data.repo.toArtSpace
-import com.copixelate.data.repo.toSpaceModel
+import com.copixelate.data.model.SpaceModel
+import com.copixelate.data.model.copyFrom
+import com.copixelate.data.model.toArtSpace
+import com.copixelate.data.model.toModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -22,7 +22,7 @@ class ArtViewModel : ViewModel() {
     private val uiRepo = UiRepo
 
     private var artSpace = ArtSpace()
-    private var spaceModel = artSpace.toSpaceModel()
+    private var spaceModel = artSpace.toModel()
 
     private val _drawing = MutableStateFlow(artSpace.state.colorDrawing)
     private val _palette = MutableStateFlow(artSpace.state.palette)

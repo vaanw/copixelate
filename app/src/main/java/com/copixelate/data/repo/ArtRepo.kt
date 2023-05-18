@@ -2,12 +2,12 @@ package com.copixelate.data.repo
 
 import android.content.Context
 import com.copixelate.art.ArtSpace
-import com.copixelate.art.PixelGrid
-import com.copixelate.art.PixelRow
-import com.copixelate.art.Point
 import com.copixelate.data.firebase.FirebaseAdapter
-import com.copixelate.data.model.*
-import com.copixelate.data.room.*
+import com.copixelate.data.model.SpaceModel
+import com.copixelate.data.model.toEntityWithArt
+import com.copixelate.data.model.toModel
+import com.copixelate.data.room.RoomAdapter
+import com.copixelate.data.room.SpaceEntityWithArt
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
@@ -23,7 +23,7 @@ object ArtRepo {
         roomAdapter.saveSpace(spaceModel.toEntityWithArt())[0]
 
     suspend fun saveSpace(artSpace: ArtSpace): Long =
-        saveSpace(artSpace.toSpaceModel())
+        saveSpace(artSpace.toModel())
 
     fun allSpacesFlow(): Flow<List<SpaceModel>> =
         roomAdapter.allSpacesFlow().map { list ->
@@ -45,96 +45,7 @@ object ArtRepo {
 
 }
 
-fun ArtSpace.toSpaceModel() =
-    SpaceModel(
-        drawing = this.state.drawing.toDrawingModel(),
-        palette = this.state.palette.toPaletteModel()
-    )
 
-fun SpaceModel.toArtSpace() = ArtSpace().apply {
-    clear(
-        drawingState = drawing.toPixelGrid(),
-        paletteState = palette.toPixelRow(),
-    )
-}
-
-fun PixelGrid.toDrawingModel() =
-    DrawingModel(
-        size = this.size.toSizeModel(),
-        pixels = this.pixels.asList()
-    )
-
-fun PixelRow.toPaletteModel() =
-    PaletteModel(
-        pixels = this.pixels.asList()
-    )
-
-private fun Point.toSizeModel() = SizeModel(x = x, y = y)
-
-private fun Long.toIDModel() = IdModel(localId = this)
-
-private fun List<Int>.toSizeModel() = SizeModel(x = this[0], y = this[1])
-
-private fun DrawingEntity.toModel() = DrawingModel(
-    id = IdModel(localId = id),
-    size = size.toSizeModel(),
-    pixels = pixels
-)
-
-private fun PaletteEntity.toModel() = PaletteModel(
-    id = IdModel(localId = id),
-    size = size.toSizeModel(),
-    pixels = pixels
-)
-
-private fun SpaceEntityWithArt.toModel(): SpaceModel = SpaceModel(
-    id = this.space.id.toIDModel(),
-    drawing = drawing.toModel(),
-    palette = palette.toModel(),
-)
-
-private fun SizeModel.toIntList() = listOf(x, y)
-
-private fun SpaceModel.toEntity() = SpaceEntity(
-    id = id.localId ?: 0,
-    drawingId = drawing.id.localId ?: 0,
-    paletteId = palette.id.localId ?: 0,
-    remoteKey = id.remoteId
-)
-
-private fun SpaceModel.toEntityWithArt() = SpaceEntityWithArt(
-    space = this.toEntity(),
-    drawing = this.drawing.toEntity(),
-    palette = this.palette.toEntity()
-)
-
-private fun DrawingModel.toEntity() = DrawingEntity(
-    id = id.localId ?: 0,
-    pixels = pixels,
-    size = this.size.toIntList(),
-    remoteKey = id.remoteId
-)
-
-private fun PaletteModel.toEntity() = PaletteEntity(
-    id = id.localId ?: 0,
-    pixels = pixels,
-    size = this.size.toIntList(),
-    remoteKey = id.remoteId
-)
-
-private fun DrawingModel.toPixelGrid() = PixelGrid(
-    size = size.toPoint(),
-    pixels = this.pixels.toIntArray()
-)
-
-private fun PaletteModel.toPixelRow() = PixelRow(
-    pixels = this.pixels.toIntArray()
-)
-
-private fun SizeModel.toPoint() = Point(
-    x = x,
-    y = y
-)
 
 // ViewModel functions
 // getAllSpaces
