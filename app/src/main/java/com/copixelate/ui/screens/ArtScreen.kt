@@ -1,17 +1,15 @@
 package com.copixelate.ui.screens
 
-import android.graphics.Bitmap
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.Slider
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.FilterQuality
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -19,11 +17,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
-import com.copixelate.art.ArtSpace
-import com.copixelate.art.PixelGrid
-import com.copixelate.art.Point
-import com.copixelate.art.PointF
+import androidx.compose.ui.unit.max
+import com.copixelate.art.*
+import com.copixelate.ui.components.BitmapImage
 import com.copixelate.ui.util.PreviewSurface
+import com.copixelate.ui.util.toDp
 import com.copixelate.viewmodel.ArtViewModel
 
 @Composable
@@ -32,11 +30,10 @@ fun ArtScreen(viewModel: ArtViewModel) {
     ArtScreenContent(
         drawing = viewModel.drawing.collectAsState().value,
         palette = viewModel.palette.collectAsState().value,
-        activeColor = viewModel.activeColor.collectAsState().value,
         brushPreview = viewModel.brushPreview.collectAsState().value,
         initialBrushSize = viewModel.brushSize.collectAsState().value,
         onTouchDrawing = { unitPosition -> viewModel.updateDrawing(unitPosition) },
-        onTouchPalette = { unitPosition -> viewModel.updatePalette(unitPosition) },
+        onTapPalette = { paletteIndex -> viewModel.updatePaletteActiveIndex(paletteIndex) },
         onBrushSizeUpdate = { size -> viewModel.updateBrush(size) }
     )
 
@@ -45,12 +42,11 @@ fun ArtScreen(viewModel: ArtViewModel) {
 @Composable
 fun ArtScreenContent(
     drawing: PixelGrid,
-    palette: PixelGrid,
-    activeColor: PixelGrid,
+    palette: PixelRow,
     brushPreview: PixelGrid,
     initialBrushSize: Int,
     onTouchDrawing: (unitPosition: PointF) -> Unit,
-    onTouchPalette: (unitPosition: PointF) -> Unit,
+    onTapPalette: (paletteIndex: Int) -> Unit,
     onBrushSizeUpdate: (Int) -> Unit
 
 ) {
@@ -61,8 +57,8 @@ fun ArtScreenContent(
     ) {
 
         Drawing(
-            pixelGrid = drawing,
-            onDraw = onTouchDrawing
+            drawing = drawing,
+            onTouchDrawing = onTouchDrawing
         )
         Row(
             modifier = Modifier
@@ -75,10 +71,9 @@ fun ArtScreenContent(
                 modifier = Modifier.fillMaxHeight()
             )
             Palette(
-                pixelGrid = palette,
-                activeColor = activeColor,
+                palette = palette,
                 borderStroke = 10.dp,
-                onUpdatePaletteActiveIndex = onTouchPalette,
+                onTapPalette = onTapPalette,
                 modifier = Modifier
                     .fillMaxHeight()
                     .weight(1f)
@@ -99,14 +94,14 @@ private fun Offset.toPointF() = PointF(x, y)
 
 @Composable
 private fun Drawing(
-    pixelGrid: PixelGrid,
-    onDraw: (unitPosition: PointF) -> Unit
+    drawing: PixelGrid,
+    onTouchDrawing: (unitPosition: PointF) -> Unit
 ) {
 
     var viewSize by remember { mutableStateOf(Point()) }
 
     BitmapImage(
-        pixelGrid = pixelGrid,
+        pixelGrid = drawing,
         contentDescription = "Drawing",
         contentScale = ContentScale.FillWidth,
         modifier = Modifier
@@ -116,56 +111,72 @@ private fun Drawing(
             }
             .pointerInput(Unit) {
                 detectDragGestures { change, _ ->
-                    onDraw(change.position.toPointF() / viewSize)
+                    onTouchDrawing(change.position.toPointF() / viewSize)
                 }
             }
             .pointerInput(Unit) {
                 detectTapGestures(
                     onPress = { position ->
-                        onDraw(position.toPointF() / viewSize)
+                        onTouchDrawing(position.toPointF() / viewSize)
                     })
             })
 }
 
 @Composable
 private fun Palette(
-    pixelGrid: PixelGrid,
-    activeColor: PixelGrid,
+    palette: PixelRow,
     borderStroke: Dp,
-    onUpdatePaletteActiveIndex: (unitPosition: PointF) -> Unit,
+    onTapPalette: (paletteIndex: Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
 
-    var viewSize by remember { mutableStateOf(Point()) }
+    var viewWidth by remember { mutableStateOf(0) }
+    val paletteItemWidth = max(
+        a = 50.dp,
+        b = (viewWidth / palette.pixels.size).toDp()
+    )
 
     Box(
         contentAlignment = Alignment.Center,
         modifier = modifier
+
     ) {
         BitmapImage(
-            pixelGrid = activeColor,
+            color = palette.activeColor,
             contentDescription = "Drawing palette border",
             contentScale = ContentScale.FillBounds,
             modifier = Modifier.fillMaxSize()
         )
-        BitmapImage(
-            pixelGrid = pixelGrid,
-            contentDescription = "Drawing palette",
-            contentScale = ContentScale.FillBounds,
+        LazyRow(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(borderStroke)
-                .onGloballyPositioned {
-                    viewSize = it.size.toPoint()
+                .onGloballyPositioned { layout ->
+                    viewWidth = layout.size.width
                 }
-                .pointerInput(Unit) {
-                    detectTapGestures(
-                        onPress = { offset ->
-                            onUpdatePaletteActiveIndex(offset.toPointF() / viewSize)
-                        })
-                })
+        ) {
+            itemsIndexed(items = palette.pixels.toList()) { index, value ->
+                BitmapImage(
+                    pixelGrid = PixelGrid(
+                        pixels = intArrayOf(value),
+                        size = Point(1)
+                    ),
+                    contentDescription = "Drawing palette border",
+                    contentScale = ContentScale.FillBounds,
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .width(paletteItemWidth)
+                        .pointerInput(Unit) {
+                            detectTapGestures(
+                                onTap = { onTapPalette(index) })
+                        }
+                )
+            }
+        }
+
     } // End Box
-}
+
+} // End Palette
 
 @Composable
 private fun BrushPreview(
@@ -204,35 +215,6 @@ private fun BrushSizeSlider(
     )
 }
 
-/**
- * A composable that lays out and draws a given [Bitmap] from a [PixelGrid] without filtering
- *
- * @param pixelGrid The [PixelGrid] to draw unfiltered
- * @param contentDescription text used by accessibility services to describe what this image
- */
-@Composable
-internal fun BitmapImage(
-    pixelGrid: PixelGrid,
-    contentDescription: String,
-    modifier: Modifier = Modifier,
-    contentScale: ContentScale
-) {
-
-    val bitmap = Bitmap.createBitmap(
-        pixelGrid.pixels,
-        pixelGrid.size.x,
-        pixelGrid.size.y,
-        Bitmap.Config.RGB_565
-    )
-
-    Image(
-        bitmap = bitmap.asImageBitmap(),
-        contentDescription = contentDescription,
-        filterQuality = FilterQuality.None,
-        modifier = modifier,
-        contentScale = contentScale
-    )
-}
 
 @Preview
 @Composable
@@ -244,11 +226,10 @@ fun ArtScreenPreview() {
         ArtScreenContent(
             drawing = phonyState.colorDrawing,
             palette = phonyState.palette,
-            activeColor = phonyState.activeColor,
             brushPreview = phonyState.brushPreview,
             initialBrushSize = phonyState.brushSize,
             onTouchDrawing = {},
-            onTouchPalette = {},
+            onTapPalette = {},
             onBrushSizeUpdate = {}
         )
     }

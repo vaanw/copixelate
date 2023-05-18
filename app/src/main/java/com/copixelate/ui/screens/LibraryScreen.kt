@@ -17,7 +17,6 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
@@ -26,7 +25,9 @@ import com.copixelate.data.model.SpaceModel
 import com.copixelate.data.repo.toArtSpace
 import com.copixelate.data.repo.toSpaceModel
 import com.copixelate.nav.NavInfo
+import com.copixelate.ui.components.BitmapImage
 import com.copixelate.ui.util.PreviewSurface
+import com.copixelate.ui.util.toDp
 import com.copixelate.viewmodel.LibraryViewModel
 
 @Composable
@@ -56,7 +57,7 @@ fun LibraryScreenContent(
     var addItemJustOccurred by remember { mutableStateOf(false) }
 
     val fabHeight = remember { mutableStateOf(0) }
-    val fabClearance = with(LocalDensity.current) { fabHeight.value.toDp() + 16.dp + 16.dp }
+    val fabClearance =  fabHeight.value.toDp() + 16.dp + 16.dp
 
     // Scroll to the bottom when a new item is added
     LaunchedEffect(spaces.size) {

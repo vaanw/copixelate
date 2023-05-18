@@ -4,8 +4,7 @@ import kotlin.random.Random
 
 private const val DEFAULT_DRAWING_WIDTH = 32
 private const val DEFAULT_DRAWING_HEIGHT = 32
-private const val DEFAULT_PALETTE_WIDTH = 3
-private const val DEFAULT_PALETTE_HEIGHT = 2
+private const val DEFAULT_PALETTE_SIZE = 7
 
 private const val DEFAULT_BRUSH_SIZE = 7
 private val DEFAULT_BRUSH_STYLE = Brush.Style.CIRCLE
@@ -20,10 +19,8 @@ class ArtSpace {
             get() = space.drawing.colorState
         val drawing: PixelGrid
             get() = space.drawing.state
-        val palette: PixelGrid
+        val palette: PixelRow
             get() = space.palette.state
-        val activeColor: PixelGrid
-            get() = space.palette.activeColorState
         val brushPreview: PixelGrid
             get() = space.brushPreview.colorState
         val brushSize get() = space.brush.size
@@ -71,7 +68,7 @@ class ArtSpace {
         refreshBrushPreviewBitmap()
     }
 
-    fun clear(drawingState: PixelGrid, paletteState: PixelGrid): ArtSpaceResult<Unit> {
+    fun clear(drawingState: PixelGrid, paletteState: PixelRow): ArtSpaceResult<Unit> {
 
         if (drawingState.pixels.max() > paletteState.pixels.lastIndex) {
             return ArtSpaceResult.Failure(
@@ -83,15 +80,15 @@ class ArtSpace {
 
         val ogPaletteState = state.palette
 
-        clearPalette(paletteState).let { result ->
-            if (result.isFailure) return result
+        clearPalette(paletteState).apply {
+            if (isFailure) return this
         }
 
-        clearDrawing(drawingState).let { result ->
-            if (result.isFailure) {
+        clearDrawing(drawingState).apply {
+            if (isFailure) {
                 // Restore palette state since we got a bad drawing
                 clearPalette(ogPaletteState)
-                return result
+                return this
             }
         }
 
@@ -118,24 +115,12 @@ class ArtSpace {
         return ArtSpaceResult.Success(Unit)
     }
 
-    private fun clearPalette(paletteState: PixelGrid): ArtSpaceResult<Unit> {
-
-        if (paletteState.size.area != paletteState.pixels.size) {
-            return ArtSpaceResult.Failure(
-                IllegalArgumentException(
-                    "clearPalette: paletteState.size.area ${paletteState.size.area} doesn't match paletteState.pixels.size ${paletteState.pixels.size}"
-                )
-            )
+    private fun clearPalette(paletteState: PixelRow): ArtSpaceResult<Unit> =
+        ArtSpaceResult.Success(Unit).also {
+            palette.clear(paletteState.pixels)
         }
 
-        palette
-            .resize(paletteState.size)
-            .clear(paletteState.pixels)
-
-        return ArtSpaceResult.Success(Unit)
-    }
-
-    fun updateDrawing(update: PixelGridUpdate): ArtSpaceResult<Unit> {
+    fun updateDrawing(update: PixelUpdate): ArtSpaceResult<Unit> {
 
         if (update.key > drawing.lastIndex) {
             return ArtSpaceResult.Failure(
@@ -185,22 +170,12 @@ class ArtSpace {
         return ArtSpaceResult.Success(Unit)
     }
 
-    fun updatePalette(unitPosition: PointF): ArtSpaceResult<Unit> {
-
-        if (!unitPosition.isUnit()) {
-            return ArtSpaceResult.Failure(
-                IllegalArgumentException(
-                    "updatePalette: Failed; unitPosition $unitPosition exceeds ${PointF(1f)}"
-                )
-            )
-        }
-
-        val paletteIndex = unitPosition.asUnitToIndex(palette.size)
+    fun updatePaletteActiveIndex(paletteIndex: Int): ArtSpaceResult<Unit> {
 
         if (paletteIndex == palette.activeIndex) {
             return ArtSpaceResult.Failure(
                 IllegalArgumentException(
-                    "updatePalette: Failed; unitPosition $unitPosition points to palette.activeIndex ${palette.activeIndex}"
+                    "updatePaletteActiveIndex: Failed; paletteIndex $paletteIndex is equal to palette.activeIndex ${palette.activeIndex}"
                 )
             )
         }
@@ -213,7 +188,7 @@ class ArtSpace {
 
     private fun createDefaultPalette() =
         Palette()
-            .resize(size = Point(DEFAULT_PALETTE_WIDTH, DEFAULT_PALETTE_HEIGHT))
+            .resize(size = DEFAULT_PALETTE_SIZE)
             .clear { Random(System.nanoTime()).nextInt() }
 
     private fun createDefaultDrawing() =

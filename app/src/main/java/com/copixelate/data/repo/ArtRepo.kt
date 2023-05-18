@@ -3,6 +3,7 @@ package com.copixelate.data.repo
 import android.content.Context
 import com.copixelate.art.ArtSpace
 import com.copixelate.art.PixelGrid
+import com.copixelate.art.PixelRow
 import com.copixelate.art.Point
 import com.copixelate.data.firebase.FirebaseAdapter
 import com.copixelate.data.model.*
@@ -53,7 +54,7 @@ fun ArtSpace.toSpaceModel() =
 fun SpaceModel.toArtSpace() = ArtSpace().apply {
     clear(
         drawingState = drawing.toPixelGrid(),
-        paletteState = palette.toPixelGrid()
+        paletteState = palette.toPixelRow(),
     )
 }
 
@@ -63,9 +64,8 @@ fun PixelGrid.toDrawingModel() =
         pixels = this.pixels.asList()
     )
 
-fun PixelGrid.toPaletteModel() =
+fun PixelRow.toPaletteModel() =
     PaletteModel(
-        size = this.size.toSizeModel(),
         pixels = this.pixels.asList()
     )
 
@@ -127,8 +127,7 @@ private fun DrawingModel.toPixelGrid() = PixelGrid(
     pixels = this.pixels.toIntArray()
 )
 
-private fun PaletteModel.toPixelGrid() = PixelGrid(
-    size = size.toPoint(),
+private fun PaletteModel.toPixelRow() = PixelRow(
     pixels = this.pixels.toIntArray()
 )
 
