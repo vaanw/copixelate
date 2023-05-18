@@ -22,8 +22,8 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.copixelate.art.ArtSpace
 import com.copixelate.data.model.SpaceModel
-import com.copixelate.data.repo.toArtSpace
-import com.copixelate.data.repo.toSpaceModel
+import com.copixelate.data.model.toArtSpace
+import com.copixelate.data.model.toModel
 import com.copixelate.nav.NavInfo
 import com.copixelate.ui.components.BitmapImage
 import com.copixelate.ui.util.PreviewSurface
@@ -231,9 +231,9 @@ fun LibraryScreenPreview() {
     PreviewSurface {
         LibraryScreenContent(
             spaces = listOf(
-                ArtSpace().toSpaceModel(),
-                ArtSpace().toSpaceModel(),
-                ArtSpace().toSpaceModel(),
+                ArtSpace().toModel(),
+                ArtSpace().toModel(),
+                ArtSpace().toModel(),
             ),
             onCreateNew = {},
             onDelete = {},
