@@ -4,39 +4,38 @@ import kotlin.random.Random
 
 private const val DEFAULT_DRAWING_WIDTH = 32
 private const val DEFAULT_DRAWING_HEIGHT = 32
-private const val DEFAULT_PALETTE_SIZE = 7
-
+private const val DEFAULT_PALETTE_SIZE = 6
 private const val DEFAULT_BRUSH_SIZE = 7
 private val DEFAULT_BRUSH_STYLE = Brush.Style.CIRCLE
 
 
 class ArtSpace {
 
-    val state = PublicState(this)
+    val state = PublicState(space = this)
 
     class PublicState(private val space: ArtSpace) {
-        val colorDrawing: PixelGrid
-            get() = space.drawing.colorState
-        val drawing: PixelGrid
-            get() = space.drawing.state
-        val palette: PixelRow
-            get() = space.palette.state
-        val brushPreview: PixelGrid
-            get() = space.brushPreview.colorState
-        val brushSize get() = space.brush.size
+        val colorDrawing: PixelGrid get() = space.drawing.colorState
+        val drawing: PixelGrid get() = space.drawing.state
+        val palette: PixelRow get() = space.palette.state
+        val brushPreview: PixelGrid get() = space.brushPreview.colorState
+        val brushSize: Int get() = space.brush.size
     }
 
-    private val palette = createDefaultPalette()
-    private val brush = createDefaultBrush()
-    private val drawing = createDefaultDrawing()
+    private val palette = Palette()
+    private val drawing = Drawing()
+    private val brush = Brush()
+        .restyle(
+            size = DEFAULT_BRUSH_SIZE,
+            style = DEFAULT_BRUSH_STYLE
+        )
 
     private val brushPreview = Drawing()
 
     init {
-        refreshBrushPreviewBitmap()
+        refreshBrushPreview()
     }
 
-    private fun refreshBrushPreviewBitmap() {
+    private fun refreshBrushPreview() {
 
         var previewSize = drawing.size / 3
 
@@ -54,7 +53,7 @@ class ArtSpace {
 
         brushPreview
             .resize(previewSize)
-            .clear(palette.previousActiveIndex)
+            .clear(palette.priorActiveIndex)
             .recolor(palette.colors)
             .draw(
                 indexes = drawIndexes,
@@ -63,9 +62,19 @@ class ArtSpace {
             )
     }
 
+    fun createDefaultArt() = apply {
+        palette
+            .resize(size = DEFAULT_PALETTE_SIZE)
+            .clear { Random(System.nanoTime()).nextInt() }
+        drawing
+            .resize(Point(DEFAULT_DRAWING_WIDTH, DEFAULT_DRAWING_HEIGHT))
+            .clear { index: Int -> (index / 5) % palette.colors.size }
+            .recolor(palette.colors)
+    }
+
     fun updateBrushSize(size: Int) {
         brush.restyle(size = size)
-        refreshBrushPreviewBitmap()
+        refreshBrushPreview()
     }
 
     fun clear(drawingState: PixelGrid, paletteState: PixelRow): ArtSpaceResult<Unit> {
@@ -92,7 +101,7 @@ class ArtSpace {
             }
         }
 
-        refreshBrushPreviewBitmap()
+        refreshBrushPreview()
 
         return ArtSpaceResult.Success(Unit)
     }
@@ -181,24 +190,9 @@ class ArtSpace {
         }
 
         palette.select(paletteIndex)
-        refreshBrushPreviewBitmap()
+        refreshBrushPreview()
 
         return ArtSpaceResult.Success(Unit)
     }
-
-    private fun createDefaultPalette() =
-        Palette()
-            .resize(size = DEFAULT_PALETTE_SIZE)
-            .clear { Random(System.nanoTime()).nextInt() }
-
-    private fun createDefaultDrawing() =
-        Drawing()
-            .resize(Point(DEFAULT_DRAWING_WIDTH, DEFAULT_DRAWING_HEIGHT))
-            .clear { index: Int -> (index / 5) % palette.colors.size }
-            .recolor(palette.colors)
-
-    private fun createDefaultBrush() =
-        Brush()
-            .restyle(DEFAULT_BRUSH_STYLE, DEFAULT_BRUSH_SIZE)
 
 }

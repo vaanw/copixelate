@@ -25,12 +25,12 @@ class LibraryViewModel : ViewModel() {
                 started = SharingStarted.WhileSubscribed()
             )
 
-    fun saveArtSpace(artSpace: ArtSpace = ArtSpace()) =
+    fun createNewArtSpace() =
         viewModelScope.launch {
-            artRepo.saveSpace(artSpace = artSpace)
+            artRepo.saveSpace(artSpace = ArtSpace().createDefaultArt())
         }
 
-    fun loseArtSpace(spaceModel: SpaceModel) =
+    fun deleteArtSpace(spaceModel: SpaceModel) =
         viewModelScope.launch {
             artRepo.loseSpace(spaceModel = spaceModel)
         }

@@ -1,21 +1,22 @@
 package com.copixelate.art
 
+private const val DEBUG_COLOR = 16731647 // Pink
+
 internal class Palette {
 
-    internal var colors: IntArray = IntArray(0) { 0 }
-        private set
-    internal var activeIndex: Int = 0
+    internal var colors: IntArray = IntArray(1) { DEBUG_COLOR }
         private set
 
+    private var indexHistory: ArrayDeque<Int> = createIndexHistory()
+
+    internal val activeIndex: Int get() = indexHistory[0]
     internal val activeColor: Int get() = colors[activeIndex]
-    internal val previousActiveIndex: Int get() = previousActiveIndexes[0]
+    internal val priorActiveIndex: Int get() = indexHistory[1]
 
-    @SuppressWarnings("WeakerAccess")  // Here for potential future use
-    internal var previousActiveIndexes = ArrayDeque<Int>(0)
-        private set
+    internal val state: PixelRow get() = PixelRow(colors, activeIndex)
 
-    internal val state: PixelRow
-        get() = PixelRow(colors, activeIndex)
+    internal fun select(index: Int) =
+        indexHistory.apply { addFirst(index); removeLast() }
 
     internal fun resize(size: Int) = apply {
         colors = IntArray(size) { index ->
@@ -26,21 +27,21 @@ internal class Palette {
         }
     }
 
-    internal fun clear(mutator: (index: Int) -> Int) = apply {
-        colors = IntArray(colors.size, mutator)
-        previousActiveIndexes = ArrayDeque(
-            List(3) { index ->
-                colors.lastIndex - index
-            })
-    }
-
     internal fun clear(pixels: IntArray) = apply {
         colors = pixels
+        indexHistory = createIndexHistory()
     }
 
-    internal fun select(index: Int) {
-        previousActiveIndexes.apply { addFirst(activeIndex); removeLast() }
-        activeIndex = index
-    }
+    internal fun clear(mutator: (index: Int) -> Int) =
+        clear(IntArray(colors.size, mutator))
+
+    private fun createIndexHistory(): ArrayDeque<Int> =
+        ArrayDeque(
+            List(2) { index ->
+                when (index < colors.size) {
+                    true -> index
+                    false -> colors.lastIndex
+                }
+            })
 
 }

@@ -8,11 +8,16 @@ internal class Brush {
 
     internal var size: Int = 0
         private set
+
     @SuppressWarnings("WeakerAccess") // Here for potential future use
     internal var style: Style = Style.CIRCLE
         private set
 
     private val bristles = ArrayList<PointF>()
+
+    init {
+        build()
+    }
 
     internal fun restyle(style: Style = this.style, size: Int = this.size) = apply {
         this.style = style

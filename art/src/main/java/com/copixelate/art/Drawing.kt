@@ -1,11 +1,13 @@
 package com.copixelate.art
 
+private const val DEBUG_COLOR = 5111807 // Teal
+
 internal class Drawing {
 
-    private var indexPixels = IntArray(0)
-    private var colorPixels = IntArray(0)
+    private var indexPixels = IntArray(1) { 0 }
+    private var colorPixels = IntArray(1) { DEBUG_COLOR }
 
-    internal var size: Point = Point()
+    internal var size: Point = Point(1)
         private set
 
     val colorState get() = PixelGrid(colorPixels, size)

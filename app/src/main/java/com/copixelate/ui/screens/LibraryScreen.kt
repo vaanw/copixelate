@@ -34,9 +34,9 @@ import com.copixelate.viewmodel.LibraryViewModel
 fun LibraryScreen(navController: NavHostController, libraryViewModel: LibraryViewModel) {
     LibraryScreenContent(
         spaces = libraryViewModel.allSpaces.collectAsState().value,
-        onCreateNew = { libraryViewModel.saveArtSpace() },
+        onCreateNew = { libraryViewModel.createNewArtSpace() },
         onDelete = { spaceModel ->
-            libraryViewModel.loseArtSpace(spaceModel)
+            libraryViewModel.deleteArtSpace(spaceModel)
         },
         onOpen = { spaceModel ->
             libraryViewModel.updateCurrentSpaceId(spaceModel.id)
