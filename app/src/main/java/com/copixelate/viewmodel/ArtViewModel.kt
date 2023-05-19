@@ -6,12 +6,12 @@ import androidx.lifecycle.viewModelScope
 import com.copixelate.art.ArtSpace
 import com.copixelate.art.ArtSpaceResult
 import com.copixelate.art.PointF
-import com.copixelate.data.repo.ArtRepo
-import com.copixelate.data.repo.UiRepo
 import com.copixelate.data.model.SpaceModel
 import com.copixelate.data.model.copyFrom
 import com.copixelate.data.model.toArtSpace
 import com.copixelate.data.model.toModel
+import com.copixelate.data.repo.ArtRepo
+import com.copixelate.data.repo.UiRepo
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -61,7 +61,7 @@ class ArtViewModel : ViewModel() {
                             }
                         // if a default SpaceModel is not found, create a new one
                         ?: run {
-                            val newId = artRepo.saveSpace(artSpace = artSpace)
+                            val newId = artRepo.saveSpace(artSpace = artSpace.createDefaultArt())
                             uiRepo.saveCurrentSpaceId(spaceId = newId)
                         }
 
