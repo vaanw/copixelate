@@ -34,6 +34,9 @@ class ArtViewModel : ViewModel() {
     val brushPreview = _brushPreview.asStateFlow()
     val brushSize = _brushSize.asStateFlow()
 
+    private val _contentReady = MutableStateFlow(false)
+    val contentReady = _contentReady.asStateFlow()
+
     init {
         // Determine appropriate SpaceModel to display
         viewModelScope.launch {
@@ -41,6 +44,7 @@ class ArtViewModel : ViewModel() {
             // Find SpaceModel using currentId
             uiRepo.currentSpaceIdFlow()
                 .flatMapLatest { currentId ->
+                    _contentReady.update { false }
                     artRepo.spaceByIdFlow(id = currentId)
                 }
                 .collect { newSpaceModel: SpaceModel? ->
@@ -52,6 +56,7 @@ class ArtViewModel : ViewModel() {
                         ?.let { value: SpaceModel ->
                             spaceModel = value
                             refreshArtSpace(newArtSpace = value.toArtSpace())
+                            _contentReady.update { true }
                         }
                     // if SpaceModel is not found, find a default
                         ?: artRepo.getDefaultSpace()
@@ -71,9 +76,9 @@ class ArtViewModel : ViewModel() {
 
     private fun refreshArtSpace(newArtSpace: ArtSpace) {
         artSpace = newArtSpace
-        _drawing.value = artSpace.state.colorDrawing
-        _palette.value = artSpace.state.palette
-        _brushPreview.value = artSpace.state.brushPreview
+        _drawing.update { artSpace.state.colorDrawing }
+        _palette.update { artSpace.state.palette }
+        _brushPreview.update { artSpace.state.brushPreview }
     }
 
     fun updateDrawing(unitPosition: PointF) =
@@ -82,7 +87,7 @@ class ArtViewModel : ViewModel() {
             artSpace.updateDrawing(unitPosition).let { result ->
                 when (result) {
                     is ArtSpaceResult.Success -> {
-                        _drawing.value = artSpace.state.colorDrawing
+                        _drawing.update { artSpace.state.colorDrawing }
                         artRepo.saveSpace(
                             spaceModel = spaceModel.copyFrom(artSpace = artSpace)
                         )
@@ -100,8 +105,8 @@ class ArtViewModel : ViewModel() {
                 .let { result ->
                     when (result) {
                         is ArtSpaceResult.Success -> {
-                            _palette.value = artSpace.state.palette
-                            _brushPreview.value = artSpace.state.brushPreview
+                            _palette.update { artSpace.state.palette }
+                            _brushPreview.update { artSpace.state.brushPreview }
                         }
                         is ArtSpaceResult.Failure -> Log.d(javaClass.simpleName, result.toString())
                     }
@@ -112,8 +117,8 @@ class ArtViewModel : ViewModel() {
     fun updateBrush(size: Int) =
         viewModelScope.launch {
             artSpace.updateBrushSize(size)
-            _brushSize.value = artSpace.state.brushSize
-            _brushPreview.value = artSpace.state.brushPreview
+            _brushSize.update { artSpace.state.brushSize }
+            _brushPreview.update { artSpace.state.brushPreview }
         }
 
 }

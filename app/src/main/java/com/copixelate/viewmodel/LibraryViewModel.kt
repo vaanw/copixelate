@@ -22,7 +22,7 @@ class LibraryViewModel : ViewModel() {
             .stateIn(
                 scope = viewModelScope,
                 initialValue = emptyList(),
-                started = SharingStarted.WhileSubscribed()
+                started = SharingStarted.Eagerly
             )
 
     fun createNewArtSpace() =
