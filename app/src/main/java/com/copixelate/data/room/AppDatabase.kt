@@ -84,12 +84,15 @@ interface ArtDao {
 
     // Space Queries
 
+    @Transaction
     @Query("SELECT * FROM space")
     fun allSpacesFlow(): Flow<List<SpaceEntityWithArt>>
 
+    @Transaction
     @Query("SELECT * FROM space WHERE id = (:entityId) LIMIT 1")
     fun spaceByIdFlow(entityId: Long): Flow<SpaceEntityWithArt?>
 
+    @Transaction
     @Query("SELECT * FROM space ORDER BY id ASC LIMIT 1")
     suspend fun findDefaultSpace(): SpaceEntityWithArt?
 
