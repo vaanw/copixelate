@@ -34,7 +34,7 @@ fun AuthScreen(navController: NavController, navViewModel: NavViewModel) {
                     Auth.updateAccount(displayName) {
                         navViewModel.setSignedIn()
                         if (navController.currentBackStackEntry?.destination?.route == NavInfo.Login.route) {
-                            navController.navigate(NavInfo.Buds.route)
+                            navController.navigate(NavInfo.Contacts.route)
                         }
                     }
                 }
@@ -52,7 +52,7 @@ fun AuthScreen(navController: NavController, navViewModel: NavViewModel) {
                     Log.d("onSignIn", "successful")
                     navViewModel.setSignedIn()
                     if (navController.currentBackStackEntry?.destination?.route == NavInfo.Login.route) {
-                        navController.navigate(NavInfo.Buds.route)
+                        navController.navigate(NavInfo.Contacts.route)
                     }
                 }
                 is AuthResult.Failure -> {

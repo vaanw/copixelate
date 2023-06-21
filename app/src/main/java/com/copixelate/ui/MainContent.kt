@@ -103,7 +103,7 @@ fun MainNavBar(
 
     NavBarBuilder(
         navInfos = when (isSignedIn) {
-            true -> listOf(NavInfo.Art, NavInfo.Library, NavInfo.Buds, NavInfo.Settings)
+            true -> listOf(NavInfo.Art, NavInfo.Library, NavInfo.Contacts, NavInfo.Settings)
             false -> listOf(NavInfo.Art, NavInfo.Library, NavInfo.Login, NavInfo.Settings)
         },
         isSelected = isSelected,

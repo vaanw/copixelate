@@ -29,11 +29,11 @@ enum class NavInfo(
         labelResId = R.string.nav_label_login,
         contentDescriptionResId = R.string.nav_content_description_login
     ),
-    Buds(
-        route = "nav-route-buds",
+    Contacts(
+        route = "nav-route-contacts",
         icon = Icons.Filled.Contacts,
-        labelResId = R.string.nav_label_buds,
-        contentDescriptionResId = R.string.nav_content_description_buds
+        labelResId = R.string.nav_label_contacts,
+        contentDescriptionResId = R.string.nav_content_description_contacts
     ),
     Settings(
         route = "nav-route-settings",
