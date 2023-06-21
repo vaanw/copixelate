@@ -21,8 +21,8 @@ output.json
 .idea/caches/
 .idea/libraries/
 .idea/shelf/
+.idea/.name
 .idea/misc.xml
-.idea/name.xml
 .idea/modules.xml
 .idea/compiler.xml
 .idea/kotlinc.xml
