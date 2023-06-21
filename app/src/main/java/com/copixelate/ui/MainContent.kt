@@ -23,7 +23,6 @@ import com.copixelate.viewmodel.LibraryViewModel
 import com.copixelate.viewmodel.NavViewModel
 import com.copixelate.viewmodel.SettingsViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainContent(
     navController: NavHostController,

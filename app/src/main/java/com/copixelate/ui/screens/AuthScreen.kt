@@ -103,7 +103,6 @@ private enum class FormAction {
 }
 
 @Composable
-@OptIn(ExperimentalMaterial3Api::class)
 private fun AuthForm(
     onSignUp: (email: String, displayName: String, password: String) -> Unit,
     onSignIn: (email: String, password: String) -> Unit
