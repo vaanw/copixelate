@@ -39,8 +39,8 @@ fun SetupNavGraph(
             AuthScreen(navController, navViewModel)
         }
 
-        composable(route = NavInfo.Buds.route) {
-            BudsScreen()
+        composable(route = NavInfo.Contacts.route) {
+            ContactsScreen()
         }
 
         composable(route = NavInfo.Settings.route) {
