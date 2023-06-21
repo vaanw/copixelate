@@ -22,7 +22,12 @@ output.json
 .idea/libraries/
 .idea/shelf/
 .idea/misc.xml
+.idea/name.xml
 .idea/modules.xml
+.idea/compiler.xml
+.idea/kotlinc.xml
+.idea/gradle.xml
+.idea/vcs.xml
 .idea/workspace.xml
 .idea/navEditor.xml
 .idea/assetWizardSettings.xml
