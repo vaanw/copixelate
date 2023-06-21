@@ -117,7 +117,6 @@ fun SecretTextInputField(
 }// End SecretTextInputField
 
 @Composable
-@OptIn(ExperimentalMaterial3Api::class)
 fun ImeActionTextInputField(
     value: String,
     onValueChange: (value: String) -> Unit,
