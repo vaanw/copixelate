@@ -102,8 +102,19 @@ fun MainNavBar(
 
     NavBarBuilder(
         navInfos = when (isSignedIn) {
-            true -> listOf(NavInfo.Art, NavInfo.Library, NavInfo.Contacts, NavInfo.Settings)
-            false -> listOf(NavInfo.Art, NavInfo.Library, NavInfo.Login, NavInfo.Settings)
+            true -> listOf(
+                NavInfo.Art.Root,
+                NavInfo.Library.Root,
+                NavInfo.Contacts.Root,
+                NavInfo.Settings.Root
+            )
+
+            false -> listOf(
+                NavInfo.Art.Root,
+                NavInfo.Library.Root,
+                NavInfo.Login.Root,
+                NavInfo.Settings.Root
+            )
         },
         isSelected = isSelected,
         onClick = onClick
@@ -113,7 +124,7 @@ fun MainNavBar(
 
 @Composable
 fun NavBarBuilder(
-    navInfos: List<NavInfo>,
+    navInfos: List<NavInfo.Screen>,
     isSelected: (route: String) -> Boolean,
     onClick: (route: String) -> Unit,
 ) {
@@ -141,19 +152,19 @@ fun NavBarBuilder(
 fun NavBarPreview() {
 
     PreviewSurface {
-            Box {
-                Surface(modifier = Modifier.align(Alignment.BottomCenter)) {
+        Box {
+            Surface(modifier = Modifier.align(Alignment.BottomCenter)) {
 
-                    MainNavBar(
-                        isSignedIn = true,
-                        isSelected = { route ->
-                            NavInfo.Art.route == route
-                        },
-                        onClick = {}
-                    )
-                }
+                MainNavBar(
+                    isSignedIn = true,
+                    isSelected = { route ->
+                        NavInfo.Art.Root.route == route
+                    },
+                    onClick = {}
+                )
+            }
 
-            } // End Box
+        } // End Box
     } // End PreviewSurface
 
 }

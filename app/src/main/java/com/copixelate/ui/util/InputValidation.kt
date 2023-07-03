@@ -1,12 +1,13 @@
 package com.copixelate.ui.util
 
-import android.util.Patterns
 import com.copixelate.R
 
 object InputValidation {
 
     fun checkEmail(value: String): InputValidity =
-        when (Patterns.EMAIL_ADDRESS.matcher(value).matches()) {
+        when (
+            Regex(pattern = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$").matches(value)
+        ) {
             true -> InputValidity.Valid
             false -> InputValidity.Invalid.Email.Invalid
         }
@@ -28,6 +29,14 @@ object InputValidation {
         when (p1 == p2) {
             true -> InputValidity.Valid
             false -> InputValidity.Invalid.Password.NoMatch
+        }
+
+    fun checkContactCode(value: String): InputValidity =
+        when (
+            Regex(pattern = "^\\d{12}").matches(value)
+        ) {
+            true -> InputValidity.Valid
+            false -> InputValidity.Invalid.ContactCode.Invalid
         }
 
 }
@@ -60,6 +69,10 @@ sealed class InputValidity {
             object TooShort : Password(R.string.invalid_password_too_short)
             object TooLong : Password(R.string.invalid_password_too_long)
             object NoMatch : Password(R.string.invalid_password_no_match)
+        }
+
+        sealed class ContactCode(stringId: Int) : Invalid(stringId) {
+            object Invalid : ContactCode(R.string.invalid_contact_code)
         }
 
     }

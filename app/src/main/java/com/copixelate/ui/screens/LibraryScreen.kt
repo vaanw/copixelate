@@ -40,7 +40,7 @@ fun LibraryScreen(navController: NavHostController, libraryViewModel: LibraryVie
         },
         onOpen = { spaceModel ->
             libraryViewModel.updateCurrentSpaceId(spaceModel.id)
-            navController.navigate(NavInfo.Art.route)
+            navController.navigate(NavInfo.Art.Root.route)
         }
     )
 }
@@ -56,8 +56,8 @@ fun LibraryScreenContent(
     val scrollState = rememberLazyListState()
     var addItemJustOccurred by remember { mutableStateOf(false) }
 
-    val fabHeight = remember { mutableStateOf(0) }
-    val fabClearance =  fabHeight.value.toDp() + 16.dp + 16.dp
+    var fabHeight by remember { mutableStateOf(0) }
+    val fabClearance =  fabHeight.toDp() + 16.dp + 16.dp
 
     // Scroll to the bottom when a new item is added
     LaunchedEffect(spaces.size) {
@@ -100,7 +100,7 @@ fun LibraryScreenContent(
             },
             modifier = Modifier
                 .onGloballyPositioned { coordinates ->
-                    fabHeight.value = coordinates.size.height
+                    fabHeight = coordinates.size.height
                 }
                 .align(Alignment.BottomEnd)
         )

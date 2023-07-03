@@ -15,7 +15,9 @@ import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
@@ -25,12 +27,14 @@ import com.copixelate.ui.util.InputValidity
 fun ValidatedTextInputField(
     value: String,
     onValueChange: (value: String) -> Unit,
-    label: @Composable (() -> Unit),
     validity: InputValidity,
     modifier: Modifier = Modifier,
-    imeAction: ImeAction = ImeAction.Next,
-    visualTransformation: VisualTransformation = VisualTransformation.None,
+    textStyle: TextStyle = LocalTextStyle.current,
+    label: @Composable (() -> Unit)? = null,
     trailingIcon: @Composable (() -> Unit)? = null,
+    visualTransformation: VisualTransformation = VisualTransformation.None,
+    keyboardType: KeyboardType = KeyboardType.Text,
+    imeAction: ImeAction = ImeAction.Next
 ) {
 
     var lastFocusedState by rememberSaveable { mutableStateOf(false) }
@@ -51,8 +55,9 @@ fun ValidatedTextInputField(
             },
             visualTransformation = visualTransformation,
             trailingIcon = trailingIcon,
-
-            )
+            textStyle = textStyle,
+            keyboardType = keyboardType
+        )
 
         if (isError && validity is InputValidity.Invalid) {
             Text(
@@ -80,9 +85,9 @@ private enum class Visibility {
 fun SecretTextInputField(
     value: String,
     onValueChange: (value: String) -> Unit,
-    label: @Composable (() -> Unit),
     validity: InputValidity,
     modifier: Modifier = Modifier,
+    label: @Composable (() -> Unit)? = null,
     imeAction: ImeAction = ImeAction.Next,
 ) {
 
@@ -120,12 +125,14 @@ fun SecretTextInputField(
 fun ImeActionTextInputField(
     value: String,
     onValueChange: (value: String) -> Unit,
-    label: @Composable (() -> Unit),
-    isError: Boolean,
     modifier: Modifier = Modifier,
-    imeAction: ImeAction = ImeAction.Next,
-    visualTransformation: VisualTransformation = VisualTransformation.None,
+    textStyle: TextStyle = LocalTextStyle.current,
+    label: @Composable (() -> Unit)? = null,
     trailingIcon: @Composable (() -> Unit)? = null,
+    isError: Boolean = false,
+    visualTransformation: VisualTransformation = VisualTransformation.None,
+    keyboardType: KeyboardType = KeyboardType.Text,
+    imeAction: ImeAction = ImeAction.Next,
 ) {
 
     val focusManager = LocalFocusManager.current
@@ -135,7 +142,7 @@ fun ImeActionTextInputField(
         onValueChange = onValueChange,
         label = label,
         isError = isError,
-        keyboardOptions = KeyboardOptions(imeAction = imeAction),
+        keyboardOptions = KeyboardOptions(imeAction = imeAction, keyboardType = keyboardType),
         keyboardActions = when (imeAction) {
             ImeAction.Next -> {
                 KeyboardActions(onNext = { focusManager.moveFocus(FocusDirection.Next) })
@@ -148,6 +155,7 @@ fun ImeActionTextInputField(
         modifier = modifier,
         visualTransformation = visualTransformation,
         trailingIcon = trailingIcon,
+        textStyle = textStyle
     )
 
 }// End KeyboardActionTextInputField
