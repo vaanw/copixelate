@@ -13,9 +13,11 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.copixelate.ThemeSetting
 import com.copixelate.data.Auth
+import com.copixelate.ui.util.PreviewSurface
 import com.copixelate.viewmodel.NavViewModel
 import com.copixelate.viewmodel.SettingsViewModel
 
@@ -144,4 +146,19 @@ fun SettingsRadioButton(
         )
     }
 
+}
+
+@Preview
+@Composable
+fun SettingsScreenPreview() {
+
+    val themeSetting = ThemeSetting.DEFAULT
+    PreviewSurface {
+        SettingsScreenContent(
+            themeSetting = themeSetting,
+            onSelectTheme = {},
+            displayName = "Preview-Name",
+            onClickLogout = {}
+        )
+    }
 }
