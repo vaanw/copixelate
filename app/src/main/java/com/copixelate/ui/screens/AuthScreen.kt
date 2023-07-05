@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.copixelate.data.*
 import com.copixelate.nav.NavInfo
+import com.copixelate.nav.compareRoute
 import com.copixelate.ui.components.SecretTextInputField
 import com.copixelate.ui.components.ValidatedTextInputField
 import com.copixelate.ui.util.InputValidation
@@ -33,7 +34,7 @@ fun AuthScreen(navController: NavController, navViewModel: NavViewModel) {
                     Log.d("onSignUp", "successful")
                     Auth.updateAccount(displayName) {
                         navViewModel.setSignedIn()
-                        if (navController.currentBackStackEntry?.destination?.route == NavInfo.Login.Root.route) {
+                        if (navController.compareRoute(route = NavInfo.Login.Root.route)) {
                             navController.navigate(NavInfo.Contacts.Root.route)
                         }
                     }
@@ -52,7 +53,7 @@ fun AuthScreen(navController: NavController, navViewModel: NavViewModel) {
                 is AuthResult.Success -> {
                     Log.d("onSignIn", "successful")
                     navViewModel.setSignedIn()
-                    if (navController.currentBackStackEntry?.destination?.route == NavInfo.Login.Root.route) {
+                    if (navController.compareRoute(route = NavInfo.Login.Root.route)) {
                         navController.navigate(NavInfo.Contacts.Root.route)
                     }
                 }
