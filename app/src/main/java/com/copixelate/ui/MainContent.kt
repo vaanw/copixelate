@@ -9,13 +9,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavDestination.Companion.hierarchy
-import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.copixelate.ThemeSetting
 import com.copixelate.nav.NavInfo
 import com.copixelate.nav.SetupNavGraph
+import com.copixelate.nav.compareTopLevelRoute
+import com.copixelate.nav.navigateTopLevel
 import com.copixelate.ui.theme.CopixelateTheme
 import com.copixelate.ui.util.PreviewSurface
 import com.copixelate.viewmodel.ArtViewModel
@@ -34,7 +34,6 @@ fun MainContent(
     val navViewModel: NavViewModel = viewModel()
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentDestination = navBackStackEntry?.destination
 
     val themeSetting = settingsViewModel.themeSetting.collectAsState().value
 
@@ -46,15 +45,10 @@ fun MainContent(
                 MainNavBar(
                     isSignedIn = navViewModel.isSignedIn.collectAsState().value,
                     isSelected = { route ->
-                        currentDestination?.hierarchy?.any { navDest ->
-                            navDest.route == route
-                        } == true
+                        navBackStackEntry.compareTopLevelRoute(route = route)
                     },
                     onClick = { route ->
-                        navController.navigate(route) {
-                            popUpTo(navController.graph.findStartDestination().id)
-                            launchSingleTop = true
-                        }
+                        navController.navigateTopLevel(route = route)
                     },
                 ) // End MainNavBar
 
