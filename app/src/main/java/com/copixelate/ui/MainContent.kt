@@ -12,6 +12,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.copixelate.ThemeSetting
+import com.copixelate.FeatureFlags
 import com.copixelate.nav.NavInfo
 import com.copixelate.nav.SetupNavGraph
 import com.copixelate.nav.compareTopLevelRoute
@@ -31,6 +32,8 @@ fun MainContent(
     settingsViewModel: SettingsViewModel
 ) {
 
+    val isCoopAvailable = FeatureFlags.IS_COOP_AVAILABLE
+
     val navViewModel: NavViewModel = viewModel()
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -43,6 +46,7 @@ fun MainContent(
             bottomBar = {
 
                 MainNavBar(
+                    isCoopAvailable = isCoopAvailable,
                     isSignedIn = navViewModel.isSignedIn.collectAsState().value,
                     isSelected = { route ->
                         navBackStackEntry.compareTopLevelRoute(route = route)
@@ -54,8 +58,8 @@ fun MainContent(
 
             } // End bottomBar
         ) { offsetPadding ->
-
             Surface(Modifier.padding(offsetPadding)) {
+
                 SetupNavGraph(
                     navController = navController,
                     navViewModel = navViewModel,
@@ -63,8 +67,8 @@ fun MainContent(
                     libraryViewModel = libraryViewModel,
                     settingsViewModel = settingsViewModel,
                 )
-            }
 
+            }
         } // End Scaffold
     } // End CopixelateTheme
 
@@ -89,27 +93,33 @@ fun MainTheme(
 
 @Composable
 fun MainNavBar(
+    isCoopAvailable: Boolean,
     isSignedIn: Boolean,
     isSelected: (route: String) -> Boolean,
     onClick: (route: String) -> Unit,
 ) {
 
-    NavBarBuilder(
-        navInfos = when (isSignedIn) {
-            true -> listOf(
-                NavInfo.Art.Root,
-                NavInfo.Library.Root,
-                NavInfo.Contacts.Root,
-                NavInfo.Settings.Root
-            )
+    val baseMenu = mutableListOf(
+        NavInfo.Art.Root,
+        NavInfo.Library.Root,
+        NavInfo.Settings.Root
+    )
 
-            false -> listOf(
-                NavInfo.Art.Root,
-                NavInfo.Library.Root,
-                NavInfo.Login.Root,
-                NavInfo.Settings.Root
-            )
-        },
+    val navInfos =
+        when (isCoopAvailable) {
+            false -> baseMenu
+
+            true -> baseMenu
+                .apply {
+                    when (isSignedIn) {
+                        false -> add(index = 2, element = NavInfo.Login.Root)
+                        true -> add(index = 2, element = NavInfo.Contacts.Root)
+                    }
+                }
+        }
+
+    NavBarBuilder(
+        navInfos = navInfos,
         isSelected = isSelected,
         onClick = onClick
     )
@@ -150,6 +160,7 @@ fun NavBarPreview() {
             Surface(modifier = Modifier.align(Alignment.BottomCenter)) {
 
                 MainNavBar(
+                    isCoopAvailable = false,
                     isSignedIn = true,
                     isSelected = { route ->
                         NavInfo.Art.Root.route == route
