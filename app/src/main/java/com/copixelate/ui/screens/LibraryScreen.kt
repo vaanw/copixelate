@@ -24,11 +24,12 @@ import com.copixelate.art.ArtSpace
 import com.copixelate.data.model.SpaceModel
 import com.copixelate.data.model.toArtSpace
 import com.copixelate.data.model.toModel
-import com.copixelate.nav.NavInfo
+import com.copixelate.ui.nav.NavInfo
 import com.copixelate.ui.components.BitmapImage
 import com.copixelate.ui.util.PreviewSurface
 import com.copixelate.ui.util.toDp
 import com.copixelate.viewmodel.LibraryViewModel
+import com.copixelate.ui.nav.navigate
 
 @Composable
 fun LibraryScreen(navController: NavHostController, libraryViewModel: LibraryViewModel) {
@@ -40,7 +41,7 @@ fun LibraryScreen(navController: NavHostController, libraryViewModel: LibraryVie
         },
         onOpen = { spaceModel ->
             libraryViewModel.updateCurrentSpaceId(spaceModel.id)
-            navController.navigate(NavInfo.Art.Root.route)
+            navController.navigate(navInfo = NavInfo.Art)
         }
     )
 }

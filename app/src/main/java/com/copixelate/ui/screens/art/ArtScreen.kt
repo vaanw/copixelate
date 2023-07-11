@@ -1,4 +1,4 @@
-package com.copixelate.ui.screens
+package com.copixelate.ui.screens.art
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExitTransition.Companion.None
@@ -28,20 +28,20 @@ import com.copixelate.ui.util.toDp
 import com.copixelate.viewmodel.ArtViewModel
 
 @Composable
-fun ArtScreen(viewModel: ArtViewModel) {
+fun ArtScreen(artViewModel: ArtViewModel) {
 
     AnimatedVisibility(
-        visible = viewModel.contentReady.collectAsState().value,
+        visible = artViewModel.contentReady.collectAsState().value,
         enter = fadeIn(), exit = None
     ) {
         ArtScreenContent(
-            drawing = viewModel.drawing.collectAsState().value,
-            palette = viewModel.palette.collectAsState().value,
-            brushPreview = viewModel.brushPreview.collectAsState().value,
-            initialBrushSize = viewModel.brushSize.collectAsState().value,
-            onTouchDrawing = { unitPosition -> viewModel.updateDrawing(unitPosition) },
-            onTapPalette = { paletteIndex -> viewModel.updatePaletteActiveIndex(paletteIndex) },
-            onBrushSizeUpdate = { size -> viewModel.updateBrush(size) }
+            drawing = artViewModel.drawing.collectAsState().value,
+            palette = artViewModel.palette.collectAsState().value,
+            brushPreview = artViewModel.brushPreview.collectAsState().value,
+            initialBrushSize = artViewModel.brushSize.collectAsState().value,
+            onTouchDrawing = { unitPosition -> artViewModel.updateDrawing(unitPosition) },
+            onTapPalette = { paletteIndex -> artViewModel.updatePaletteActiveIndex(paletteIndex) },
+            onBrushSizeUpdate = { size -> artViewModel.updateBrush(size) }
         )
     }
 

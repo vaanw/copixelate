@@ -427,21 +427,23 @@ private fun AddContactsScreenPreview() {
 @Preview
 @Composable
 private fun ShareCodeToolPreview() {
-    Column() {
-        ShareCodeTool(
-            contactCode = "3487-3896-5634",
-            isActive = false,
-            onActivate = {},
-            onDeactivate = {},
-            onRenew = {},
-            modifier = Modifier.padding(bottom = 16.dp)
-        )
-        ShareCodeTool(
-            contactCode = "3487-3896-5634",
-            isActive = true,
-            onActivate = {},
-            onDeactivate = {},
-            onRenew = {}
-        )
+    PreviewSurface {
+        Column(modifier = Modifier.padding(all = 16.dp)) {
+            ShareCodeTool(
+                contactCode = "3487-3896-5634",
+                isActive = false,
+                onActivate = {},
+                onDeactivate = {},
+                onRenew = {},
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+            ShareCodeTool(
+                contactCode = "3487-3896-5634",
+                isActive = true,
+                onActivate = {},
+                onDeactivate = {},
+                onRenew = {}
+            )
+        }
     }
 }
