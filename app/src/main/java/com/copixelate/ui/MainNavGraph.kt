@@ -1,11 +1,13 @@
-package com.copixelate.nav
+package com.copixelate.ui
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
+import com.copixelate.ui.nav.NavInfo
 import com.copixelate.ui.screens.*
+import com.copixelate.ui.screens.art.ArtScreen
 import com.copixelate.ui.screens.contacts.AddContactsScreen
 import com.copixelate.ui.screens.contacts.ContactsScreen
 import com.copixelate.viewmodel.ArtViewModel
@@ -14,7 +16,7 @@ import com.copixelate.viewmodel.NavViewModel
 import com.copixelate.viewmodel.SettingsViewModel
 
 @Composable
-fun SetupNavGraph(
+fun SetupMainNavGraph(
     navController: NavHostController,
     navViewModel: NavViewModel,
     artViewModel: ArtViewModel,
@@ -24,26 +26,26 @@ fun SetupNavGraph(
 
     NavHost(
         navController = navController,
-        startDestination = NavInfo.Art.Root.route
+        startDestination = NavInfo.Art.route
     ) {
 
-        composable(route = NavInfo.Art.Root.route) {
-            ArtScreen(viewModel = artViewModel)
+        composable(route = NavInfo.Art.route) {
+            ArtScreen(artViewModel = artViewModel)
         }
 
-        composable(route = NavInfo.Library.Root.route) {
+        composable(route = NavInfo.Library.route) {
             LibraryScreen(
                 navController = navController,
                 libraryViewModel = libraryViewModel
             )
         }
 
-        composable(route = NavInfo.Login.Root.route) {
+        composable(route = NavInfo.Login.route) {
             AuthScreen(navController, navViewModel)
         }
 
         navigation(
-            route = NavInfo.Contacts.Root.route,
+            route = NavInfo.Contacts.route,
             startDestination = NavInfo.Contacts.Start.route
         ) {
             composable(route = NavInfo.Contacts.Start.route) {
@@ -55,7 +57,7 @@ fun SetupNavGraph(
         }
 
 
-        composable(route = NavInfo.Settings.Root.route) {
+        composable(route = NavInfo.Settings.route) {
             SettingsScreen(
                 settingsViewModel = settingsViewModel,
                 navViewModel = navViewModel

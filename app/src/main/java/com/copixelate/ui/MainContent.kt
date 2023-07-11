@@ -13,10 +13,9 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.copixelate.ThemeSetting
 import com.copixelate.FeatureFlags
-import com.copixelate.nav.NavInfo
-import com.copixelate.nav.SetupNavGraph
-import com.copixelate.nav.compareTopLevelRoute
-import com.copixelate.nav.navigateTopLevel
+import com.copixelate.ui.nav.NavInfo
+import com.copixelate.ui.nav.compareTopLevelRoute
+import com.copixelate.ui.nav.navigateTopLevel
 import com.copixelate.ui.theme.CopixelateTheme
 import com.copixelate.ui.util.PreviewSurface
 import com.copixelate.viewmodel.ArtViewModel
@@ -48,11 +47,11 @@ fun MainContent(
                 MainNavBar(
                     isCoopAvailable = isCoopAvailable,
                     isSignedIn = navViewModel.isSignedIn.collectAsState().value,
-                    isSelected = { route ->
-                        navBackStackEntry.compareTopLevelRoute(route = route)
+                    isSelected = { navInfo ->
+                        navBackStackEntry.compareTopLevelRoute(navInfo = navInfo)
                     },
-                    onClick = { route ->
-                        navController.navigateTopLevel(route = route)
+                    onClick = { navInfo ->
+                        navController.navigateTopLevel(navInfo = navInfo)
                     },
                 ) // End MainNavBar
 
@@ -60,7 +59,7 @@ fun MainContent(
         ) { offsetPadding ->
             Surface(Modifier.padding(offsetPadding)) {
 
-                SetupNavGraph(
+                SetupMainNavGraph(
                     navController = navController,
                     navViewModel = navViewModel,
                     artViewModel = artViewModel,
@@ -95,14 +94,14 @@ fun MainTheme(
 fun MainNavBar(
     isCoopAvailable: Boolean,
     isSignedIn: Boolean,
-    isSelected: (route: String) -> Boolean,
-    onClick: (route: String) -> Unit,
+    isSelected: (screen: NavInfo.Screen) -> Boolean,
+    onClick: (screen: NavInfo.Screen) -> Unit,
 ) {
 
     val baseMenu = mutableListOf(
-        NavInfo.Art.Root,
-        NavInfo.Library.Root,
-        NavInfo.Settings.Root
+        NavInfo.Art,
+        NavInfo.Library,
+        NavInfo.Settings
     )
 
     val navInfos =
@@ -112,8 +111,8 @@ fun MainNavBar(
             true -> baseMenu
                 .apply {
                     when (isSignedIn) {
-                        false -> add(index = 2, element = NavInfo.Login.Root)
-                        true -> add(index = 2, element = NavInfo.Contacts.Root)
+                        false -> add(index = 2, element = NavInfo.Login)
+                        true -> add(index = 2, element = NavInfo.Contacts)
                     }
                 }
         }
@@ -128,9 +127,9 @@ fun MainNavBar(
 
 @Composable
 fun NavBarBuilder(
-    navInfos: List<NavInfo.Screen>,
-    isSelected: (route: String) -> Boolean,
-    onClick: (route: String) -> Unit,
+    navInfos: List<NavInfo.TopScreen>,
+    isSelected: (navInfo: NavInfo.Screen) -> Boolean,
+    onClick: (navInfo: NavInfo.Screen) -> Unit,
 ) {
 
     NavigationBar {
@@ -143,8 +142,8 @@ fun NavBarBuilder(
                     )
                 },
                 label = { Text(stringResource(navInfo.labelResId)) },
-                selected = isSelected(navInfo.route),
-                onClick = { onClick(navInfo.route) }
+                selected = isSelected(navInfo),
+                onClick = { onClick(navInfo) }
             ) // End NavigationBarItem
         } // End navBarItems.forEach
     } // End NavigationBar
@@ -162,8 +161,8 @@ fun NavBarPreview() {
                 MainNavBar(
                     isCoopAvailable = false,
                     isSignedIn = true,
-                    isSelected = { route ->
-                        NavInfo.Art.Root.route == route
+                    isSelected = { navInfo ->
+                        NavInfo.Art.route == navInfo.route
                     },
                     onClick = {}
                 )
