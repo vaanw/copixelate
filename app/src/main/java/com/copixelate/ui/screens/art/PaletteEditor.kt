@@ -33,24 +33,24 @@ import androidx.core.graphics.ColorUtils
 import com.copixelate.ui.components.BitmapImage
 import com.copixelate.ui.util.PreviewSurface
 
-fun Color.toHSL(): List<Float> =
+fun Int.toHSL(): List<Float> =
     FloatArray(3).apply {
-        val r = Color.red(toArgb())
-        val g = Color.green(toArgb())
-        val b = Color.blue(toArgb())
+        val r = Color.red(this@toHSL)
+        val g = Color.green(this@toHSL)
+        val b = Color.blue(this@toHSL)
         ColorUtils.RGBToHSL(r, g, b, this)
     }.toList()
 
 fun List<Float>.toColor() =
-    Color.valueOf(ColorUtils.HSLToColor(toFloatArray()))
+    ColorUtils.HSLToColor(toFloatArray())
 
 
 @Composable
 fun PaletteEditor(
     modifier: Modifier = Modifier,
-    color: Color = Color.valueOf(Color.MAGENTA),
-    previousColor: Color = Color.valueOf(Color.MAGENTA),
-    onUpdateColor: (color: Color) -> Unit = {},
+    color: Int = Color.MAGENTA,
+    previousColor: Int = Color.MAGENTA,
+    onUpdateColor: (color: Int) -> Unit = {},
     onRevert: () -> Unit = {},
 ) {
 
@@ -61,7 +61,7 @@ fun PaletteEditor(
     fun hslComponents(): List<Float> =
         listOf(colorComponent1, colorComponent2, colorComponent3)
 
-    fun hslColor(): Color =
+    fun hslColor(): Int =
         hslComponents().toColor()
 
     fun revert() {
@@ -90,7 +90,7 @@ fun PaletteEditor(
                 hslComponents()
                     .toMutableList()
                     .apply { this[0] = (index * 1f / 18) * 360f }
-                    .toColor().toArgb()
+                    .toColor()
             }
         )
 
@@ -109,7 +109,7 @@ fun PaletteEditor(
                 hslComponents()
                     .toMutableList()
                     .apply { this[1] = (index * 1f / 10) }
-                    .toColor().toArgb()
+                    .toColor()
             }
         )
 
@@ -128,7 +128,7 @@ fun PaletteEditor(
                 hslComponents()
                     .toMutableList()
                     .apply { this[2] = (index * 1f / 10) }
-                    .toColor().toArgb()
+                    .toColor()
             }
         )
 
@@ -147,7 +147,7 @@ fun PaletteEditor(
             ) {
 
                 BitmapImage(
-                    color = previousColor.toArgb(),
+                    color = previousColor,
                     contentScale = ContentScale.FillBounds,
                     contentDescription = "Localized Description",
                     modifier = Modifier
@@ -155,7 +155,7 @@ fun PaletteEditor(
                         .fillMaxHeight()
                 )
                 BitmapImage(
-                    color = color.toArgb(),
+                    color = color,
                     contentScale = ContentScale.FillBounds,
                     contentDescription = "Localized Description",
                     modifier = Modifier
@@ -261,7 +261,7 @@ fun PaletteEditorSlider(
 private fun PaletteEditorPreview() {
     PreviewSurface {
 
-        val previousColor = Color.valueOf(Color.MAGENTA)
+        val previousColor = Color.MAGENTA
         var color by remember { mutableStateOf(previousColor) }
         PaletteEditor(
             color = color,
@@ -278,7 +278,7 @@ private fun PaletteEditorPreviewAlt() {
     PreviewSurface {
         Surface(color = MaterialTheme.colorScheme.surfaceVariant) {
 
-            val previousColor = Color.valueOf(Color.BLUE)
+            val previousColor = Color.BLUE
             var color by remember { mutableStateOf(previousColor) }
             PaletteEditor(
                 color = color,
