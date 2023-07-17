@@ -1,20 +1,27 @@
 package com.copixelate.ui.screens.art
 
+import android.animation.ArgbEvaluator
 import android.graphics.Color
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.filled.Undo
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
+import androidx.compose.material3.SliderPositions
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -25,13 +32,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.zIndex
 import androidx.core.graphics.ColorUtils
 import com.copixelate.ui.components.BitmapImage
 import com.copixelate.ui.util.PreviewSurface
+import androidx.compose.ui.graphics.Color as ComposeColor
+
 
 fun Int.toHSL(): List<Float> =
     FloatArray(3).apply {
@@ -46,7 +58,7 @@ fun List<Float>.toColor() =
 
 
 @Composable
-fun PaletteEditor(
+fun ColorEditor(
     modifier: Modifier = Modifier,
     color: Int = Color.MAGENTA,
     previousColor: Int = Color.MAGENTA,
@@ -76,10 +88,9 @@ fun PaletteEditor(
     ) {
 
         // Hue slider
-        PaletteEditorSlider(
+        ColorEditorSlider(
             value = colorComponent1,
             valueRange = 0f..360f,
-            scale = 1/3.6f,
             onValueChange = { newValue ->
                 colorComponent1 = newValue
                 onUpdateColor(hslColor())
@@ -95,10 +106,9 @@ fun PaletteEditor(
         )
 
         // Saturation slider
-        PaletteEditorSlider(
+        ColorEditorSlider(
             value = colorComponent2,
             valueRange = 0f..1f,
-            scale = 100f,
             onValueChange = { newValue ->
                 colorComponent2 = newValue
                 onUpdateColor(hslColor())
@@ -114,10 +124,9 @@ fun PaletteEditor(
         )
 
         // Lightness slider
-        PaletteEditorSlider(
+        ColorEditorSlider(
             value = colorComponent3,
             valueRange = 0f..1f,
-            scale = 100f,
             onValueChange = { newValue ->
                 colorComponent3 = newValue
                 onUpdateColor(hslColor())
@@ -140,32 +149,64 @@ fun PaletteEditor(
                 .height(ButtonDefaults.MinHeight)
         ) {
 
-            // Revert preview
-            Row(
+
+            Box(
                 modifier = Modifier
-                    .weight(1f)
+                    .weight(1f),
+                contentAlignment = Alignment.Center
             ) {
 
-                BitmapImage(
-                    color = previousColor,
-                    contentScale = ContentScale.FillBounds,
-                    contentDescription = "Localized Description",
+
+                // Revert preview
+                Row(
                     modifier = Modifier
-                        .weight(1f)
-                        .fillMaxHeight()
-                )
-                BitmapImage(
-                    color = color,
-                    contentScale = ContentScale.FillBounds,
-                    contentDescription = "Localized Description",
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxHeight()
-                )
+//                        .weight(1f)
+                ) {
+
+                    BitmapImage(
+                        color = color,
+                        contentScale = ContentScale.FillBounds,
+                        contentDescription = "Localized Description",
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight()
+                    )
+                    BitmapImage(
+                        color = previousColor,
+                        contentScale = ContentScale.FillBounds,
+                        contentDescription = "Localized Description",
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight()
+                    )
+
+                }
+
+                IconButton(
+                    onClick = {
+                        revert()
+                        onRevert()
+                    },
+                    modifier = Modifier.padding(0.dp)
+                ) {
+
+                    val iconColor: Int = ArgbEvaluator()
+                        .evaluate(0.5f, previousColor, color) as Int
+
+                    Icon(
+                        imageVector = Icons.Default.Undo,
+                        contentDescription = "",
+                        tint = ComposeColor(iconColor),
+                        modifier = Modifier.size(32.dp)
+                    )
+
+                }
+
             }
 
             // Revert button
             TextButton(
+                shape = RectangleShape,
                 onClick = {
                     revert()
                     onRevert()
@@ -177,93 +218,141 @@ fun PaletteEditor(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PaletteEditorSlider(
+private fun ColorEditorSlider(
     value: Float,
     onValueChange: (Float) -> Unit,
-    scale: Float = 1f,
     valueRange: ClosedFloatingPointRange<Float> = 0f..1f,
     colors: List<Int>
 ) {
 
-    Row(
-        verticalAlignment = Alignment.CenterVertically
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = Modifier
+            .height(40.dp)
     ) {
 
-        Column(
-            modifier = Modifier
-                .weight(weight = 1f)
-                .zIndex(1f)
-        ) {
-
-            // Color spectrum
-            Row(
-                modifier = Modifier
-                    .height(30.dp)
-            ) {
-                for (color in colors) {
-                    BitmapImage(
-                        color = color,
-                        contentScale = ContentScale.FillBounds,
-                        contentDescription = "Localized Description",
-                        modifier = Modifier
-                            .fillMaxHeight()
-                            .weight(1f)
-                    )
-                }
-            }
-
-            Slider(
-                value = value,
-                valueRange = valueRange,
-                onValueChange = onValueChange
-            )
-        } // End Column
-
-        Column{
-
-            // Increase icon button
-            IconButton(
-                onClick = {
-                    onValueChange(value + 1 / scale)
-                },
-                enabled = value < valueRange.endInclusive,
-                modifier = Modifier
-                    .size(40.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.KeyboardArrowUp,
-                    contentDescription = ""
+        // Color spectrum
+        Row {
+            for (color in colors) {
+                BitmapImage(
+                    color = color,
+                    contentScale = ContentScale.FillBounds,
+                    contentDescription = "Localized Description",
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .weight(1f)
                 )
             }
+        }
 
-            // Decrease icon button
-            IconButton(
-                onClick = {
-                    onValueChange(value - 1 / scale)
-                },
-                enabled = value > valueRange.start,
-                modifier = Modifier
-                    .size(40.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.KeyboardArrowDown,
-                    contentDescription = ""
+        Slider(
+            value = value,
+            valueRange = valueRange,
+            onValueChange = onValueChange,
+            thumb = { ColorEditorSliderThumb() },
+            track = { sliderPositions ->
+                ColorEditorSliderTrack(
+                    sliderPositions = sliderPositions,
+                    color = ComposeColor(Color.BLACK)
                 )
             }
+        )
 
-        }// End Column
-    } // End Row
+    } // End Box
 } // End PaletteToolSlider
+
+@Composable
+private fun ColorEditorSliderThumb() {
+
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = Modifier
+            .size(40.dp)
+            .padding(3.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .border(width = 3.dp, color = ComposeColor(Color.BLACK))
+                .fillMaxSize()
+                .padding(3.dp)
+        ) {
+            Box(
+                modifier = Modifier
+                    .border(width = 2.dp, color = ComposeColor(Color.WHITE))
+                    .fillMaxSize()
+
+            )
+        }
+    }
+
+}
+
+@Composable
+private fun ColorEditorSliderTrack(
+    sliderPositions: SliderPositions,
+    color: ComposeColor,
+) {
+
+    Canvas(
+        Modifier
+            .fillMaxWidth()
+    ) {
+        val isRtl = layoutDirection == LayoutDirection.Rtl
+        val sliderLeft = Offset(0f, center.y)
+        val sliderRight = Offset(size.width, center.y)
+        val sliderStart = if (isRtl) sliderRight else sliderLeft
+        val sliderEnd = if (isRtl) sliderLeft else sliderRight
+        val trackStrokeWidth = 3.dp.toPx()
+
+        val sliderMid1 = Offset(
+            sliderStart.x
+                    + (sliderEnd.x - sliderStart.x)
+                    * sliderPositions.activeRange.endInclusive
+                    - 18.dp.toPx(),
+            center.y
+        )
+
+        val sliderMid2 = Offset(
+            sliderStart.x
+                    + (sliderEnd.x - sliderStart.x)
+                    * sliderPositions.activeRange.endInclusive
+                    + 18.dp.toPx(),
+            center.y
+        )
+
+        if (sliderStart.x < sliderMid1.x) {
+            drawLine(
+                color,
+                sliderStart,
+                sliderMid1,
+                trackStrokeWidth,
+                StrokeCap.Square
+            )
+        }
+
+        if (sliderEnd.x > sliderMid2.x) {
+            drawLine(
+                color,
+                sliderMid2,
+                sliderEnd,
+                trackStrokeWidth,
+                StrokeCap.Square
+            )
+        }
+    } // End Canvas
+
+}
 
 @Preview
 @Composable
-private fun PaletteEditorPreview() {
+private fun ColorEditorPreview() {
     PreviewSurface {
 
         val previousColor = Color.MAGENTA
         var color by remember { mutableStateOf(previousColor) }
-        PaletteEditor(
+        ColorEditor(
             color = color,
             previousColor = previousColor,
             onUpdateColor = { newColor -> color = newColor },
@@ -274,13 +363,13 @@ private fun PaletteEditorPreview() {
 
 @Preview
 @Composable
-private fun PaletteEditorPreviewAlt() {
+private fun ColorEditorPreviewAlt() {
     PreviewSurface {
         Surface(color = MaterialTheme.colorScheme.surfaceVariant) {
 
             val previousColor = Color.BLUE
             var color by remember { mutableStateOf(previousColor) }
-            PaletteEditor(
+            ColorEditor(
                 color = color,
                 previousColor = previousColor,
                 onUpdateColor = { newColor -> color = newColor },
