@@ -22,7 +22,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderPositions
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -59,29 +58,12 @@ fun List<Float>.toColor() =
 
 @Composable
 fun ColorEditor(
+    colorComponents: List<Float>,
+    previousColor: Int,
     modifier: Modifier = Modifier,
-    color: Int = Color.MAGENTA,
-    previousColor: Int = Color.MAGENTA,
-    onUpdateColor: (color: Int) -> Unit = {},
+    onUpdateComponents: (List<Float>) -> Unit = {},
     onRevert: () -> Unit = {},
 ) {
-
-    var colorComponent1 by remember { mutableStateOf(color.toHSL()[0]) }
-    var colorComponent2 by remember { mutableStateOf(color.toHSL()[1]) }
-    var colorComponent3 by remember { mutableStateOf(color.toHSL()[2]) }
-
-    fun hslComponents(): List<Float> =
-        listOf(colorComponent1, colorComponent2, colorComponent3)
-
-    fun hslColor(): Int =
-        hslComponents().toColor()
-
-    fun revert() {
-        val previousHsl: List<Float> = previousColor.toHSL()
-        colorComponent1 = previousHsl[0]
-        colorComponent2 = previousHsl[1]
-        colorComponent3 = previousHsl[2]
-    }
 
     Column(
         modifier = modifier
@@ -89,16 +71,17 @@ fun ColorEditor(
 
         // Hue slider
         ColorEditorSlider(
-            value = colorComponent1,
+            value = colorComponents[0],
             valueRange = 0f..360f,
             onValueChange = { newValue ->
-                colorComponent1 = newValue
-                onUpdateColor(hslColor())
+                onUpdateComponents(colorComponents.toMutableList()
+                    .apply { this[0] = newValue }
+                )
             },
             colors = List(
                 size = 18
             ) { index: Int ->
-                hslComponents()
+                colorComponents
                     .toMutableList()
                     .apply { this[0] = (index * 1f / 18) * 360f }
                     .toColor()
@@ -107,16 +90,17 @@ fun ColorEditor(
 
         // Saturation slider
         ColorEditorSlider(
-            value = colorComponent2,
+            value = colorComponents[1],
             valueRange = 0f..1f,
             onValueChange = { newValue ->
-                colorComponent2 = newValue
-                onUpdateColor(hslColor())
+                onUpdateComponents(colorComponents.toMutableList()
+                    .apply { this[1] = newValue }
+                )
             },
             colors = List(
                 size = 10
             ) { index ->
-                hslComponents()
+                colorComponents
                     .toMutableList()
                     .apply { this[1] = (index * 1f / 10) }
                     .toColor()
@@ -125,16 +109,17 @@ fun ColorEditor(
 
         // Lightness slider
         ColorEditorSlider(
-            value = colorComponent3,
+            value = colorComponents[2],
             valueRange = 0f..1f,
             onValueChange = { newValue ->
-                colorComponent3 = newValue
-                onUpdateColor(hslColor())
+                onUpdateComponents(colorComponents.toMutableList()
+                    .apply { this[2] = newValue }
+                )
             },
             colors = List(
                 size = 10
             ) { index ->
-                hslComponents()
+                colorComponents
                     .toMutableList()
                     .apply { this[2] = (index * 1f / 10) }
                     .toColor()
@@ -158,13 +143,10 @@ fun ColorEditor(
 
 
                 // Revert preview
-                Row(
-                    modifier = Modifier
-//                        .weight(1f)
-                ) {
+                Row{
 
                     BitmapImage(
-                        color = color,
+                        color = colorComponents.toColor(),
                         contentScale = ContentScale.FillBounds,
                         contentDescription = "Localized Description",
                         modifier = Modifier
@@ -183,15 +165,11 @@ fun ColorEditor(
                 }
 
                 IconButton(
-                    onClick = {
-                        revert()
-                        onRevert()
-                    },
-                    modifier = Modifier.padding(0.dp)
+                    onClick = { onRevert() },
                 ) {
 
                     val iconColor: Int = ArgbEvaluator()
-                        .evaluate(0.5f, previousColor, color) as Int
+                        .evaluate(0.5f, previousColor, colorComponents.toColor()) as Int
 
                     Icon(
                         imageVector = Icons.Default.Undo,
@@ -207,16 +185,16 @@ fun ColorEditor(
             // Revert button
             TextButton(
                 shape = RectangleShape,
-                onClick = {
-                    revert()
-                    onRevert()
-                }
+                onClick = { onRevert() }
             ) { Text(text = "Revert") }
 
         }
 
     }
 }
+
+
+const val SLIDER_HEIGHT = 40
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -230,7 +208,7 @@ private fun ColorEditorSlider(
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier
-            .height(40.dp)
+            .height(SLIDER_HEIGHT.dp)
     ) {
 
         // Color spectrum
@@ -255,7 +233,7 @@ private fun ColorEditorSlider(
             track = { sliderPositions ->
                 ColorEditorSliderTrack(
                     sliderPositions = sliderPositions,
-                    color = ComposeColor(Color.BLACK)
+                    color = MaterialTheme.colorScheme.primary
                 )
             }
         )
@@ -263,24 +241,36 @@ private fun ColorEditorSlider(
     } // End Box
 } // End PaletteToolSlider
 
+
+const val THUMB_SIZE = 40
+const val THUMB_PADDING = 3
+const val THUMB_BORDER_WIDTH = 3
+const val TRACK_WIDTH = 3
+
 @Composable
 private fun ColorEditorSliderThumb() {
 
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier
-            .size(40.dp)
-            .padding(3.dp)
+            .size(THUMB_SIZE.dp)
+            .padding(THUMB_PADDING.dp)
     ) {
         Box(
             modifier = Modifier
-                .border(width = 3.dp, color = ComposeColor(Color.BLACK))
+                .border(
+                    width = THUMB_BORDER_WIDTH.dp,
+                    color = MaterialTheme.colorScheme.surface
+                )
                 .fillMaxSize()
-                .padding(3.dp)
+                .padding(THUMB_BORDER_WIDTH.dp)
         ) {
             Box(
                 modifier = Modifier
-                    .border(width = 2.dp, color = ComposeColor(Color.WHITE))
+                    .border(
+                        width = (THUMB_BORDER_WIDTH / 3 + 1).dp,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
                     .fillMaxSize()
 
             )
@@ -300,42 +290,54 @@ private fun ColorEditorSliderTrack(
             .fillMaxWidth()
     ) {
         val isRtl = layoutDirection == LayoutDirection.Rtl
+
         val sliderLeft = Offset(0f, center.y)
         val sliderRight = Offset(size.width, center.y)
-        val sliderStart = if (isRtl) sliderRight else sliderLeft
-        val sliderEnd = if (isRtl) sliderLeft else sliderRight
-        val trackStrokeWidth = 3.dp.toPx()
+        val sliderStart = when (isRtl) {
+            false -> sliderLeft; true -> sliderRight
+        }
+        val sliderEnd = when (isRtl) {
+            false -> sliderRight; true -> sliderLeft
+        }
 
-        val sliderMid1 = Offset(
-            sliderStart.x
-                    + (sliderEnd.x - sliderStart.x)
-                    * sliderPositions.activeRange.endInclusive
-                    - 18.dp.toPx(),
-            center.y
+        val trackStrokeWidth = TRACK_WIDTH.dp.toPx()
+
+        val thumbCenter = (sliderStart.x
+                + (sliderEnd.x - sliderStart.x)
+                * sliderPositions.activeRange.endInclusive)
+        val thumbOffset = (THUMB_SIZE / 2 - THUMB_PADDING).dp.toPx()
+
+        val centerLeft = Offset(
+            x = thumbCenter - thumbOffset,
+            y = center.y
         )
 
-        val sliderMid2 = Offset(
-            sliderStart.x
-                    + (sliderEnd.x - sliderStart.x)
-                    * sliderPositions.activeRange.endInclusive
-                    + 18.dp.toPx(),
-            center.y
+        val centerRight = Offset(
+            x = thumbCenter + thumbOffset,
+            y = center.y
         )
 
-        if (sliderStart.x < sliderMid1.x) {
+        val centerStart = when (isRtl) {
+            false -> centerLeft; true -> centerRight
+        }
+        val centerEnd = when (isRtl) {
+            false -> centerRight; true -> centerLeft
+        }
+
+        if ((sliderStart.x < centerStart.x).xor(isRtl)) {
             drawLine(
                 color,
                 sliderStart,
-                sliderMid1,
+                centerStart,
                 trackStrokeWidth,
                 StrokeCap.Square
             )
         }
 
-        if (sliderEnd.x > sliderMid2.x) {
+        if ((sliderEnd.x > centerEnd.x).xor(isRtl)) {
             drawLine(
                 color,
-                sliderMid2,
+                centerEnd,
                 sliderEnd,
                 trackStrokeWidth,
                 StrokeCap.Square
@@ -350,31 +352,15 @@ private fun ColorEditorSliderTrack(
 private fun ColorEditorPreview() {
     PreviewSurface {
 
-        val previousColor = Color.MAGENTA
-        var color by remember { mutableStateOf(previousColor) }
+        val color = 0x5f46ea // Purple
+        val previousColor = 0xcc1cbd // Pink
+        var colorComponents by remember { mutableStateOf(color.toHSL()) }
+
         ColorEditor(
-            color = color,
+            colorComponents = colorComponents,
             previousColor = previousColor,
-            onUpdateColor = { newColor -> color = newColor },
-            onRevert = { color = previousColor }
+            onUpdateComponents = { newComponents -> colorComponents = newComponents },
+            onRevert = { colorComponents = previousColor.toHSL() }
         )
-    }
-}
-
-@Preview
-@Composable
-private fun ColorEditorPreviewAlt() {
-    PreviewSurface {
-        Surface(color = MaterialTheme.colorScheme.surfaceVariant) {
-
-            val previousColor = Color.BLUE
-            var color by remember { mutableStateOf(previousColor) }
-            ColorEditor(
-                color = color,
-                previousColor = previousColor,
-                onUpdateColor = { newColor -> color = newColor },
-                onRevert = { color = previousColor }
-            )
-        }
     }
 }
