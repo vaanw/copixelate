@@ -1,6 +1,6 @@
 package com.copixelate.art
 
-private const val DEBUG_COLOR = 5111807 // Teal
+private const val DEBUG_COLOR = 0x845eb5 // Purple
 
 internal class Drawing {
 

@@ -8,10 +8,11 @@ import com.copixelate.ui.theme.CopixelateTheme
 @Composable
 fun PreviewSurface(
     modifier: Modifier = Modifier,
+    darkTheme: Boolean = true,
     content: @Composable () -> Unit
 ) {
 
-    CopixelateTheme(darkTheme = true) {
+    CopixelateTheme(darkTheme = darkTheme) {
         Surface(modifier = modifier) {
             content()
         }
