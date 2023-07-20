@@ -1,6 +1,6 @@
 package com.copixelate.art
 
-private const val DEBUG_COLOR = 16731647 // Pink
+private const val DEBUG_COLOR = 0x5e77b5 // Blue
 
 internal class Palette {
 
