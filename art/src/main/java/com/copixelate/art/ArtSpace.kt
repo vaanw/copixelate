@@ -70,6 +70,7 @@ class ArtSpace {
             .resize(Point(DEFAULT_DRAWING_WIDTH, DEFAULT_DRAWING_HEIGHT))
             .clear { index: Int -> (index / 5) % palette.colors.size }
             .recolor(palette.colors)
+        refreshBrushPreview()
     }
 
     fun updateBrushSize(size: Int) {

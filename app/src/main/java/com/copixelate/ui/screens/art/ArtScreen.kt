@@ -2,27 +2,61 @@ package com.copixelate.ui.screens.art
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExitTransition.Companion.None
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.animateOffsetAsState
 import androidx.compose.animation.fadeIn
+import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.gestures.rememberTransformableState
+import androidx.compose.foundation.gestures.transformable
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.IconToggleButton
+import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.max
-import com.copixelate.art.*
+import com.copixelate.R
+import com.copixelate.art.ArtSpace
+import com.copixelate.art.PixelGrid
+import com.copixelate.art.PixelRow
+import com.copixelate.art.Point
+import com.copixelate.art.PointF
 import com.copixelate.ui.components.BitmapImage
+import com.copixelate.ui.theme.disable
 import com.copixelate.ui.util.PreviewSurface
 import com.copixelate.ui.util.toDp
 import com.copixelate.viewmodel.ArtViewModel
@@ -56,22 +90,51 @@ fun ArtScreenContent(
     onTouchDrawing: (unitPosition: PointF) -> Unit,
     onTapPalette: (paletteIndex: Int) -> Unit,
     onBrushSizeUpdate: (Int) -> Unit
-
 ) {
 
     Column(
-        Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.SpaceEvenly
+        Modifier.background(color = MaterialTheme.colorScheme.background)
     ) {
 
-        Drawing(
-            drawing = drawing,
-            onTouchDrawing = onTouchDrawing
-        )
+        // Drawing area
+        Box(
+            modifier = Modifier
+                // Fill available column height
+                .weight(1f)
+                // Prevents drawing being shown outside container due to transform
+                .clip(shape = RectangleShape)
+        ) {
+
+            var transformable: Boolean by remember { mutableStateOf(false) }
+
+            DrawingTransformer(
+                transformable = transformable,
+                modifier = Modifier
+                    .align(Alignment.Center)
+            ) { transModifier ->
+                Drawing(
+                    drawing = drawing,
+                    editable = !transformable,
+                    onTouchDrawing = onTouchDrawing,
+                    modifier = transModifier.fillMaxWidth()
+                )
+            }
+
+            DrawingToolBar(
+                transformable = transformable,
+                onUpdateTransformable = { newValue: Boolean ->
+                    transformable = newValue
+                },
+                modifier = Modifier.align(Alignment.TopEnd)
+            )
+
+        }
+
+        // Palette + preview
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(100.dp)
+                .height(80.dp)
         ) {
 
             BrushPreview(
@@ -88,6 +151,7 @@ fun ArtScreenContent(
             )
 
         } // End Row
+
         BrushSizeSlider(
             steps = SliderSteps(1, 16, initialBrushSize),
             onSizeChange = onBrushSizeUpdate,
@@ -97,38 +161,156 @@ fun ArtScreenContent(
     } // End Column
 }
 
-private fun IntSize.toPoint() = Point(width, height)
-private fun Offset.toPointF() = PointF(x, y)
+@Composable
+private fun DrawingToolBar(
+    transformable: Boolean,
+    onUpdateTransformable: (Boolean) -> Unit,
+    modifier: Modifier = Modifier
+) {
+
+    Row(modifier = modifier) {
+
+        val bgColor = MaterialTheme.colorScheme.background
+
+        // Enable transformable-mode (pan & zoom)
+        IconToggleButton(
+            checked = transformable,
+            onCheckedChange = { newValue: Boolean ->
+                onUpdateTransformable(newValue)
+            },
+            colors = IconButtonDefaults.iconToggleButtonColors(
+                containerColor = bgColor,
+                checkedContainerColor = bgColor,
+                contentColor = LocalContentColor.current.disable()
+            )
+        ) {
+            Icon(
+                imageVector = ImageVector.vectorResource(id = R.drawable.drag_pan),
+                contentDescription = "Enable pan and zoom"
+            )
+        } // End IconToggleButton
+
+    } // End Row
+} // End DrawingToolBar
+
+@Composable
+private fun DrawingTransformer(
+    transformable: Boolean,
+    modifier: Modifier = Modifier,
+    content: @Composable (Modifier) -> Unit
+) {
+
+    var revert by remember { mutableStateOf(false) }
+
+    var scale by remember { mutableStateOf(1f) }
+    var offset by remember { mutableStateOf(Offset.Zero) }
+
+    val state = rememberTransformableState { zoomChange, offsetChange, _ ->
+        scale *= zoomChange
+        offset += offsetChange
+    }
+
+    if (revert) {
+        var targetScale by remember { mutableStateOf(scale) }
+        val animatedScale: Float by animateFloatAsState(
+            targetValue = targetScale
+        )
+        targetScale = 1f
+
+        var targetOffset by remember { mutableStateOf(offset) }
+        val animatedOffset: Offset by animateOffsetAsState(
+            targetValue = targetOffset
+        )
+        targetOffset = Offset.Zero
+
+        scale = animatedScale
+        offset = animatedOffset
+
+        // End revert if complete
+        if (scale == 1f
+            && offset == Offset.Zero
+        ) revert = false
+    }
+
+
+    Box(
+        modifier = modifier
+            // Gather transform input
+            .transformable(
+                state = state,
+                enabled = transformable
+            )
+            .then(when (transformable) {
+                false -> Modifier
+                // Double-tap to revert transform
+                true -> Modifier.pointerInput(Unit) {
+                    detectTapGestures(
+                        onDoubleTap = { _ ->
+                            revert = true
+                        })
+                }
+            }
+            )
+
+    ) {
+
+        content(
+            Modifier
+                // Transform content
+                .graphicsLayer(
+                    scaleX = scale,
+                    scaleY = scale,
+                    translationX = offset.x,
+                    translationY = offset.y
+                )
+        )
+
+    } // End Box
+
+} // End DrawingTransformer
 
 @Composable
 private fun Drawing(
     drawing: PixelGrid,
-    onTouchDrawing: (unitPosition: PointF) -> Unit
+    editable: Boolean,
+    onTouchDrawing: (unitPosition: PointF) -> Unit,
+    modifier: Modifier = Modifier
 ) {
 
     var viewSize by remember { mutableStateOf(Point()) }
+
+    fun IntSize.toPoint() = Point(width, height)
+    fun Offset.toPointF() = PointF(x, y)
 
     BitmapImage(
         pixelGrid = drawing,
         contentDescription = "Drawing",
         contentScale = ContentScale.FillWidth,
-        modifier = Modifier
-            .fillMaxWidth()
-            .onGloballyPositioned {
-                viewSize = it.size.toPoint()
+        modifier = modifier
+            .onGloballyPositioned { layout ->
+                viewSize = layout.size.toPoint()
             }
-            .pointerInput(Unit) {
-                detectDragGestures { change, _ ->
-                    onTouchDrawing(change.position.toPointF() / viewSize)
-                }
-            }
-            .pointerInput(Unit) {
-                detectTapGestures(
-                    onPress = { position ->
-                        onTouchDrawing(position.toPointF() / viewSize)
-                    })
-            })
-}
+            .then(when (editable) {
+                false -> Modifier
+                // Draw on tap or drag
+                true -> {
+                    Modifier
+                        .pointerInput(Unit) {
+                            detectTapGestures(
+                                onPress = { position ->
+                                    onTouchDrawing(position.toPointF() / viewSize)
+                                })
+                        }
+                        .pointerInput(Unit) {
+                            detectDragGestures { change, _ ->
+                                onTouchDrawing(change.position.toPointF() / viewSize)
+                            }
+                        }
+                } // End true
+            } /* End when */) // End then
+    ) // End BitmapImage
+
+} // End Drawing
 
 @Composable
 private fun Palette(
@@ -147,14 +329,15 @@ private fun Palette(
     Box(
         contentAlignment = Alignment.Center,
         modifier = modifier
-
     ) {
+        // Palette border
         BitmapImage(
             color = palette.activeColor,
             contentDescription = "Drawing palette border",
             contentScale = ContentScale.FillBounds,
             modifier = Modifier.fillMaxSize()
         )
+        // Palette items
         LazyRow(
             modifier = Modifier
                 .fillMaxSize()
@@ -179,8 +362,8 @@ private fun Palette(
                                 onTap = { onTapPalette(index) })
                         }
                 )
-            }
-        }
+            } // End itemsIndexed
+        } // End Lazy Row (Palette items)
 
     } // End Box
 
@@ -228,17 +411,33 @@ private fun BrushSizeSlider(
 @Composable
 fun ArtScreenPreview() {
 
-    val phonyState = ArtSpace().state
+    val artSpace by remember { mutableStateOf(ArtSpace().createDefaultArt()) }
+
+    var drawing by remember { mutableStateOf(artSpace.state.colorDrawing) }
+    var palette by remember { mutableStateOf(artSpace.state.palette) }
+    var brushPreview by remember { mutableStateOf(artSpace.state.brushPreview) }
+    var brushSize by remember { mutableStateOf(artSpace.state.brushSize) }
 
     PreviewSurface {
         ArtScreenContent(
-            drawing = phonyState.colorDrawing,
-            palette = phonyState.palette,
-            brushPreview = phonyState.brushPreview,
-            initialBrushSize = phonyState.brushSize,
-            onTouchDrawing = {},
-            onTapPalette = {},
-            onBrushSizeUpdate = {}
+            drawing = drawing,
+            palette = palette,
+            brushPreview = brushPreview,
+            initialBrushSize = brushSize,
+            onTouchDrawing = { unitPosition ->
+                artSpace.updateDrawing(unitPosition = unitPosition)
+                drawing = artSpace.state.colorDrawing
+            },
+            onTapPalette = { paletteIndex ->
+                artSpace.updatePaletteActiveIndex(paletteIndex = paletteIndex)
+                palette = artSpace.state.palette
+                brushPreview = artSpace.state.brushPreview
+            },
+            onBrushSizeUpdate = { size ->
+                artSpace.updateBrushSize(size = size)
+                brushSize = artSpace.state.brushSize
+                brushPreview = artSpace.state.brushPreview
+            }
         )
     }
 
