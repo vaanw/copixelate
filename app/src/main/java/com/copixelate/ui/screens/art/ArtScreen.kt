@@ -5,7 +5,6 @@ import androidx.compose.animation.ExitTransition.Companion.None
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.animateOffsetAsState
 import androidx.compose.animation.fadeIn
-import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.rememberTransformableState
@@ -13,6 +12,7 @@ import androidx.compose.foundation.gestures.transformable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -21,6 +21,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.IconToggleButton
@@ -52,9 +55,10 @@ import androidx.compose.ui.unit.max
 import com.copixelate.R
 import com.copixelate.art.ArtSpace
 import com.copixelate.art.PixelGrid
-import com.copixelate.art.PixelRow
 import com.copixelate.art.Point
 import com.copixelate.art.PointF
+import com.copixelate.data.model.PaletteModel
+import com.copixelate.data.model.toModel
 import com.copixelate.ui.components.BitmapImage
 import com.copixelate.ui.theme.disable
 import com.copixelate.ui.util.PreviewSurface
@@ -75,6 +79,7 @@ fun ArtScreen(artViewModel: ArtViewModel) {
             initialBrushSize = artViewModel.brushSize.collectAsState().value,
             onTouchDrawing = { unitPosition -> artViewModel.updateDrawing(unitPosition) },
             onTapPalette = { paletteIndex -> artViewModel.updatePaletteActiveIndex(paletteIndex) },
+            onEditColor = { color -> artViewModel.updatePaletteActiveColor(color) },
             onBrushSizeUpdate = { size -> artViewModel.updateBrush(size) }
         )
     }
@@ -84,17 +89,16 @@ fun ArtScreen(artViewModel: ArtViewModel) {
 @Composable
 fun ArtScreenContent(
     drawing: PixelGrid,
-    palette: PixelRow,
+    palette: PaletteModel,
     brushPreview: PixelGrid,
     initialBrushSize: Int,
     onTouchDrawing: (unitPosition: PointF) -> Unit,
     onTapPalette: (paletteIndex: Int) -> Unit,
+    onEditColor: (color: Int) -> Unit,
     onBrushSizeUpdate: (Int) -> Unit
 ) {
 
-    Column(
-        Modifier.background(color = MaterialTheme.colorScheme.background)
-    ) {
+    Column {
 
         // Drawing area
         Box(
@@ -116,7 +120,8 @@ fun ArtScreenContent(
                     drawing = drawing,
                     editable = !transformable,
                     onTouchDrawing = onTouchDrawing,
-                    modifier = transModifier.fillMaxWidth()
+                    modifier = transModifier
+                        .fillMaxWidth()
                 )
             }
 
@@ -125,41 +130,124 @@ fun ArtScreenContent(
                 onUpdateTransformable = { newValue: Boolean ->
                     transformable = newValue
                 },
-                modifier = Modifier.align(Alignment.TopEnd)
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
             )
 
         }
 
-        // Palette + preview
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(80.dp)
-        ) {
-
-            BrushPreview(
-                pixelGrid = brushPreview,
-                modifier = Modifier.fillMaxHeight()
-            )
-            Palette(
-                palette = palette,
-                borderStroke = 10.dp,
-                onTapPalette = onTapPalette,
-                modifier = Modifier
-                    .fillMaxHeight()
-                    .weight(1f)
-            )
-
-        } // End Row
-
-        BrushSizeSlider(
-            steps = SliderSteps(1, 16, initialBrushSize),
-            onSizeChange = onBrushSizeUpdate,
-            modifier = Modifier.padding(horizontal = 40.dp)
+        PalettePanel(
+            palette = palette,
+            brushPreview = brushPreview,
+            initialBrushSize = initialBrushSize,
+            onTapPalette = onTapPalette,
+            onEditColor = onEditColor,
+            onBrushSizeUpdate = onBrushSizeUpdate,
         )
 
     } // End Column
-}
+} // ArtScreenContent
+
+@Composable
+fun PalettePanel(
+    palette: PaletteModel,
+    brushPreview: PixelGrid,
+    initialBrushSize: Int,
+    onTapPalette: (paletteIndex: Int) -> Unit,
+    onEditColor: (color: Int) -> Unit,
+    onBrushSizeUpdate: (Int) -> Unit
+) {
+
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+
+        var expanded by remember { mutableStateOf(false) }
+
+        var previousColor by remember { mutableStateOf(palette.activeColor) }
+        var colorComponents by remember { mutableStateOf(palette.activeColor.toHSL()) }
+
+        Box {
+            // Palette + preview
+            Column(
+                modifier = Modifier
+                    .padding(bottom = 32.dp)
+            ) {
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(80.dp)
+                ) {
+
+                    BrushPreview(
+                        pixelGrid = brushPreview,
+                        modifier = Modifier.fillMaxHeight()
+                    )
+                    Palette(
+                        palette = palette,
+                        borderStroke = 10.dp,
+                        onTapPalette = { index ->
+                            onTapPalette(index)
+                            previousColor = palette.pixels[index]
+                            colorComponents = previousColor.toHSL()
+                        },
+                        modifier = Modifier
+                            .fillMaxHeight()
+                            .weight(1f)
+                    )
+
+                } // End Row
+
+                BrushSizeSlider(
+                    steps = SliderSteps(1, 16, initialBrushSize),
+                    onSizeChange = onBrushSizeUpdate,
+                    modifier = Modifier
+                        .padding(horizontal = 40.dp)
+                )
+
+            } // End Column
+
+            IconToggleButton(
+                checked = expanded,
+                onCheckedChange = { newValue -> expanded = newValue },
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+            ) {
+                when (expanded) {
+                    false -> Icon(
+                        imageVector = Icons.Default.ExpandMore,
+                        contentDescription = "Localized description"
+                    )
+
+                    true -> Icon(
+                        imageVector = Icons.Default.ExpandLess,
+                        contentDescription = "Localized description"
+                    )
+                }
+
+            }
+
+        } // End Box
+
+        AnimatedVisibility(visible = expanded) {
+
+            ColorEditor(
+                colorComponents = colorComponents,
+                previousColor = previousColor,
+                onUpdateComponents = { newComponents ->
+                    colorComponents = newComponents
+                    onEditColor(colorComponents.toColor())
+                },
+                onRevert = {
+                    colorComponents = previousColor.toHSL()
+                    onEditColor(colorComponents.toColor())
+                }
+            )
+
+        }
+
+    } // End Column
+
+} // End PalettePanel
 
 @Composable
 private fun DrawingToolBar(
@@ -285,8 +373,9 @@ private fun Drawing(
     BitmapImage(
         pixelGrid = drawing,
         contentDescription = "Drawing",
-        contentScale = ContentScale.FillWidth,
+        contentScale = ContentScale.FillBounds,
         modifier = modifier
+            .aspectRatio(1f)
             .onGloballyPositioned { layout ->
                 viewSize = layout.size.toPoint()
             }
@@ -314,9 +403,9 @@ private fun Drawing(
 
 @Composable
 private fun Palette(
-    palette: PixelRow,
+    palette: PaletteModel,
     borderStroke: Dp,
-    onTapPalette: (paletteIndex: Int) -> Unit,
+    onTapPalette: (index: Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
 
@@ -346,10 +435,10 @@ private fun Palette(
                     viewWidth = layout.size.width
                 }
         ) {
-            itemsIndexed(items = palette.pixels.toList()) { index, value ->
+            itemsIndexed(items = palette.pixels.toList()) { index, color ->
                 BitmapImage(
                     pixelGrid = PixelGrid(
-                        pixels = intArrayOf(value),
+                        pixels = intArrayOf(color),
                         size = Point(1)
                     ),
                     contentDescription = "Drawing palette border",
@@ -359,7 +448,8 @@ private fun Palette(
                         .width(paletteItemWidth)
                         .pointerInput(Unit) {
                             detectTapGestures(
-                                onTap = { onTapPalette(index) })
+                                onTap = { onTapPalette(index) }
+                            )
                         }
                 )
             } // End itemsIndexed
@@ -414,7 +504,7 @@ fun ArtScreenPreview() {
     val artSpace by remember { mutableStateOf(ArtSpace().createDefaultArt()) }
 
     var drawing by remember { mutableStateOf(artSpace.state.colorDrawing) }
-    var palette by remember { mutableStateOf(artSpace.state.palette) }
+    var palette by remember { mutableStateOf(artSpace.state.palette.toModel()) }
     var brushPreview by remember { mutableStateOf(artSpace.state.brushPreview) }
     var brushSize by remember { mutableStateOf(artSpace.state.brushSize) }
 
@@ -429,9 +519,15 @@ fun ArtScreenPreview() {
                 drawing = artSpace.state.colorDrawing
             },
             onTapPalette = { paletteIndex ->
-                artSpace.updatePaletteActiveIndex(paletteIndex = paletteIndex)
-                palette = artSpace.state.palette
+                artSpace.updatePaletteActiveIndex(index = paletteIndex)
+                palette = artSpace.state.palette.toModel()
                 brushPreview = artSpace.state.brushPreview
+            },
+            onEditColor = { color ->
+                artSpace.updatePaletteActiveColor(color = color)
+                palette = artSpace.state.palette.toModel()
+                brushPreview = artSpace.state.brushPreview
+                drawing = artSpace.state.colorDrawing
             },
             onBrushSizeUpdate = { size ->
                 artSpace.updateBrushSize(size = size)
@@ -441,4 +537,4 @@ fun ArtScreenPreview() {
         )
     }
 
-}
+} // End ArtScreenPreview

@@ -18,6 +18,10 @@ internal class Palette {
     internal fun select(index: Int) =
         indexHistory.apply { addFirst(index); removeLast() }
 
+    internal fun remix(color: Int) = apply {
+        colors[activeIndex] = color
+    }
+
     internal fun resize(size: Int) = apply {
         colors = IntArray(size) { index ->
             when (index < colors.size) {

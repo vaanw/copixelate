@@ -83,7 +83,7 @@ fun ColorEditor(
             ) { index: Int ->
                 colorComponents
                     .toMutableList()
-                    .apply { this[0] = (index * 1f / 18) * 360f }
+                    .apply { this[0] = (index * 1f / 17) * 360f }
                     .toColor()
             }
         )
@@ -102,7 +102,7 @@ fun ColorEditor(
             ) { index ->
                 colorComponents
                     .toMutableList()
-                    .apply { this[1] = (index * 1f / 10) }
+                    .apply { this[1] = (index * 1f / 9) }
                     .toColor()
             }
         )
@@ -121,7 +121,7 @@ fun ColorEditor(
             ) { index ->
                 colorComponents
                     .toMutableList()
-                    .apply { this[2] = (index * 1f / 10) }
+                    .apply { this[2] = (index * 1f / 9) }
                     .toColor()
             }
         )
