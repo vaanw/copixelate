@@ -28,9 +28,12 @@ data class DrawingModel(
 
 data class PaletteModel(
     val id: IdModel = IdModel(),
-    val size: SizeModel = SizeModel(),
     val pixels: List<Int> = emptyList(),
-)
+    val activeIndex: Int = 0
+){
+    val activeColor
+        get() = pixels[activeIndex]
+}
 
 data class SizeModel(
     val x: Int = 0,
@@ -47,8 +50,8 @@ data class UpdateModel(
 //
 fun ArtSpace.toModel() =
     SpaceModel(
-        drawing = this.state.drawing.toDrawingModel(),
-        palette = this.state.palette.toPaletteModel()
+        drawing = this.state.drawing.toModel(),
+        palette = this.state.palette.toModel()
     )
 
 fun SpaceModel.toArtSpace() = ArtSpace().apply {
@@ -59,12 +62,12 @@ fun SpaceModel.toArtSpace() = ArtSpace().apply {
 }
 
 fun SpaceModel.copyFrom(artSpace: ArtSpace) = copy(
-    drawing = artSpace.state.drawing.toDrawingModel().copy(id = this.drawing.id),
-    palette = artSpace.state.palette.toPaletteModel().copy(id = this.palette.id)
+    drawing = artSpace.state.drawing.toModel().copy(id = this.drawing.id),
+    palette = artSpace.state.palette.toModel().copy(id = this.palette.id)
 )
 
 // ArtSpace - Drawing
-private fun PixelGrid.toDrawingModel() =
+private fun PixelGrid.toModel() =
     DrawingModel(
         size = this.size.toSizeModel(),
         pixels = this.pixels.asList()
@@ -75,12 +78,14 @@ private fun DrawingModel.toPixelGrid() = PixelGrid(
 )
 
 // ArtSpace - Palette
-private fun PixelRow.toPaletteModel() =
+fun PixelRow.toModel() =
     PaletteModel(
-        pixels = this.pixels.asList()
+        pixels = this.pixels.asList(),
+        activeIndex = this.activeIndex
     )
 private fun PaletteModel.toPixelRow() = PixelRow(
-    pixels = this.pixels.toIntArray()
+    pixels = this.pixels.toIntArray(),
+    activeIndex = this.activeIndex,
 )
 
 // ArtSpace - Point
@@ -134,13 +139,11 @@ private fun DrawingModel.toEntity() = DrawingEntity(
 // PaletteEntity
 private fun PaletteEntity.toModel() = PaletteModel(
     id = IdModel(localId = id),
-    size = size.toSizeModel(),
     pixels = pixels
 )
 
 private fun PaletteModel.toEntity() = PaletteEntity(
     id = id.localId ?: 0,
     pixels = pixels,
-    size = this.size.toIntList(),
     remoteKey = id.remoteId
 )

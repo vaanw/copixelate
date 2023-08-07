@@ -25,7 +25,7 @@ class ArtViewModel : ViewModel() {
     private var spaceModel = artSpace.toModel()
 
     private val _drawing = MutableStateFlow(artSpace.state.colorDrawing)
-    private val _palette = MutableStateFlow(artSpace.state.palette)
+    private val _palette = MutableStateFlow(artSpace.state.palette.toModel())
     private val _brushPreview = MutableStateFlow(artSpace.state.brushPreview)
     private val _brushSize = MutableStateFlow(artSpace.state.brushSize)
 
@@ -77,7 +77,7 @@ class ArtViewModel : ViewModel() {
     private fun refreshArtSpace(newArtSpace: ArtSpace) {
         artSpace = newArtSpace
         _drawing.update { artSpace.state.colorDrawing }
-        _palette.update { artSpace.state.palette }
+        _palette.update { artSpace.state.palette.toModel() }
         _brushPreview.update { artSpace.state.brushPreview }
     }
 
@@ -92,6 +92,7 @@ class ArtViewModel : ViewModel() {
                             spaceModel = spaceModel.copyFrom(artSpace = artSpace)
                         )
                     }
+
                     is ArtSpaceResult.Failure -> Log.d(javaClass.simpleName, result.toString())
                 }
             }
@@ -101,13 +102,35 @@ class ArtViewModel : ViewModel() {
     fun updatePaletteActiveIndex(paletteIndex: Int) =
         viewModelScope.launch {
 
-            artSpace.updatePaletteActiveIndex(paletteIndex = paletteIndex)
+            artSpace.updatePaletteActiveIndex(index = paletteIndex)
                 .let { result ->
                     when (result) {
                         is ArtSpaceResult.Success -> {
-                            _palette.update { artSpace.state.palette }
+                            _palette.update { artSpace.state.palette.toModel() }
                             _brushPreview.update { artSpace.state.brushPreview }
                         }
+
+                        is ArtSpaceResult.Failure -> Log.d(javaClass.simpleName, result.toString())
+                    }
+                }
+
+        }
+
+    fun updatePaletteActiveColor(color: Int) =
+        viewModelScope.launch {
+
+            artSpace.updatePaletteActiveColor(color = color)
+                .let { result ->
+                    when (result) {
+                        is ArtSpaceResult.Success -> {
+                            _palette.update { artSpace.state.palette.toModel() }
+                            _drawing.update { artSpace.state.colorDrawing }
+                            _brushPreview.update { artSpace.state.brushPreview }
+                            artRepo.saveSpace(
+                                spaceModel = spaceModel.copyFrom(artSpace = artSpace)
+                            )
+                        }
+
                         is ArtSpaceResult.Failure -> Log.d(javaClass.simpleName, result.toString())
                     }
                 }

@@ -180,20 +180,27 @@ class ArtSpace {
         return ArtSpaceResult.Success(Unit)
     }
 
-    fun updatePaletteActiveIndex(paletteIndex: Int): ArtSpaceResult<Unit> {
+    fun updatePaletteActiveIndex(index: Int): ArtSpaceResult<Unit> {
 
-        if (paletteIndex == palette.activeIndex) {
+        if (index == palette.activeIndex) {
             return ArtSpaceResult.Failure(
                 IllegalArgumentException(
-                    "updatePaletteActiveIndex: Failed; paletteIndex $paletteIndex is equal to palette.activeIndex ${palette.activeIndex}"
+                    "updatePaletteActiveIndex: Failed; index $index is equal to palette.activeIndex ${palette.activeIndex}"
                 )
             )
         }
 
-        palette.select(paletteIndex)
+        palette.select(index)
         refreshBrushPreview()
 
         return ArtSpaceResult.Success(Unit)
     }
+
+    fun updatePaletteActiveColor(color: Int): ArtSpaceResult<Unit> =
+        ArtSpaceResult.Success(Unit).also {
+            palette.remix(color)
+            drawing.recolor(palette.colors)
+            refreshBrushPreview()
+        }
 
 }

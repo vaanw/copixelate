@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "9625fe3aca1de809232aba0ff51c35d4",
+    "identityHash": "552b09e5243a4385e39e1440ef637876",
     "entities": [
       {
         "tableName": "space",
@@ -124,7 +124,7 @@
       },
       {
         "tableName": "palette",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `pixels` TEXT NOT NULL, `size` TEXT NOT NULL, `remote_key` TEXT)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `pixels` TEXT NOT NULL, `remote_key` TEXT)",
         "fields": [
           {
             "fieldPath": "id",
@@ -135,12 +135,6 @@
           {
             "fieldPath": "pixels",
             "columnName": "pixels",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "size",
-            "columnName": "size",
             "affinity": "TEXT",
             "notNull": true
           },
@@ -164,7 +158,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '9625fe3aca1de809232aba0ff51c35d4')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '552b09e5243a4385e39e1440ef637876')"
     ]
   }
 }

@@ -2,7 +2,6 @@ package com.copixelate.data.room
 
 import androidx.room.*
 import kotlinx.coroutines.flow.Flow
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
@@ -35,7 +34,6 @@ class DrawingEntity(
 class PaletteEntity(
     @PrimaryKey(autoGenerate = true) val id: Long,
     @ColumnInfo(name = "pixels") val pixels: List<Int>,
-    @ColumnInfo(name = "size") val size: List<Int>,
     @ColumnInfo(name = "remote_key") val remoteKey: String?
 )
 
