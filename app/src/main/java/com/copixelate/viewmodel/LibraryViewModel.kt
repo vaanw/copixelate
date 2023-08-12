@@ -25,9 +25,12 @@ class LibraryViewModel : ViewModel() {
                 started = SharingStarted.Eagerly
             )
 
-    fun createNewArtSpace() =
+    fun createNewArtSpace(width: Int, height: Int, paletteSize: Int) =
         viewModelScope.launch {
-            artRepo.saveSpace(artSpace = ArtSpace().createDefaultArt())
+            artRepo.saveSpace(
+                artSpace = ArtSpace()
+                    .createDefaultArt(width, height, paletteSize)
+            )
         }
 
     fun deleteArtSpace(spaceModel: SpaceModel) =

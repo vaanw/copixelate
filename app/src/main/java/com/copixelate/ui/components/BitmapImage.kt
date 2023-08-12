@@ -35,7 +35,7 @@ internal fun BitmapImage(
 ) {
 
     val bitmapConfig = Bitmap.Config.RGB_565
-    val bitmap = Bitmap.createBitmap(colors, height, width, bitmapConfig)
+    val bitmap = Bitmap.createBitmap(colors, width, height, bitmapConfig)
 
     Image(
         bitmap = bitmap.asImageBitmap(),
