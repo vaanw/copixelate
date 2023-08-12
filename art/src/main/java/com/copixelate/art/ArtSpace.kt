@@ -37,7 +37,8 @@ class ArtSpace {
 
     private fun refreshBrushPreview() {
 
-        var previewSize = drawing.size / 3
+        val scaleDivisor = 3
+        var previewSize = drawing.size.toMinSquare() / scaleDivisor
 
         if (previewSize.x <= brush.size)
             previewSize = Point(brush.size + 1, brush.size + 1)
@@ -62,12 +63,16 @@ class ArtSpace {
             )
     }
 
-    fun createDefaultArt() = apply {
+    fun createDefaultArt(
+        width: Int = DEFAULT_DRAWING_WIDTH,
+        height: Int = DEFAULT_DRAWING_HEIGHT,
+        paletteSize: Int = DEFAULT_PALETTE_SIZE
+    ) = apply {
         palette
-            .resize(size = DEFAULT_PALETTE_SIZE)
+            .resize(size = paletteSize)
             .clear { Random(System.nanoTime()).nextInt() }
         drawing
-            .resize(Point(DEFAULT_DRAWING_WIDTH, DEFAULT_DRAWING_HEIGHT))
+            .resize(Point(width, height))
             .clear { index: Int -> (index / 5) % palette.colors.size }
             .recolor(palette.colors)
         refreshBrushPreview()

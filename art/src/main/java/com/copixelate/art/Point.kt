@@ -1,6 +1,7 @@
 package com.copixelate.art
 
 import kotlin.math.floor
+import kotlin.math.min
 
 data class Point(var x: Int = 0, var y: Int = x) {
     operator fun div(i: Int) = Point(x / i, y / i)
@@ -13,6 +14,7 @@ data class Point(var x: Int = 0, var y: Int = x) {
 
     val area get() = x * y
     fun contains(p: PointF): Boolean = !(p.x < 0 || p.x > x || p.y < 0 || p.y > y)
+    fun toMinSquare() = Point(min(x, y))
 }
 
 data class PointF(var x: Float = 0f, var y: Float = x) {

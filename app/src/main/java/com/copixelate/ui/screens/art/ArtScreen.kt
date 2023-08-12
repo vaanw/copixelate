@@ -114,14 +114,15 @@ fun ArtScreenContent(
             DrawingTransformer(
                 transformable = transformable,
                 modifier = Modifier
-                    .align(Alignment.Center)
+                    .fillMaxSize()
             ) { transModifier ->
                 Drawing(
                     drawing = drawing,
                     editable = !transformable,
                     onTouchDrawing = onTouchDrawing,
                     modifier = transModifier
-                        .fillMaxWidth()
+                        .aspectRatio(drawing.size.x * 1f / drawing.size.y)
+                        .align(Alignment.Center)
                 )
             }
 
@@ -375,7 +376,6 @@ private fun Drawing(
         contentDescription = "Drawing",
         contentScale = ContentScale.FillBounds,
         modifier = modifier
-            .aspectRatio(1f)
             .onGloballyPositioned { layout ->
                 viewSize = layout.size.toPoint()
             }
@@ -435,7 +435,7 @@ private fun Palette(
                     viewWidth = layout.size.width
                 }
         ) {
-            itemsIndexed(items = palette.pixels.toList()) { index, color ->
+            itemsIndexed(items = palette.pixels) { index, color ->
                 BitmapImage(
                     pixelGrid = PixelGrid(
                         pixels = intArrayOf(color),
@@ -501,7 +501,7 @@ private fun BrushSizeSlider(
 @Composable
 fun ArtScreenPreview() {
 
-    val artSpace by remember { mutableStateOf(ArtSpace().createDefaultArt()) }
+    val artSpace by remember { mutableStateOf(ArtSpace().createDefaultArt(8, 16, 2)) }
 
     var drawing by remember { mutableStateOf(artSpace.state.colorDrawing) }
     var palette by remember { mutableStateOf(artSpace.state.palette.toModel()) }
