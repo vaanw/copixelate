@@ -6,10 +6,12 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import com.copixelate.ui.nav.NavInfo
-import com.copixelate.ui.screens.*
+import com.copixelate.ui.screens.AuthScreen
+import com.copixelate.ui.screens.SettingsScreen
 import com.copixelate.ui.screens.art.ArtScreen
 import com.copixelate.ui.screens.contacts.AddContactsScreen
 import com.copixelate.ui.screens.contacts.ContactsScreen
+import com.copixelate.ui.screens.library.LibraryScreen
 import com.copixelate.viewmodel.ArtViewModel
 import com.copixelate.viewmodel.LibraryViewModel
 import com.copixelate.viewmodel.NavViewModel

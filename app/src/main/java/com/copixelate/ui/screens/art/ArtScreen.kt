@@ -59,7 +59,7 @@ import com.copixelate.art.Point
 import com.copixelate.art.PointF
 import com.copixelate.data.model.PaletteModel
 import com.copixelate.data.model.toModel
-import com.copixelate.ui.components.BitmapImage
+import com.copixelate.ui.common.BitmapImage
 import com.copixelate.ui.theme.disable
 import com.copixelate.ui.util.PreviewSurface
 import com.copixelate.ui.util.toDp

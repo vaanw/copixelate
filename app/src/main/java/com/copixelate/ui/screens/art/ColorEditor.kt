@@ -39,7 +39,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.ColorUtils
-import com.copixelate.ui.components.BitmapImage
+import com.copixelate.ui.common.BitmapImage
 import com.copixelate.ui.util.PreviewSurface
 import androidx.compose.ui.graphics.Color as ComposeColor
 
