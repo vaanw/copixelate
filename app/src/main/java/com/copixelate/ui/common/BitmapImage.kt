@@ -1,4 +1,4 @@
-package com.copixelate.ui.components
+package com.copixelate.ui.common
 
 import android.graphics.Bitmap
 import androidx.compose.foundation.Image

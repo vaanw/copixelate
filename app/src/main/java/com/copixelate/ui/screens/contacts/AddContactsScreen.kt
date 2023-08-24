@@ -47,7 +47,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.copixelate.ui.components.ValidatedTextInputField
+import com.copixelate.ui.common.ValidatedTextInputField
 import com.copixelate.ui.theme.disableIf
 import com.copixelate.ui.util.InputValidation
 import com.copixelate.ui.util.PreviewSurface

@@ -1,4 +1,4 @@
-package com.copixelate.ui.components
+package com.copixelate.ui.common
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding

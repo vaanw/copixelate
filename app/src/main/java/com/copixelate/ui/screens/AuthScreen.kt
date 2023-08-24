@@ -18,8 +18,8 @@ import com.copixelate.data.*
 import com.copixelate.ui.nav.NavInfo
 import com.copixelate.ui.nav.compareRoute
 import com.copixelate.ui.nav.navigate
-import com.copixelate.ui.components.SecretTextInputField
-import com.copixelate.ui.components.ValidatedTextInputField
+import com.copixelate.ui.common.SecretTextInputField
+import com.copixelate.ui.common.ValidatedTextInputField
 import com.copixelate.ui.util.InputValidation
 import com.copixelate.ui.util.PreviewSurface
 import com.copixelate.viewmodel.NavViewModel
