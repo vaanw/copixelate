@@ -17,22 +17,8 @@ captures/
 output.json
 
 # IntelliJ
+.idea/
 *.iml
-.idea/caches/
-.idea/libraries/
-.idea/shelf/
-.idea/.name
-.idea/misc.xml
-.idea/modules.xml
-.idea/compiler.xml
-.idea/kotlinc.xml
-.idea/gradle.xml
-.idea/vcs.xml
-.idea/workspace.xml
-.idea/navEditor.xml
-.idea/assetWizardSettings.xml
-.idea/deploymentTargetDropDown.xml
-.idea/render.experimental.xml
 
 # Keystore files
 *.jks
