@@ -34,7 +34,7 @@ internal fun BitmapImage(
     modifier: Modifier = Modifier
 ) {
 
-    val bitmapConfig = Bitmap.Config.RGB_565
+    val bitmapConfig = Bitmap.Config.ARGB_8888
     val bitmap = Bitmap.createBitmap(colors, width, height, bitmapConfig)
 
     Image(

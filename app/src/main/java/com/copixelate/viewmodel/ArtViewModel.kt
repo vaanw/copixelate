@@ -13,7 +13,10 @@ import com.copixelate.data.model.toModel
 import com.copixelate.data.repo.ArtRepo
 import com.copixelate.data.repo.UiRepo
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class ArtViewModel : ViewModel() {
@@ -22,7 +25,7 @@ class ArtViewModel : ViewModel() {
     private val uiRepo = UiRepo
 
     private var artSpace = ArtSpace()
-    private var spaceModel = artSpace.toModel()
+    private var spaceModel = SpaceModel()
 
     private val _drawing = MutableStateFlow(artSpace.state.colorDrawing)
     private val _palette = MutableStateFlow(artSpace.state.palette.toModel())
@@ -66,7 +69,9 @@ class ArtViewModel : ViewModel() {
                             }
                         // if a default SpaceModel is not found, create a new one
                         ?: run {
-                            val newId = artRepo.saveSpace(artSpace = artSpace.createDefaultArt())
+                            val newId = artRepo.saveSpace(
+                                spaceModel = SpaceModel().createDefaultArt()
+                            )
                             uiRepo.saveCurrentSpaceId(spaceId = newId)
                         }
 
