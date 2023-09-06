@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.copixelate.ui.common.AddItemFab
 import com.copixelate.ui.nav.NavInfo
+import com.copixelate.ui.nav.navigate
 import com.copixelate.ui.util.PreviewSurface
 import com.copixelate.ui.util.toDp
 
@@ -31,7 +32,7 @@ fun ContactsScreen(navController: NavHostController) {
     ContactsScreenContent(
         contacts = emptyList(),
         onAddContact = {
-            navController.navigate(route = NavInfo.Contacts.Add.route)
+            navController.navigate(navInfo = NavInfo.Contacts.Add)
         }
     )
 

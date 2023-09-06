@@ -46,7 +46,7 @@ import com.copixelate.data.model.toModel
 import com.copixelate.ui.common.AddItemFab
 import com.copixelate.ui.common.BitmapImage
 import com.copixelate.ui.nav.NavInfo
-import com.copixelate.ui.nav.navigate
+import com.copixelate.ui.nav.navigateTopLevel
 import com.copixelate.ui.util.PreviewSurface
 import com.copixelate.ui.util.toDp
 import com.copixelate.viewmodel.LibraryViewModel
@@ -63,7 +63,7 @@ fun LibraryScreen(navController: NavHostController, libraryViewModel: LibraryVie
         },
         onOpen = { spaceModel ->
             libraryViewModel.updateCurrentSpaceId(spaceModel.id)
-            navController.navigate(navInfo = NavInfo.Art)
+            navController.navigateTopLevel(navInfo = NavInfo.Art)
         }
     )
 }

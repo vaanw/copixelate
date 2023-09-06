@@ -2,24 +2,39 @@ package com.copixelate.ui.screens
 
 import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.copixelate.data.*
-import com.copixelate.ui.nav.NavInfo
-import com.copixelate.ui.nav.compareRoute
-import com.copixelate.ui.nav.navigate
+import com.copixelate.data.Auth
+import com.copixelate.data.AuthResult
 import com.copixelate.ui.common.SecretTextInputField
 import com.copixelate.ui.common.ValidatedTextInputField
+import com.copixelate.ui.nav.NavInfo
+import com.copixelate.ui.nav.compareRoute
+import com.copixelate.ui.nav.navigateTopLevel
 import com.copixelate.ui.util.InputValidation
 import com.copixelate.ui.util.PreviewSurface
 import com.copixelate.viewmodel.NavViewModel
@@ -36,7 +51,7 @@ fun AuthScreen(navController: NavController, navViewModel: NavViewModel) {
                     Auth.updateAccount(displayName) {
                         navViewModel.setSignedIn()
                         if (navController.compareRoute(navInfo = NavInfo.Login)) {
-                            navController.navigate(navInfo = NavInfo.Contacts)
+                            navController.navigateTopLevel(navInfo = NavInfo.Contacts)
                         }
                     }
                 }
@@ -55,7 +70,7 @@ fun AuthScreen(navController: NavController, navViewModel: NavViewModel) {
                     Log.d("onSignIn", "successful")
                     navViewModel.setSignedIn()
                     if (navController.compareRoute(navInfo = NavInfo.Login)) {
-                        navController.navigate(navInfo = NavInfo.Contacts)
+                        navController.navigateTopLevel(navInfo = NavInfo.Contacts)
                     }
                 }
 
