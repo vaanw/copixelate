@@ -1,10 +1,5 @@
 package com.copixelate.art
 
-import kotlin.random.Random
-
-private const val DEFAULT_DRAWING_WIDTH = 32
-private const val DEFAULT_DRAWING_HEIGHT = 32
-private const val DEFAULT_PALETTE_SIZE = 6
 private const val DEFAULT_BRUSH_SIZE = 7
 private val DEFAULT_BRUSH_STYLE = Brush.Style.CIRCLE
 
@@ -61,21 +56,6 @@ class ArtSpace {
                 pixelIndex = palette.activeIndex,
                 pixelColor = palette.activeColor
             )
-    }
-
-    fun createDefaultArt(
-        width: Int = DEFAULT_DRAWING_WIDTH,
-        height: Int = DEFAULT_DRAWING_HEIGHT,
-        paletteSize: Int = DEFAULT_PALETTE_SIZE
-    ) = apply {
-        palette
-            .resize(size = paletteSize)
-            .clear { Random(System.nanoTime()).nextInt() }
-        drawing
-            .resize(Point(width, height))
-            .clear { index: Int -> (index / 5) % palette.colors.size }
-            .recolor(palette.colors)
-        refreshBrushPreview()
     }
 
     fun updateBrushSize(size: Int) {

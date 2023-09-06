@@ -2,7 +2,6 @@ package com.copixelate.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.copixelate.art.ArtSpace
 import com.copixelate.data.model.IdModel
 import com.copixelate.data.model.SpaceModel
 import com.copixelate.data.repo.ArtRepo
@@ -28,7 +27,7 @@ class LibraryViewModel : ViewModel() {
     fun createNewArtSpace(width: Int, height: Int, paletteSize: Int) =
         viewModelScope.launch {
             artRepo.saveSpace(
-                artSpace = ArtSpace()
+                spaceModel = SpaceModel()
                     .createDefaultArt(width, height, paletteSize)
             )
         }

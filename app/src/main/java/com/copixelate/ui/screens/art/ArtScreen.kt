@@ -53,11 +53,12 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.max
 import com.copixelate.R
-import com.copixelate.art.ArtSpace
 import com.copixelate.art.PixelGrid
 import com.copixelate.art.Point
 import com.copixelate.art.PointF
 import com.copixelate.data.model.PaletteModel
+import com.copixelate.data.model.SpaceModel
+import com.copixelate.data.model.toArtSpace
 import com.copixelate.data.model.toModel
 import com.copixelate.ui.common.BitmapImage
 import com.copixelate.ui.theme.disable
@@ -501,7 +502,11 @@ private fun BrushSizeSlider(
 @Composable
 fun ArtScreenPreview() {
 
-    val artSpace by remember { mutableStateOf(ArtSpace().createDefaultArt(8, 16, 2)) }
+    val artSpace by remember {
+        mutableStateOf(
+            SpaceModel().createDefaultArt(8, 16, 2).toArtSpace()
+        )
+    }
 
     var drawing by remember { mutableStateOf(artSpace.state.colorDrawing) }
     var palette by remember { mutableStateOf(artSpace.state.palette.toModel()) }

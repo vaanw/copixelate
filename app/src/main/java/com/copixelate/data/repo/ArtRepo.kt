@@ -1,7 +1,6 @@
 package com.copixelate.data.repo
 
 import android.content.Context
-import com.copixelate.art.ArtSpace
 import com.copixelate.data.firebase.FirebaseAdapter
 import com.copixelate.data.model.SpaceModel
 import com.copixelate.data.model.toEntityWithArt
@@ -21,9 +20,6 @@ object ArtRepo {
 
     suspend fun saveSpace(spaceModel: SpaceModel): Long =
         roomAdapter.saveSpace(spaceModel.toEntityWithArt())[0]
-
-    suspend fun saveSpace(artSpace: ArtSpace): Long =
-        saveSpace(artSpace.toModel())
 
     fun allSpacesFlow(): Flow<List<SpaceModel>> =
         roomAdapter.allSpacesFlow().map { list ->
