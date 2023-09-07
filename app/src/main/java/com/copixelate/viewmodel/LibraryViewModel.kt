@@ -6,6 +6,7 @@ import com.copixelate.data.model.IdModel
 import com.copixelate.data.model.SpaceModel
 import com.copixelate.data.repo.ArtRepo
 import com.copixelate.data.repo.UiRepo
+import com.copixelate.ui.util.generateDefaultArt
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
@@ -28,7 +29,7 @@ class LibraryViewModel : ViewModel() {
         viewModelScope.launch {
             artRepo.saveSpace(
                 spaceModel = SpaceModel()
-                    .createDefaultArt(width, height, paletteSize)
+                    .generateDefaultArt(width, height, paletteSize)
             )
         }
 

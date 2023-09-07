@@ -12,6 +12,7 @@ import com.copixelate.data.model.toArtSpace
 import com.copixelate.data.model.toModel
 import com.copixelate.data.repo.ArtRepo
 import com.copixelate.data.repo.UiRepo
+import com.copixelate.ui.util.generateDefaultArt
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -70,7 +71,7 @@ class ArtViewModel : ViewModel() {
                         // if a default SpaceModel is not found, create a new one
                         ?: run {
                             val newId = artRepo.saveSpace(
-                                spaceModel = SpaceModel().createDefaultArt()
+                                spaceModel = SpaceModel().generateDefaultArt()
                             )
                             uiRepo.saveCurrentSpaceId(spaceId = newId)
                         }

@@ -46,6 +46,7 @@ import com.copixelate.ui.common.BitmapImage
 import com.copixelate.ui.nav.NavInfo
 import com.copixelate.ui.nav.navigateTopLevel
 import com.copixelate.ui.util.PreviewSurface
+import com.copixelate.ui.util.generateDefaultArt
 import com.copixelate.ui.util.toDp
 import com.copixelate.viewmodel.LibraryViewModel
 
@@ -242,7 +243,8 @@ private fun LibraryArtSpaceItem(
 @Composable
 private fun LibraryScreenPreview() {
     PreviewSurface {
-        val fauxModel = SpaceModel().createDefaultArt(16, 8, 2)
+        val fauxModel = SpaceModel()
+            .generateDefaultArt(16, 8, 2)
         LibraryScreenContent(
             spaces = List(4) { fauxModel },
             onCreate = { _, _, _ -> },

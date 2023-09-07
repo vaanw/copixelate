@@ -1,6 +1,5 @@
 package com.copixelate.data.model
 
-import android.graphics.Color
 import com.copixelate.art.ArtSpace
 import com.copixelate.art.PixelGrid
 import com.copixelate.art.PixelRow
@@ -9,11 +8,6 @@ import com.copixelate.data.room.DrawingEntity
 import com.copixelate.data.room.PaletteEntity
 import com.copixelate.data.room.SpaceEntity
 import com.copixelate.data.room.SpaceEntityWithArt
-import kotlin.random.Random
-
-private const val DEFAULT_DRAWING_WIDTH = 32
-private const val DEFAULT_DRAWING_HEIGHT = 32
-private const val DEFAULT_PALETTE_SIZE = 6
 
 data class IdModel(
     val localId: Long? = null,
@@ -24,35 +18,13 @@ data class SpaceModel(
     val id: IdModel = IdModel(),
     val palette: PaletteModel = PaletteModel(),
     val drawing: DrawingModel = DrawingModel()
-) {
-    fun createDefaultArt(
-        width: Int = DEFAULT_DRAWING_WIDTH,
-        height: Int = DEFAULT_DRAWING_HEIGHT,
-        paletteSize: Int = DEFAULT_PALETTE_SIZE
-    ) = SpaceModel(
-        palette = palette.createDefaultArt(paletteSize),
-        drawing = drawing.createDefaultArt(width, height, paletteSize)
-    )
-}
+)
 
 data class DrawingModel(
     val id: IdModel = IdModel(),
     val size: SizeModel = SizeModel(),
     val pixels: List<Int> = emptyList(),
-) {
-
-    fun createDefaultArt(width: Int, height: Int, paletteSize: Int) = copy(
-        size = SizeModel(x = width, y = height),
-        pixels = List(
-            size = width * height,
-            init = { index: Int ->
-                (index / 5) % paletteSize
-
-            }
-        )
-    )
-
-}
+)
 
 data class PaletteModel(
     val id: IdModel = IdModel(),
@@ -61,21 +33,6 @@ data class PaletteModel(
 ) {
     val activeColor
         get() = pixels[activeIndex]
-
-    fun createDefaultArt(size: Int) = copy(
-        pixels = List(
-            size = size,
-            init = {
-                val rand: Int = Random(System.nanoTime()).nextInt()
-                Color.argb(
-                    255,
-                    Color.red(rand),
-                    Color.green(rand),
-                    Color.blue(rand)
-                )
-            }
-        )
-    )
 }
 
 data class SizeModel(
@@ -88,9 +45,11 @@ data class UpdateModel(
     val value: Int
 )
 
+
 //
-// ArtSpace
+// ArtSpace Conversion
 //
+
 fun SpaceModel.toArtSpace() = ArtSpace().apply {
     clear(
         drawingState = drawing.toPixelGrid(),
@@ -133,7 +92,7 @@ private fun Point.toSizeModel() = SizeModel(x = x, y = y)
 
 
 //
-// Database Entities
+// Database Conversion
 //
 
 // Primitive Types
