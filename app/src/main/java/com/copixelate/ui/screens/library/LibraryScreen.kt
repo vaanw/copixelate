@@ -40,13 +40,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.copixelate.data.model.SpaceModel
-import com.copixelate.data.model.createDefaultArt
 import com.copixelate.data.model.toArtSpace
 import com.copixelate.ui.common.AddItemFab
 import com.copixelate.ui.common.BitmapImage
 import com.copixelate.ui.nav.NavInfo
 import com.copixelate.ui.nav.navigateTopLevel
 import com.copixelate.ui.util.PreviewSurface
+import com.copixelate.ui.util.createDefaultArt
 import com.copixelate.ui.util.toDp
 import com.copixelate.viewmodel.LibraryViewModel
 

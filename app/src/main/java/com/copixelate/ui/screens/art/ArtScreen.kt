@@ -58,12 +58,12 @@ import com.copixelate.art.Point
 import com.copixelate.art.PointF
 import com.copixelate.data.model.PaletteModel
 import com.copixelate.data.model.SpaceModel
-import com.copixelate.data.model.createDefaultArt
 import com.copixelate.data.model.toArtSpace
 import com.copixelate.data.model.toModel
 import com.copixelate.ui.common.BitmapImage
 import com.copixelate.ui.theme.disable
 import com.copixelate.ui.util.PreviewSurface
+import com.copixelate.ui.util.createDefaultArt
 import com.copixelate.ui.util.toDp
 import com.copixelate.viewmodel.ArtViewModel
 
