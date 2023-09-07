@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.copixelate.data.model.IdModel
 import com.copixelate.data.model.SpaceModel
+import com.copixelate.data.model.createDefaultArt
 import com.copixelate.data.repo.ArtRepo
 import com.copixelate.data.repo.UiRepo
 import kotlinx.coroutines.flow.SharingStarted

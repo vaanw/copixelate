@@ -40,6 +40,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.copixelate.data.model.SpaceModel
+import com.copixelate.data.model.createDefaultArt
 import com.copixelate.data.model.toArtSpace
 import com.copixelate.ui.common.AddItemFab
 import com.copixelate.ui.common.BitmapImage
@@ -242,7 +243,8 @@ private fun LibraryArtSpaceItem(
 @Composable
 private fun LibraryScreenPreview() {
     PreviewSurface {
-        val fauxModel = SpaceModel().createDefaultArt(16, 8, 2)
+        val fauxModel = SpaceModel()
+            .createDefaultArt(16, 8, 2)
         LibraryScreenContent(
             spaces = List(4) { fauxModel },
             onCreate = { _, _, _ -> },

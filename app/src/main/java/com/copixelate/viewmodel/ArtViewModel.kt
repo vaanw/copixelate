@@ -8,6 +8,7 @@ import com.copixelate.art.ArtSpaceResult
 import com.copixelate.art.PointF
 import com.copixelate.data.model.SpaceModel
 import com.copixelate.data.model.copyFrom
+import com.copixelate.data.model.createDefaultArt
 import com.copixelate.data.model.toArtSpace
 import com.copixelate.data.model.toModel
 import com.copixelate.data.repo.ArtRepo

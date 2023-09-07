@@ -58,6 +58,7 @@ import com.copixelate.art.Point
 import com.copixelate.art.PointF
 import com.copixelate.data.model.PaletteModel
 import com.copixelate.data.model.SpaceModel
+import com.copixelate.data.model.createDefaultArt
 import com.copixelate.data.model.toArtSpace
 import com.copixelate.data.model.toModel
 import com.copixelate.ui.common.BitmapImage
@@ -504,7 +505,9 @@ fun ArtScreenPreview() {
 
     val artSpace by remember {
         mutableStateOf(
-            SpaceModel().createDefaultArt(8, 16, 2).toArtSpace()
+            SpaceModel()
+                .createDefaultArt(8, 16, 2)
+                .toArtSpace()
         )
     }
 

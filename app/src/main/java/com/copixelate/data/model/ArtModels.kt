@@ -11,10 +11,6 @@ import com.copixelate.data.room.SpaceEntity
 import com.copixelate.data.room.SpaceEntityWithArt
 import kotlin.random.Random
 
-private const val DEFAULT_DRAWING_WIDTH = 32
-private const val DEFAULT_DRAWING_HEIGHT = 32
-private const val DEFAULT_PALETTE_SIZE = 6
-
 data class IdModel(
     val localId: Long? = null,
     val remoteId: String? = null,
@@ -24,35 +20,13 @@ data class SpaceModel(
     val id: IdModel = IdModel(),
     val palette: PaletteModel = PaletteModel(),
     val drawing: DrawingModel = DrawingModel()
-) {
-    fun createDefaultArt(
-        width: Int = DEFAULT_DRAWING_WIDTH,
-        height: Int = DEFAULT_DRAWING_HEIGHT,
-        paletteSize: Int = DEFAULT_PALETTE_SIZE
-    ) = SpaceModel(
-        palette = palette.createDefaultArt(paletteSize),
-        drawing = drawing.createDefaultArt(width, height, paletteSize)
-    )
-}
+)
 
 data class DrawingModel(
     val id: IdModel = IdModel(),
     val size: SizeModel = SizeModel(),
     val pixels: List<Int> = emptyList(),
-) {
-
-    fun createDefaultArt(width: Int, height: Int, paletteSize: Int) = copy(
-        size = SizeModel(x = width, y = height),
-        pixels = List(
-            size = width * height,
-            init = { index: Int ->
-                (index / 5) % paletteSize
-
-            }
-        )
-    )
-
-}
+)
 
 data class PaletteModel(
     val id: IdModel = IdModel(),
@@ -61,21 +35,6 @@ data class PaletteModel(
 ) {
     val activeColor
         get() = pixels[activeIndex]
-
-    fun createDefaultArt(size: Int) = copy(
-        pixels = List(
-            size = size,
-            init = {
-                val rand: Int = Random(System.nanoTime()).nextInt()
-                Color.argb(
-                    255,
-                    Color.red(rand),
-                    Color.green(rand),
-                    Color.blue(rand)
-                )
-            }
-        )
-    )
 }
 
 data class SizeModel(
@@ -88,9 +47,60 @@ data class UpdateModel(
     val value: Int
 )
 
+
 //
-// ArtSpace
+// Default Art Creation
 //
+
+private const val DEFAULT_DRAWING_WIDTH = 32
+private const val DEFAULT_DRAWING_HEIGHT = 32
+private const val DEFAULT_PALETTE_SIZE = 6
+
+fun SpaceModel.createDefaultArt(
+    width: Int = DEFAULT_DRAWING_WIDTH,
+    height: Int = DEFAULT_DRAWING_HEIGHT,
+    paletteSize: Int = DEFAULT_PALETTE_SIZE
+) = copy(
+    palette = PaletteModel().createDefaultArt(paletteSize),
+    drawing = DrawingModel().createDefaultArt(width, height, paletteSize)
+)
+
+private fun PaletteModel.createDefaultArt(
+    size: Int
+) = copy(
+    pixels = List(
+        size = size,
+        init = {
+            val rand: Int = Random(System.nanoTime()).nextInt()
+            Color.argb(
+                255,
+                Color.red(rand),
+                Color.green(rand),
+                Color.blue(rand)
+            )
+        }
+    )
+)
+
+private fun DrawingModel.createDefaultArt(
+    width: Int,
+    height: Int,
+    paletteSize: Int
+) = copy(
+    size = SizeModel(x = width, y = height),
+    pixels = List(
+        size = width * height,
+        init = { index: Int ->
+            (index / 5) % paletteSize
+        }
+    )
+)
+
+
+//
+// ArtSpace Conversion
+//
+
 fun SpaceModel.toArtSpace() = ArtSpace().apply {
     clear(
         drawingState = drawing.toPixelGrid(),
@@ -133,7 +143,7 @@ private fun Point.toSizeModel() = SizeModel(x = x, y = y)
 
 
 //
-// Database Entities
+// Database Conversion
 //
 
 // Primitive Types
