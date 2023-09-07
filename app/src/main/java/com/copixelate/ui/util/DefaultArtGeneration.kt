@@ -11,16 +11,16 @@ private const val DEFAULT_DRAWING_WIDTH = 32
 private const val DEFAULT_DRAWING_HEIGHT = 32
 private const val DEFAULT_PALETTE_SIZE = 6
 
-fun SpaceModel.createDefaultArt(
+fun SpaceModel.generateDefaultArt(
     width: Int = DEFAULT_DRAWING_WIDTH,
     height: Int = DEFAULT_DRAWING_HEIGHT,
     paletteSize: Int = DEFAULT_PALETTE_SIZE
 ) = copy(
-    palette = PaletteModel().createDefaultArt(paletteSize),
-    drawing = DrawingModel().createDefaultArt(width, height, paletteSize)
+    palette = PaletteModel().generateDefaultArt(paletteSize),
+    drawing = DrawingModel().generateDefaultArt(width, height, paletteSize)
 )
 
-private fun PaletteModel.createDefaultArt(
+private fun PaletteModel.generateDefaultArt(
     size: Int
 ) = copy(
     pixels = List(
@@ -31,7 +31,7 @@ private fun PaletteModel.createDefaultArt(
     )
 )
 
-private fun DrawingModel.createDefaultArt(
+private fun DrawingModel.generateDefaultArt(
     width: Int,
     height: Int,
     paletteSize: Int
