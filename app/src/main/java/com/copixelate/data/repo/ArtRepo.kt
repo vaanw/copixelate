@@ -1,7 +1,9 @@
 package com.copixelate.data.repo
 
 import android.content.Context
+import android.graphics.Bitmap
 import com.copixelate.data.firebase.FirebaseAdapter
+import com.copixelate.data.media.MediaStoreAdapter
 import com.copixelate.data.model.SpaceModel
 import com.copixelate.data.model.toEntityWithArt
 import com.copixelate.data.model.toModel
@@ -13,34 +15,41 @@ import kotlinx.coroutines.flow.map
 
 object ArtRepo {
 
-    private val roomAdapter = RoomAdapter
-    private val firebaseAdapter = FirebaseAdapter
+    fun init(applicationContext: Context) {
+        RoomAdapter.init(applicationContext)
+        MediaStoreAdapter.init(applicationContext.contentResolver)
+    }
 
-    fun init(applicationContext: Context) = RoomAdapter.init(applicationContext)
+    private val room = RoomAdapter
+    private val firebase = FirebaseAdapter
+    private val mediaStore = MediaStoreAdapter
 
     suspend fun saveSpace(spaceModel: SpaceModel): Long =
-        roomAdapter.saveSpace(spaceModel.toEntityWithArt())[0]
+        room.saveSpace(spaceModel.toEntityWithArt())[0]
 
     fun allSpacesFlow(): Flow<List<SpaceModel>> =
-        roomAdapter.allSpacesFlow().map { list ->
+        room.allSpacesFlow().map { list ->
             list.map { entity: SpaceEntityWithArt ->
                 entity.toModel()
             }
         }
 
     fun spaceByIdFlow(id: Long): Flow<SpaceModel?> =
-        roomAdapter.spaceByIdFlow(id = id).map { entity: SpaceEntityWithArt? ->
+        room.spaceByIdFlow(id = id).map { entity: SpaceEntityWithArt? ->
             entity?.toModel()
         }.distinctUntilChanged()
 
     suspend fun getDefaultSpace(): SpaceModel? =
-        roomAdapter.getDefaultSpace()?.toModel()
+        room.getDefaultSpace()?.toModel()
 
     suspend fun loseSpace(spaceModel: SpaceModel) =
-        roomAdapter.loseSpace(spaceModel.toEntityWithArt())
+        room.loseSpace(spaceModel.toEntityWithArt())
+
+    suspend fun exportBitmap(bitmap: Bitmap, fileName: String) {
+        mediaStore.writeNewImageFile(bitmap, fileName)
+    }
 
 }
-
 
 
 // ViewModel functions
