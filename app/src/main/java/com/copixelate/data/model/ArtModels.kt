@@ -18,7 +18,14 @@ data class SpaceModel(
     val id: IdModel = IdModel(),
     val palette: PaletteModel = PaletteModel(),
     val drawing: DrawingModel = DrawingModel()
-)
+){
+    val colorDrawing: DrawingModel
+        get() = drawing.run{
+            copy(pixels = List(pixels.size){index ->
+                palette.pixels[pixels[index]]
+            } )
+        }
+}
 
 data class DrawingModel(
     val id: IdModel = IdModel(),

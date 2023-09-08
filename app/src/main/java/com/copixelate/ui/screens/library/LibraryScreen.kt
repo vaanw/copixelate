@@ -63,6 +63,9 @@ fun LibraryScreen(navController: NavHostController, libraryViewModel: LibraryVie
         onOpen = { spaceModel ->
             libraryViewModel.updateCurrentSpaceId(spaceModel.id)
             navController.navigateTopLevel(navInfo = NavInfo.Art)
+        },
+        onExport = { spaceModel, fileName ->
+            libraryViewModel.exportSpace(spaceModel, fileName)
         }
     )
 }
@@ -73,6 +76,7 @@ private fun LibraryScreenContent(
     onCreate: (width: Int, height: Int, paletteSize: Int) -> Unit,
     onDelete: (SpaceModel) -> Unit,
     onOpen: (SpaceModel) -> Unit,
+    onExport: (SpaceModel, String) -> Unit,
 ) {
 
     val scrollState = rememberLazyListState()
@@ -105,6 +109,7 @@ private fun LibraryScreenContent(
                 isNew = addItemJustOccurred && (spaces.lastIndex == index),
                 onDelete = onDelete,
                 onOpen = onOpen,
+                onExport = onExport
             )
         }
 
@@ -142,7 +147,8 @@ private fun LibraryArtSpaceItem(
     spaceModel: SpaceModel,
     isNew: Boolean,
     onDelete: (SpaceModel) -> Unit,
-    onOpen: (SpaceModel) -> Unit
+    onOpen: (SpaceModel) -> Unit,
+    onExport: (SpaceModel, String) -> Unit,
 ) {
 
     val artSpace = spaceModel.toArtSpace()
@@ -206,7 +212,11 @@ private fun LibraryArtSpaceItem(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     // Export icon button
-                    IconButton(onClick = { /* Handle click */ }) {
+                    IconButton(
+                        onClick = {
+                            onExport(spaceModel, "copixelate-tmp.png")
+                        }
+                    ) {
                         Icon(
                             imageVector = Icons.Filled.Save,
                             contentDescription = "Localized description"
@@ -248,8 +258,9 @@ private fun LibraryScreenPreview() {
         LibraryScreenContent(
             spaces = List(4) { fauxModel },
             onCreate = { _, _, _ -> },
-            onDelete = {},
-            onOpen = {},
+            onDelete = { _ -> },
+            onOpen = { _ -> },
+            onExport = { _, _ -> },
         )
     }
 }
