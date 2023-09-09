@@ -138,7 +138,7 @@ fun CreateItemDialog(
 } // End AddItemDialog
 
 @Composable
-private fun DialogIntValueEditor(
+fun DialogIntValueEditor(
     label: String,
     value: Int,
     onValueChange: (Int) -> Unit,
@@ -226,7 +226,7 @@ private fun IntTuner(
 
             // Value display
             Text(
-                text = value.toString(), // "%.${scale}f".format(input)
+                text = value.toString(),
                 style = MaterialTheme.typography.bodyLarge,
                 textAlign = TextAlign.Center,
                 modifier = Modifier

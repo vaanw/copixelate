@@ -27,6 +27,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -64,8 +65,8 @@ fun LibraryScreen(navController: NavHostController, libraryViewModel: LibraryVie
             libraryViewModel.updateCurrentSpaceId(spaceModel.id)
             navController.navigateTopLevel(navInfo = NavInfo.Art)
         },
-        onExport = { spaceModel, fileName ->
-            libraryViewModel.exportSpace(spaceModel, fileName)
+        onExport = { spaceModel, fileName, scaleFactor ->
+            libraryViewModel.exportSpace(spaceModel, fileName, scaleFactor)
         }
     )
 }
@@ -76,14 +77,19 @@ private fun LibraryScreenContent(
     onCreate: (width: Int, height: Int, paletteSize: Int) -> Unit,
     onDelete: (SpaceModel) -> Unit,
     onOpen: (SpaceModel) -> Unit,
-    onExport: (SpaceModel, String) -> Unit,
+    onExport: (SpaceModel, String, Int) -> Unit,
 ) {
 
     val scrollState = rememberLazyListState()
     var addItemJustOccurred by remember { mutableStateOf(false) }
 
-    var fabHeight by remember { mutableStateOf(0) }
+    var fabHeight by remember { mutableIntStateOf(0) }
     val fabClearance = fabHeight.toDp() + 16.dp + 16.dp
+
+    var showCreateDialog by remember { mutableStateOf(false) }
+    var showExportDialog by remember { mutableStateOf(false) }
+
+    var spaceModelToExport by remember { mutableStateOf(SpaceModel()) }
 
     // Scroll to the bottom when a new item is added
     LaunchedEffect(spaces.size) {
@@ -109,13 +115,14 @@ private fun LibraryScreenContent(
                 isNew = addItemJustOccurred && (spaces.lastIndex == index),
                 onDelete = onDelete,
                 onOpen = onOpen,
-                onExport = onExport
+                onExport = { model, fileName ->
+                    spaceModelToExport = model
+                    showExportDialog = true
+                }
             )
         }
 
     }
-
-    var openDialog by remember { mutableStateOf(false) }
 
     // Fab, opens dialog to create item
     Box(
@@ -124,7 +131,7 @@ private fun LibraryScreenContent(
             .padding(16.dp)
     ) {
         AddItemFab(
-            onClick = { openDialog = true },
+            onClick = { showCreateDialog = true },
             modifier = Modifier
                 .onGloballyPositioned { coordinates ->
                     fabHeight = coordinates.size.height
@@ -133,11 +140,25 @@ private fun LibraryScreenContent(
         )
     }
 
-    // Dialog, creates item
-    if (openDialog)
+    // Dialog, create item
+    if (showCreateDialog)
         CreateItemDialog(
             onCreate = onCreate,
-            onCancel = { openDialog = false }
+            onCancel = { showCreateDialog = false }
+        )
+
+    // Dialog, export image
+    if (showExportDialog)
+        ExportImageDialog(
+            onExport = { scaleFactor ->
+                onExport(
+                    spaceModelToExport,
+                    "copixelate-tmp.png",
+                    scaleFactor
+                )
+            },
+            onCancel = { showExportDialog = false },
+            size = spaceModelToExport.drawing.size
         )
 
 }
@@ -260,7 +281,7 @@ private fun LibraryScreenPreview() {
             onCreate = { _, _, _ -> },
             onDelete = { _ -> },
             onOpen = { _ -> },
-            onExport = { _, _ -> },
+            onExport = { _, _, _ -> },
         )
     }
 }
