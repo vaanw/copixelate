@@ -1,6 +1,5 @@
 package com.copixelate.ui.common
 
-import android.graphics.Bitmap
 import androidx.compose.foundation.Image
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -9,6 +8,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import com.copixelate.art.PixelGrid
+import com.copixelate.data.bitmap.createBitmap
 
 
 /**
@@ -34,8 +34,7 @@ internal fun BitmapImage(
     modifier: Modifier = Modifier
 ) {
 
-    val bitmapConfig = Bitmap.Config.ARGB_8888
-    val bitmap = Bitmap.createBitmap(colors, width, height, bitmapConfig)
+    val bitmap = createBitmap(colors, width, height)
 
     Image(
         bitmap = bitmap.asImageBitmap(),

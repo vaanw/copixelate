@@ -1,8 +1,8 @@
 package com.copixelate.viewmodel
 
-import android.graphics.Bitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.copixelate.data.bitmap.createScaledBitmap
 import com.copixelate.data.model.IdModel
 import com.copixelate.data.model.SpaceModel
 import com.copixelate.data.repo.ArtRepo
@@ -46,15 +46,15 @@ class LibraryViewModel : ViewModel() {
             }
         }
 
-    fun exportSpace(spaceModel: SpaceModel, fileName: String) {
-        val bitmapConfig = Bitmap.Config.ARGB_8888
+    fun exportSpace(spaceModel: SpaceModel, fileName: String, scaleFactor: Int) {
         viewModelScope.launch {
-            spaceModel.colorDrawing.run {
-                artRepo.exportBitmap(
-                    bitmap = Bitmap.createBitmap(pixels.toIntArray(), size.x, size.y, bitmapConfig),
-                    fileName = fileName
-                )
-            }
+            artRepo.exportBitmap(
+                bitmap = createScaledBitmap(
+                    colorDrawingModel = spaceModel.colorDrawing,
+                    scaleFactor = scaleFactor
+                ),
+                fileName = fileName
+            )
         }
     }
 
