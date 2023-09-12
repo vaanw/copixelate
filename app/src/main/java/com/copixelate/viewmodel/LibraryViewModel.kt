@@ -8,6 +8,7 @@ import com.copixelate.data.model.SpaceModel
 import com.copixelate.data.repo.ArtRepo
 import com.copixelate.data.repo.UiRepo
 import com.copixelate.ui.util.generateDefaultArt
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
@@ -47,13 +48,24 @@ class LibraryViewModel : ViewModel() {
         }
 
     fun exportSpace(spaceModel: SpaceModel, fileName: String, scaleFactor: Int) {
-        viewModelScope.launch {
+        viewModelScope.launch(context = Dispatchers.IO) {
             artRepo.exportBitmap(
                 bitmap = createScaledBitmap(
                     colorDrawingModel = spaceModel.colorDrawing,
                     scaleFactor = scaleFactor
                 ),
                 fileName = fileName
+            )
+        }
+    }
+
+    fun shareSpace(spaceModel: SpaceModel, scaleFactor: Int) {
+        viewModelScope.launch {
+            artRepo.shareBitmap(
+                bitmap = createScaledBitmap(
+                    colorDrawingModel = spaceModel.colorDrawing,
+                    scaleFactor = scaleFactor
+                )
             )
         }
     }
