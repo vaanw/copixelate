@@ -1,29 +1,31 @@
-package com.copixelate.data.media
+package com.copixelate.data.storage
 
+import android.app.Application
 import android.content.ContentResolver
 import android.content.ContentValues
 import android.graphics.Bitmap
+import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import androidx.core.content.FileProvider
+import java.io.File
 import java.io.FileOutputStream
 
-object MediaStoreAdapter {
+object StorageAdapter {
 
     private lateinit var contentResolver: ContentResolver
+    private lateinit var cacheDir: File
+    private lateinit var getShareableUri: (File) -> Uri
 
-    fun init(contentResolver: ContentResolver) {
-        this.contentResolver = contentResolver
-    }
-
-    suspend fun writeNewImageFile(bitmap: Bitmap, fileName: String) {
-        withContext(Dispatchers.IO) {
-            writeNewImageFileSynchronous(bitmap, fileName)
+    fun init(application: Application) {
+        contentResolver = application.contentResolver
+        cacheDir = application.cacheDir
+        getShareableUri = { file ->
+            FileProvider.getUriForFile(application, "com.copixelate.fileprovider", file)
         }
     }
 
-    private fun writeNewImageFileSynchronous(bitmap: Bitmap, fileName: String) {
+    fun writeNewImageFile(bitmap: Bitmap, fileName: String): Uri? {
 
         // Find external storage location
         val imageCollection = when {
@@ -53,9 +55,32 @@ object MediaStoreAdapter {
                 newImageDetails.clear()
                 newImageDetails.put(MediaStore.Images.Media.IS_PENDING, 0)
                 contentResolver.update(uri, newImageDetails, null, null)
-
+                return uri
             }
 
-    }// End writeNewImageFileSynchronous
+        return null
+
+    }
+
+    fun createTemporaryShareableImage(bitmap: Bitmap): Uri {
+
+        val imageDir: File = File(cacheDir, "/images/").apply {
+            when (exists()) {
+                false -> mkdir()
+                true -> {
+                    deleteRecursively()
+                    mkdir()
+                }
+            }
+        }
+
+        val newFile = File(imageDir, "/temporary-shared.png")
+
+        FileOutputStream(newFile).use { fos ->
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos)
+        }
+
+        return getShareableUri(newFile)
+    }
 
 }

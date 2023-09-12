@@ -20,7 +20,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        ArtRepo.init(applicationContext)
+        ArtRepo.init(this)
         UiRepo.init(applicationContext.uiStateDataStore)
         SettingsRepo.init(applicationContext.settingsDataStore)
 

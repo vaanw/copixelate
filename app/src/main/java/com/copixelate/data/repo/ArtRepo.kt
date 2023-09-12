@@ -1,28 +1,31 @@
 package com.copixelate.data.repo
 
-import android.content.Context
+import android.app.Activity
 import android.graphics.Bitmap
 import com.copixelate.data.firebase.FirebaseAdapter
-import com.copixelate.data.media.MediaStoreAdapter
+import com.copixelate.data.intent.IntentAdapter
 import com.copixelate.data.model.SpaceModel
 import com.copixelate.data.model.toEntityWithArt
 import com.copixelate.data.model.toModel
 import com.copixelate.data.room.RoomAdapter
 import com.copixelate.data.room.SpaceEntityWithArt
+import com.copixelate.data.storage.StorageAdapter
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 
 object ArtRepo {
 
-    fun init(applicationContext: Context) {
-        RoomAdapter.init(applicationContext)
-        MediaStoreAdapter.init(applicationContext.contentResolver)
+    fun init(activity: Activity) {
+        RoomAdapter.init(activity.applicationContext)
+        StorageAdapter.init(activity.application)
+        IntentAdapter.init(activity)
     }
 
     private val room = RoomAdapter
     private val firebase = FirebaseAdapter
-    private val mediaStore = MediaStoreAdapter
+    private val storage = StorageAdapter
+    private val intent = IntentAdapter
 
     suspend fun saveSpace(spaceModel: SpaceModel): Long =
         room.saveSpace(spaceModel.toEntityWithArt())[0]
@@ -45,8 +48,14 @@ object ArtRepo {
     suspend fun loseSpace(spaceModel: SpaceModel) =
         room.loseSpace(spaceModel.toEntityWithArt())
 
-    suspend fun exportBitmap(bitmap: Bitmap, fileName: String) {
-        mediaStore.writeNewImageFile(bitmap, fileName)
+    fun exportBitmap(bitmap: Bitmap, fileName: String) {
+        storage.writeNewImageFile(bitmap, fileName)
+    }
+
+    fun shareBitmap(bitmap: Bitmap) {
+        storage.createTemporaryShareableImage(bitmap).let { imageUri ->
+            intent.shareImage(imageUri)
+        }
     }
 
 }

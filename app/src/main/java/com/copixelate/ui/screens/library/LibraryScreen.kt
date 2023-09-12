@@ -67,6 +67,9 @@ fun LibraryScreen(navController: NavHostController, libraryViewModel: LibraryVie
         },
         onExport = { spaceModel, fileName, scaleFactor ->
             libraryViewModel.exportSpace(spaceModel, fileName, scaleFactor)
+        },
+        onShare = { spaceModel ->
+            libraryViewModel.shareSpace(spaceModel, 10)
         }
     )
 }
@@ -78,6 +81,7 @@ private fun LibraryScreenContent(
     onDelete: (SpaceModel) -> Unit,
     onOpen: (SpaceModel) -> Unit,
     onExport: (SpaceModel, String, Int) -> Unit,
+    onShare: (SpaceModel) -> Unit,
 ) {
 
     val scrollState = rememberLazyListState()
@@ -118,7 +122,8 @@ private fun LibraryScreenContent(
                 onExport = { model, fileName ->
                     spaceModelToExport = model
                     showExportDialog = true
-                }
+                },
+                onShare = onShare
             )
         }
 
@@ -170,6 +175,7 @@ private fun LibraryArtSpaceItem(
     onDelete: (SpaceModel) -> Unit,
     onOpen: (SpaceModel) -> Unit,
     onExport: (SpaceModel, String) -> Unit,
+    onShare: (SpaceModel) -> Unit
 ) {
 
     val artSpace = spaceModel.toArtSpace()
@@ -235,7 +241,7 @@ private fun LibraryArtSpaceItem(
                     // Export icon button
                     IconButton(
                         onClick = {
-                            onExport(spaceModel, "copixelate-tmp.png")
+                            onExport(spaceModel, "copixelate-tmp-export.png")
                         }
                     ) {
                         Icon(
@@ -244,7 +250,11 @@ private fun LibraryArtSpaceItem(
                         )
                     }
                     // Share icon button
-                    IconButton(onClick = { /* Handle click */ }) {
+                    IconButton(
+                        onClick = {
+                            onShare(spaceModel)
+                        }
+                    ) {
                         Icon(
                             imageVector = Icons.Filled.Share,
                             contentDescription = "Localized description"
@@ -282,6 +292,7 @@ private fun LibraryScreenPreview() {
             onDelete = { _ -> },
             onOpen = { _ -> },
             onExport = { _, _, _ -> },
+            onShare = { _ -> },
         )
     }
 }
