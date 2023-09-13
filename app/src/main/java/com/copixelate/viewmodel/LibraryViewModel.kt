@@ -59,15 +59,4 @@ class LibraryViewModel : ViewModel() {
         }
     }
 
-    fun shareSpace(spaceModel: SpaceModel, scaleFactor: Int) {
-        viewModelScope.launch {
-            artRepo.shareBitmap(
-                bitmap = createScaledBitmap(
-                    colorDrawingModel = spaceModel.colorDrawing,
-                    scaleFactor = scaleFactor
-                )
-            )
-        }
-    }
-
 }

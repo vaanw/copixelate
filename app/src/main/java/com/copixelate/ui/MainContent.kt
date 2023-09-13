@@ -18,6 +18,7 @@ import com.copixelate.ui.nav.compareTopLevelRoute
 import com.copixelate.ui.nav.navigateTopLevel
 import com.copixelate.ui.theme.CopixelateTheme
 import com.copixelate.ui.util.PreviewSurface
+import com.copixelate.viewmodel.ActivityViewModel
 import com.copixelate.viewmodel.ArtViewModel
 import com.copixelate.viewmodel.LibraryViewModel
 import com.copixelate.viewmodel.NavViewModel
@@ -26,6 +27,7 @@ import com.copixelate.viewmodel.SettingsViewModel
 @Composable
 fun MainContent(
     navController: NavHostController,
+    activityViewModel: ActivityViewModel,
     artViewModel: ArtViewModel,
     libraryViewModel: LibraryViewModel,
     settingsViewModel: SettingsViewModel
@@ -61,6 +63,7 @@ fun MainContent(
 
                 SetupMainNavGraph(
                     navController = navController,
+                    activityViewModel = activityViewModel,
                     navViewModel = navViewModel,
                     artViewModel = artViewModel,
                     libraryViewModel = libraryViewModel,

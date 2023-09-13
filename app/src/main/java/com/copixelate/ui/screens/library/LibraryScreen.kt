@@ -49,10 +49,15 @@ import com.copixelate.ui.nav.navigateTopLevel
 import com.copixelate.ui.util.PreviewSurface
 import com.copixelate.ui.util.generateDefaultArt
 import com.copixelate.ui.util.toDp
+import com.copixelate.viewmodel.ActivityViewModel
 import com.copixelate.viewmodel.LibraryViewModel
 
 @Composable
-fun LibraryScreen(navController: NavHostController, libraryViewModel: LibraryViewModel) {
+fun LibraryScreen(
+    navController: NavHostController,
+    libraryViewModel: LibraryViewModel,
+    activityViewModel: ActivityViewModel
+) {
     LibraryScreenContent(
         spaces = libraryViewModel.allSpaces.collectAsState().value,
         onCreate = { width, height, paletteSize ->
@@ -69,7 +74,7 @@ fun LibraryScreen(navController: NavHostController, libraryViewModel: LibraryVie
             libraryViewModel.exportSpace(spaceModel, fileName, scaleFactor)
         },
         onShare = { spaceModel ->
-            libraryViewModel.shareSpace(spaceModel, 10)
+            activityViewModel.shareSpace(spaceModel, 10)
         }
     )
 }
