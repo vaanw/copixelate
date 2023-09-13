@@ -2,8 +2,9 @@ package com.copixelate.data.repo
 
 import android.app.Activity
 import android.graphics.Bitmap
+import android.net.Uri
+import com.copixelate.data.bitmap.createScaledBitmap
 import com.copixelate.data.firebase.FirebaseAdapter
-import com.copixelate.data.intent.IntentAdapter
 import com.copixelate.data.model.SpaceModel
 import com.copixelate.data.model.toEntityWithArt
 import com.copixelate.data.model.toModel
@@ -19,13 +20,11 @@ object ArtRepo {
     fun init(activity: Activity) {
         RoomAdapter.init(activity.applicationContext)
         StorageAdapter.init(activity.application)
-        IntentAdapter.init(activity)
     }
 
     private val room = RoomAdapter
     private val firebase = FirebaseAdapter
     private val storage = StorageAdapter
-    private val intent = IntentAdapter
 
     suspend fun saveSpace(spaceModel: SpaceModel): Long =
         room.saveSpace(spaceModel.toEntityWithArt())[0]
@@ -52,11 +51,13 @@ object ArtRepo {
         storage.writeNewImageFile(bitmap, fileName)
     }
 
-    fun shareBitmap(bitmap: Bitmap) {
-        storage.createTemporaryShareableImage(bitmap).let { imageUri ->
-            intent.shareImage(imageUri)
-        }
-    }
+    fun shareSpace(spaceModel: SpaceModel, scaleFactor: Int): Uri =
+        storage.createTemporaryShareableImage(
+            bitmap = createScaledBitmap(
+                colorDrawingModel = spaceModel.colorDrawing,
+                scaleFactor = scaleFactor
+            )
+        )
 
 }
 

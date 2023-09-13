@@ -12,6 +12,7 @@ import com.copixelate.ui.screens.art.ArtScreen
 import com.copixelate.ui.screens.contacts.AddContactsScreen
 import com.copixelate.ui.screens.contacts.ContactsScreen
 import com.copixelate.ui.screens.library.LibraryScreen
+import com.copixelate.viewmodel.ActivityViewModel
 import com.copixelate.viewmodel.ArtViewModel
 import com.copixelate.viewmodel.LibraryViewModel
 import com.copixelate.viewmodel.NavViewModel
@@ -20,6 +21,7 @@ import com.copixelate.viewmodel.SettingsViewModel
 @Composable
 fun SetupMainNavGraph(
     navController: NavHostController,
+    activityViewModel: ActivityViewModel,
     navViewModel: NavViewModel,
     artViewModel: ArtViewModel,
     libraryViewModel: LibraryViewModel,
@@ -38,7 +40,8 @@ fun SetupMainNavGraph(
         composable(route = NavInfo.Library.route) {
             LibraryScreen(
                 navController = navController,
-                libraryViewModel = libraryViewModel
+                libraryViewModel = libraryViewModel,
+                activityViewModel = activityViewModel
             )
         }
 
