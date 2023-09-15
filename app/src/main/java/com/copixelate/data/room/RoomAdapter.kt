@@ -1,6 +1,6 @@
 package com.copixelate.data.room
 
-import android.content.Context
+import android.app.Application
 import androidx.room.Room
 import kotlinx.coroutines.flow.Flow
 
@@ -8,9 +8,9 @@ object RoomAdapter {
 
     private lateinit var db: AppDatabase
 
-    fun init(applicationContext: Context) {
+    fun init(application: Application) {
         db = Room.databaseBuilder(
-            applicationContext,
+            application,
             AppDatabase::class.java, "copixelate-db"
         ).build()
     }

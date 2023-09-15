@@ -1,9 +1,17 @@
 package com.copixelate.ui
 
 import androidx.compose.animation.Crossfade
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Icon
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -11,16 +19,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
-import com.copixelate.ThemeSetting
 import com.copixelate.FeatureFlags
+import com.copixelate.ThemeSetting
 import com.copixelate.ui.nav.NavInfo
 import com.copixelate.ui.nav.compareTopLevelRoute
 import com.copixelate.ui.nav.navigateTopLevel
 import com.copixelate.ui.theme.CopixelateTheme
 import com.copixelate.ui.util.PreviewSurface
 import com.copixelate.viewmodel.ActivityViewModel
-import com.copixelate.viewmodel.ArtViewModel
-import com.copixelate.viewmodel.LibraryViewModel
 import com.copixelate.viewmodel.NavViewModel
 import com.copixelate.viewmodel.SettingsViewModel
 
@@ -28,9 +34,7 @@ import com.copixelate.viewmodel.SettingsViewModel
 fun MainContent(
     navController: NavHostController,
     activityViewModel: ActivityViewModel,
-    artViewModel: ArtViewModel,
-    libraryViewModel: LibraryViewModel,
-    settingsViewModel: SettingsViewModel
+    settingsViewModel: SettingsViewModel = viewModel()
 ) {
 
     val isCoopAvailable = FeatureFlags.IS_COOP_AVAILABLE
@@ -65,8 +69,6 @@ fun MainContent(
                     navController = navController,
                     activityViewModel = activityViewModel,
                     navViewModel = navViewModel,
-                    artViewModel = artViewModel,
-                    libraryViewModel = libraryViewModel,
                     settingsViewModel = settingsViewModel,
                 )
 

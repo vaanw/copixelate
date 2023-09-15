@@ -1,4 +1,4 @@
-package com.copixelate.data.proto
+package com.copixelate.data.datastore
 
 import android.content.Context
 import androidx.datastore.core.CorruptionException
