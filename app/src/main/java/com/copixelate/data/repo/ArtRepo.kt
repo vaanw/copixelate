@@ -1,6 +1,5 @@
 package com.copixelate.data.repo
 
-import android.app.Activity
 import android.graphics.Bitmap
 import android.net.Uri
 import com.copixelate.data.bitmap.createScaledBitmap
@@ -16,11 +15,6 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 
 object ArtRepo {
-
-    fun init(activity: Activity) {
-        RoomAdapter.init(activity.applicationContext)
-        StorageAdapter.init(activity.application)
-    }
 
     private val room = RoomAdapter
     private val firebase = FirebaseAdapter
