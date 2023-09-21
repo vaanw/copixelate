@@ -13,7 +13,7 @@ data class Point(var x: Int = 0, var y: Int = x) {
     }
 
     val area get() = x * y
-    fun contains(p: PointF): Boolean = !(p.x < 0 || p.x > x || p.y < 0 || p.y > y)
+    fun contains(p: PointF): Boolean = (p.x > 0 && p.x < x && p.y > 0 && p.y < y)
     fun toMinSquare() = Point(min(x, y))
 }
 
