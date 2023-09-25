@@ -2,13 +2,9 @@ package com.copixelate.ui.screens.art
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExitTransition.Companion.None
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.animateOffsetAsState
 import androidx.compose.animation.fadeIn
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.gestures.rememberTransformableState
-import androidx.compose.foundation.gestures.transformable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -33,6 +29,7 @@ import androidx.compose.material3.Slider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -41,7 +38,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
@@ -113,8 +109,8 @@ fun ArtScreenContent(
 
             var transformable: Boolean by remember { mutableStateOf(false) }
 
-            DrawingTransformer(
-                transformable = transformable,
+            TransformTool(
+                enabled = transformable,
                 modifier = Modifier
                     .fillMaxSize()
             ) { transModifier ->
@@ -165,7 +161,7 @@ fun PalettePanel(
 
         var expanded by remember { mutableStateOf(false) }
 
-        var previousColor by remember { mutableStateOf(palette.activeColor) }
+        var previousColor by remember { mutableIntStateOf(palette.activeColor) }
         var colorComponents by remember { mutableStateOf(palette.activeColor.toHSL()) }
 
         Box {
@@ -285,82 +281,6 @@ private fun DrawingToolBar(
 } // End DrawingToolBar
 
 @Composable
-private fun DrawingTransformer(
-    transformable: Boolean,
-    modifier: Modifier = Modifier,
-    content: @Composable (Modifier) -> Unit
-) {
-
-    var revert by remember { mutableStateOf(false) }
-
-    var scale by remember { mutableStateOf(1f) }
-    var offset by remember { mutableStateOf(Offset.Zero) }
-
-    val state = rememberTransformableState { zoomChange, offsetChange, _ ->
-        scale *= zoomChange
-        offset += offsetChange
-    }
-
-    if (revert) {
-        var targetScale by remember { mutableStateOf(scale) }
-        val animatedScale: Float by animateFloatAsState(
-            targetValue = targetScale
-        )
-        targetScale = 1f
-
-        var targetOffset by remember { mutableStateOf(offset) }
-        val animatedOffset: Offset by animateOffsetAsState(
-            targetValue = targetOffset
-        )
-        targetOffset = Offset.Zero
-
-        scale = animatedScale
-        offset = animatedOffset
-
-        // End revert if complete
-        if (scale == 1f
-            && offset == Offset.Zero
-        ) revert = false
-    }
-
-
-    Box(
-        modifier = modifier
-            // Gather transform input
-            .transformable(
-                state = state,
-                enabled = transformable
-            )
-            .then(when (transformable) {
-                false -> Modifier
-                // Double-tap to revert transform
-                true -> Modifier.pointerInput(Unit) {
-                    detectTapGestures(
-                        onDoubleTap = { _ ->
-                            revert = true
-                        })
-                }
-            }
-            )
-
-    ) {
-
-        content(
-            Modifier
-                // Transform content
-                .graphicsLayer(
-                    scaleX = scale,
-                    scaleY = scale,
-                    translationX = offset.x,
-                    translationY = offset.y
-                )
-        )
-
-    } // End Box
-
-} // End DrawingTransformer
-
-@Composable
 private fun Drawing(
     drawing: PixelGrid,
     editable: Boolean,
@@ -411,7 +331,7 @@ private fun Palette(
     modifier: Modifier = Modifier
 ) {
 
-    var viewWidth by remember { mutableStateOf(0) }
+    var viewWidth by remember { mutableIntStateOf(0) }
     val paletteItemWidth = max(
         a = 50.dp,
         b = (viewWidth / palette.pixels.size).toDp()
@@ -486,7 +406,7 @@ private fun BrushSizeSlider(
     modifier: Modifier
 ) {
 
-    var currentStep by remember { mutableStateOf(steps.default) }
+    var currentStep by remember { mutableIntStateOf(steps.default) }
 
     Slider(
         value = (currentStep - steps.min) * 1f / steps.size,
@@ -514,7 +434,7 @@ fun ArtScreenPreview() {
     var drawing by remember { mutableStateOf(artSpace.state.colorDrawing) }
     var palette by remember { mutableStateOf(artSpace.state.palette.toModel()) }
     var brushPreview by remember { mutableStateOf(artSpace.state.brushPreview) }
-    var brushSize by remember { mutableStateOf(artSpace.state.brushSize) }
+    var brushSize by remember { mutableIntStateOf(artSpace.state.brushSize) }
 
     PreviewSurface {
         ArtScreenContent(
