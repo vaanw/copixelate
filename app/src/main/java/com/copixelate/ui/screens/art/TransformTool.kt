@@ -18,58 +18,79 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.unit.IntSize
 
+private const val DEFAULT_SCALE = 1f
+private val DEFAULT_OFFSET = Offset.Zero
+
+data class TransformState(
+    var scale: Float = DEFAULT_SCALE,
+    var offset: Offset = DEFAULT_OFFSET
+)
 
 /**
- * A composable providing gestures to transform (pan and zoom) content.
- * The user can double-tap to revert all transformations.
+ * A composable providing gestures to transform (pan and zoom) content,
+ * and double-tap to revert all transformations.
+ * Transformation state is persisted locally to improve performance.
  *
+ * @param initialState [TransformState] used upon first composition.
+ * @param onStateChange Callback providing the latest [TransformState].
  * @param enabled Determines if the transform tool will respond to user input.
- * @param modifier The [Modifier] applied to the outermost component.
- * @param content The composable content to be transformed, typically a [Drawing].
+ * @param modifier [Modifier] applied to the outermost component.
+ * @param content Composable content to be transformed, typically a [Drawing].
  * The transformation is received as a [Modifier].
  */
 @Composable
 fun TransformTool(
+    initialState: TransformState,
+    onStateChange: (TransformState) -> Unit,
     enabled: Boolean,
     modifier: Modifier = Modifier,
     content: @Composable (Modifier) -> Unit
 ) {
 
-    var viewSize by remember { mutableStateOf(IntSize(0, 0)) }
+    var state by remember { mutableStateOf(initialState) }
+
+    fun updateState(scale: Float, offset: Offset) {
+        state = state.copy(
+            scale = scale,
+            offset = offset
+        )
+        onStateChange(state)
+    }
 
     var revert by remember { mutableStateOf(false) }
 
-    var scale by remember { mutableFloatStateOf(1f) }
-    var offset by remember { mutableStateOf(Offset.Zero) }
-
-    if (revert) {
-        var targetScale by remember { mutableFloatStateOf(scale) }
+    @Composable
+    fun AnimateTransformationReversion() {
+        var targetScale by remember { mutableFloatStateOf(state.scale) }
         val animatedScale: Float by animateFloatAsState(
             targetValue = targetScale,
             label = "TransformScaleAnimation"
         )
-        targetScale = 1f
+        targetScale = DEFAULT_SCALE
 
-        var targetOffset by remember { mutableStateOf(offset) }
+        var targetOffset by remember { mutableStateOf(state.offset) }
         val animatedOffset: Offset by animateOffsetAsState(
             targetValue = targetOffset,
             label = "TransformOffsetAnimation"
         )
-        targetOffset = Offset.Zero
+        targetOffset = DEFAULT_OFFSET
 
-        scale = animatedScale
-        offset = animatedOffset
+        updateState(animatedScale, animatedOffset)
 
         // End revert if complete
-        if (scale == 1f
-            && offset == Offset.Zero
+        if (state.scale == DEFAULT_SCALE
+            && state.offset == DEFAULT_OFFSET
         ) revert = false
     }
 
-    Box(
-        modifier = when (enabled) {
-            false -> modifier
-            true -> modifier
+    if (revert) AnimateTransformationReversion()
+
+    @Composable
+    fun ContentTransformationModifier(): Modifier = when (enabled) {
+        false -> modifier
+        true -> {
+            var viewSize by remember { mutableStateOf(IntSize(0, 0)) }
+            modifier
                 .onGloballyPositioned { layoutCoordinates ->
                     viewSize = layoutCoordinates.size
                 }
@@ -77,9 +98,11 @@ fun TransformTool(
                 .pointerInput(Unit) {
                     detectTransformGestures { centroid, pan, zoom, _ ->
                         val inputOffset = centroid - viewSize / 2
-                        val panCorrection = (offset - inputOffset) * (zoom - 1)
-                        offset += pan + panCorrection
-                        scale *= zoom
+                        val panCorrection = (state.offset - inputOffset) * (zoom - 1)
+                        updateState(
+                            scale = state.scale * zoom,
+                            offset = state.offset + pan + panCorrection
+                        )
                     }
                 }
                 // Double-tap to revert transform
@@ -89,17 +112,21 @@ fun TransformTool(
                             revert = true
                         })
                 }
-        } // end when
+        }
+    } // end when
+
+    Box(
+        modifier = ContentTransformationModifier()
     ) {
 
         content(
             Modifier
                 // Transform content
                 .graphicsLayer(
-                    scaleX = scale,
-                    scaleY = scale,
-                    translationX = offset.x,
-                    translationY = offset.y
+                    scaleX = state.scale,
+                    scaleY = state.scale,
+                    translationX = state.offset.x,
+                    translationY = state.offset.y
                 )
         )
 

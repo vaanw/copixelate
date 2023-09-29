@@ -12,6 +12,7 @@ import com.copixelate.data.model.toArtSpace
 import com.copixelate.data.model.toModel
 import com.copixelate.data.repo.ArtRepo
 import com.copixelate.data.repo.UiRepo
+import com.copixelate.ui.screens.art.TransformState
 import com.copixelate.ui.util.generateDefaultArt
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -24,6 +25,9 @@ class ArtViewModel : ViewModel() {
 
     private val artRepo = ArtRepo
     private val uiRepo = UiRepo
+
+    private val _contentReady = MutableStateFlow(false)
+    val contentReady = _contentReady.asStateFlow()
 
     private var artSpace = ArtSpace()
     private var spaceModel = SpaceModel()
@@ -38,8 +42,12 @@ class ArtViewModel : ViewModel() {
     val brushPreview = _brushPreview.asStateFlow()
     val brushSize = _brushSize.asStateFlow()
 
-    private val _contentReady = MutableStateFlow(false)
-    val contentReady = _contentReady.asStateFlow()
+    private var _transformState = TransformState()
+    val transformState get() = _transformState
+
+    private val _transformEnabled = MutableStateFlow(true)
+    val transformEnabled = _transformEnabled.asStateFlow()
+
 
     init {
         // Determine appropriate SpaceModel to display
@@ -85,6 +93,8 @@ class ArtViewModel : ViewModel() {
         _drawing.update { artSpace.state.colorDrawing }
         _palette.update { artSpace.state.palette.toModel() }
         _brushPreview.update { artSpace.state.brushPreview }
+        _transformState = TransformState()
+        _transformEnabled.update { true }
     }
 
     fun updateDrawing(unitPosition: PointF) =
@@ -148,6 +158,16 @@ class ArtViewModel : ViewModel() {
             artSpace.updateBrushSize(size)
             _brushSize.update { artSpace.state.brushSize }
             _brushPreview.update { artSpace.state.brushPreview }
+        }
+
+    fun updateTransformState(transformState: TransformState) =
+        viewModelScope.launch {
+            _transformState = transformState
+        }
+
+    fun updateTransformEnabled(enabled: Boolean) =
+        viewModelScope.launch {
+            _transformEnabled.update { enabled }
         }
 
 }
