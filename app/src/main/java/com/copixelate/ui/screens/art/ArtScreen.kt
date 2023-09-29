@@ -75,10 +75,14 @@ fun ArtScreen(artViewModel: ArtViewModel) {
             palette = artViewModel.palette.collectAsState().value,
             brushPreview = artViewModel.brushPreview.collectAsState().value,
             initialBrushSize = artViewModel.brushSize.collectAsState().value,
+            transformState = artViewModel.transformState,
+            transformEnabled = artViewModel.transformEnabled.collectAsState().value,
             onTouchDrawing = { unitPosition -> artViewModel.updateDrawing(unitPosition) },
             onTapPalette = { paletteIndex -> artViewModel.updatePaletteActiveIndex(paletteIndex) },
             onEditColor = { color -> artViewModel.updatePaletteActiveColor(color) },
-            onBrushSizeUpdate = { size -> artViewModel.updateBrush(size) }
+            onBrushSizeUpdate = { size -> artViewModel.updateBrush(size) },
+            onTransform = { transformState -> artViewModel.updateTransformState(transformState) },
+            onTransformEnableChange = { enabled -> artViewModel.updateTransformEnabled(enabled) }
         )
     }
 
@@ -90,10 +94,14 @@ fun ArtScreenContent(
     palette: PaletteModel,
     brushPreview: PixelGrid,
     initialBrushSize: Int,
+    transformState: TransformState,
+    transformEnabled: Boolean,
     onTouchDrawing: (unitPosition: PointF) -> Unit,
     onTapPalette: (paletteIndex: Int) -> Unit,
     onEditColor: (color: Int) -> Unit,
-    onBrushSizeUpdate: (Int) -> Unit
+    onBrushSizeUpdate: (Int) -> Unit,
+    onTransform: (transformState: TransformState) -> Unit,
+    onTransformEnableChange: (enabled: Boolean) -> Unit
 ) {
 
     Column {
@@ -107,16 +115,16 @@ fun ArtScreenContent(
                 .clip(shape = RectangleShape)
         ) {
 
-            var transformable: Boolean by remember { mutableStateOf(false) }
-
             TransformTool(
-                enabled = transformable,
+                initialState = transformState,
+                onStateChange = onTransform,
+                enabled = transformEnabled,
                 modifier = Modifier
                     .fillMaxSize()
             ) { transModifier ->
                 Drawing(
                     drawing = drawing,
-                    editable = !transformable,
+                    editable = !transformEnabled,
                     onTouchDrawing = onTouchDrawing,
                     modifier = transModifier
                         .aspectRatio(drawing.size.x * 1f / drawing.size.y)
@@ -125,10 +133,8 @@ fun ArtScreenContent(
             }
 
             DrawingToolBar(
-                transformable = transformable,
-                onUpdateTransformable = { newValue: Boolean ->
-                    transformable = newValue
-                },
+                transformable = transformEnabled,
+                onUpdateTransformable = onTransformEnableChange,
                 modifier = Modifier
                     .align(Alignment.TopEnd)
             )
@@ -436,12 +442,17 @@ fun ArtScreenPreview() {
     var brushPreview by remember { mutableStateOf(artSpace.state.brushPreview) }
     var brushSize by remember { mutableIntStateOf(artSpace.state.brushSize) }
 
+    var transformState by remember { mutableStateOf(TransformState(scale = 0.5f)) }
+    var transformEnabled by remember { mutableStateOf(false) }
+
     PreviewSurface {
         ArtScreenContent(
             drawing = drawing,
             palette = palette,
             brushPreview = brushPreview,
             initialBrushSize = brushSize,
+            transformState = transformState,
+            transformEnabled = transformEnabled,
             onTouchDrawing = { unitPosition ->
                 artSpace.updateDrawing(unitPosition = unitPosition)
                 drawing = artSpace.state.colorDrawing
@@ -461,6 +472,12 @@ fun ArtScreenPreview() {
                 artSpace.updateBrushSize(size = size)
                 brushSize = artSpace.state.brushSize
                 brushPreview = artSpace.state.brushPreview
+            },
+            onTransform = { newTransformState ->
+                transformState = newTransformState
+            },
+            onTransformEnableChange = { enabled ->
+                transformEnabled = enabled
             }
         )
     }
