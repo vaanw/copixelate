@@ -1,8 +1,9 @@
 package com.copixelate.ui.screens.library
 
-import androidx.compose.animation.core.LinearOutSlowInEasing
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.MutableTransitionState
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,7 +13,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
@@ -20,7 +22,6 @@ import androidx.compose.material.icons.filled.Draw
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
@@ -33,8 +34,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.tooling.preview.Preview
@@ -89,8 +88,19 @@ private fun LibraryScreenContent(
     onShare: (SpaceModel) -> Unit,
 ) {
 
-    val scrollState = rememberLazyListState()
-    var addItemJustOccurred by remember { mutableStateOf(false) }
+    var cachedSpaces by remember { mutableStateOf(spaces) }
+
+    val addedItems = spaces.toHashSet().minus(cachedSpaces.toHashSet())
+    val removedItems = cachedSpaces.toHashSet().minus(spaces.toHashSet())
+
+    val workingSpaces = spaces
+        .union(cachedSpaces)
+        .toList()
+        .sortedBy { it.id.localId }
+
+    var layoutReady by remember { mutableStateOf(false) }
+
+    val lazyListState = rememberLazyListState()
 
     var fabHeight by remember { mutableIntStateOf(0) }
     val fabClearance = fabHeight.toDp() + 16.dp + 16.dp
@@ -100,17 +110,22 @@ private fun LibraryScreenContent(
 
     var spaceModelToExport by remember { mutableStateOf(SpaceModel()) }
 
+    var createJustOccurred by remember { mutableStateOf(false) }
+
     // Scroll to the bottom when a new item is added
-    LaunchedEffect(spaces.size) {
-        if (addItemJustOccurred) {
-            scrollState.scrollToItem(index = spaces.lastIndex)
-            addItemJustOccurred = false
+    LaunchedEffect(workingSpaces.size) {
+        if (createJustOccurred) {
+            lazyListState.scrollToItem(index = workingSpaces.lastIndex)
+            createJustOccurred = false
         }
     }
 
     // Library items
     LazyColumn(
-        state = scrollState,
+        state = when (layoutReady) {
+            true -> lazyListState
+            false -> LazyListState()
+        },
         contentPadding = PaddingValues(
             bottom = fabClearance,
             top = 16.dp, start = 16.dp, end = 16.dp
@@ -118,21 +133,67 @@ private fun LibraryScreenContent(
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
 
-        itemsIndexed(items = spaces) { index, spaceModel ->
-            LibraryArtSpaceItem(
-                spaceModel = spaceModel,
-                isNew = addItemJustOccurred && (spaces.lastIndex == index),
-                onDelete = onDelete,
-                onOpen = onOpen,
-                onExport = { model, fileName ->
-                    spaceModelToExport = model
-                    showExportDialog = true
-                },
-                onShare = onShare
-            )
-        }
+        items(
+            items = workingSpaces,
+            key = { item -> item.id.localId!! }
+        ) { spaceModel ->
 
-    }
+            val added = addedItems.contains(spaceModel)
+            val removed = removedItems.contains(spaceModel)
+            val initialVisibility = removed || !added
+
+            val visibleState = remember {
+                MutableTransitionState(initialVisibility).apply {
+                    // Start animation immediate if this is a new item
+                    if (added) targetState = true
+                }
+            }
+
+            when {
+                // Invisible
+                visibleState.isIdle && !visibleState.currentState -> {
+                    if (removed) {
+                        cachedSpaces = cachedSpaces.toMutableList().apply {
+                            remove(spaceModel)
+                        }
+                    }
+                }
+                // Visible
+                visibleState.isIdle && visibleState.currentState -> {
+                    if (added) {
+                        cachedSpaces = cachedSpaces.toMutableList().apply {
+                            add(spaceModel)
+                        }
+                    }
+                }
+            }
+
+            AnimatedVisibility(
+                visibleState = visibleState,
+                enter = fadeIn(),
+                exit = shrinkVertically()
+            ) {
+
+                LibraryArtSpaceItem(
+                    spaceModel = spaceModel,
+                    onDelete = { spaceModel ->
+                        visibleState.targetState = false
+                        onDelete(spaceModel)
+                    },
+                    onOpen = onOpen,
+                    onExport = { model, fileName ->
+                        spaceModelToExport = model
+                        showExportDialog = true
+                    },
+                    onShare = onShare
+                )
+
+            } // End AnimatedVisibility
+
+        } // End itemsIndexed
+
+    } // End LazyColumn
+
 
     // Fab, opens dialog to create item
     Box(
@@ -145,6 +206,7 @@ private fun LibraryScreenContent(
             modifier = Modifier
                 .onGloballyPositioned { coordinates ->
                     fabHeight = coordinates.size.height
+                    layoutReady = true
                 }
                 .align(Alignment.BottomEnd)
         )
@@ -153,7 +215,10 @@ private fun LibraryScreenContent(
     // Dialog, create item
     if (showCreateDialog)
         CreateItemDialog(
-            onCreate = onCreate,
+            onCreate = { width, height, paletteSize ->
+                onCreate(width, height, paletteSize)
+                createJustOccurred = true
+            },
             onCancel = { showCreateDialog = false }
         )
 
@@ -176,39 +241,17 @@ private fun LibraryScreenContent(
 @Composable
 private fun LibraryArtSpaceItem(
     spaceModel: SpaceModel,
-    isNew: Boolean,
     onDelete: (SpaceModel) -> Unit,
     onOpen: (SpaceModel) -> Unit,
     onExport: (SpaceModel, String) -> Unit,
     onShare: (SpaceModel) -> Unit
 ) {
 
-    val artSpace = spaceModel.toArtSpace()
-    val cardShape = CardDefaults.shape
-
-    // Opacity animation for newly created items, out -> in
-    var targetAlpha by remember {
-        mutableStateOf(
-            when (isNew) {
-                true -> 0f; false -> 1f
-            }
-        )
-    }
-    val animatedAlpha: Float by animateFloatAsState(
-        targetValue = targetAlpha,
-        animationSpec = tween(
-            durationMillis = 1000,
-            easing = LinearOutSlowInEasing,
-        ),
-    )
-    // Begins the alpha float animation, 0f -> 1f
-    if (isNew) targetAlpha = 1f
+    val artSpace = remember { spaceModel.toArtSpace() }
 
     Card(
-        shape = cardShape,
         modifier = Modifier
             .fillMaxWidth()
-            .alpha(alpha = animatedAlpha)
     ) {
 
         Column {
@@ -219,7 +262,6 @@ private fun LibraryArtSpaceItem(
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clip(cardShape),
             )
             // Icon button row
             Box(
