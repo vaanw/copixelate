@@ -18,8 +18,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ExpandLess
-import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.icons.filled.Palette
+import androidx.compose.material.icons.outlined.Palette
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.IconToggleButton
@@ -59,6 +59,7 @@ import com.copixelate.data.model.toModel
 import com.copixelate.ui.common.BitmapImage
 import com.copixelate.ui.theme.disable
 import com.copixelate.ui.util.PreviewSurface
+import com.copixelate.ui.util.ScreenSurface
 import com.copixelate.ui.util.generateDefaultArt
 import com.copixelate.ui.util.toDp
 import com.copixelate.viewmodel.ArtViewModel
@@ -66,25 +67,27 @@ import com.copixelate.viewmodel.ArtViewModel
 @Composable
 fun ArtScreen(artViewModel: ArtViewModel) {
 
-    AnimatedVisibility(
-        visible = artViewModel.contentReady.collectAsState().value,
-        enter = fadeIn(), exit = None
-    ) {
-        ArtScreenContent(
-            drawing = artViewModel.drawing.collectAsState().value,
-            palette = artViewModel.palette.collectAsState().value,
-            brushPreview = artViewModel.brushPreview.collectAsState().value,
-            initialBrushSize = artViewModel.brushSize.collectAsState().value,
-            transformState = artViewModel.transformState,
-            transformEnabled = artViewModel.transformEnabled.collectAsState().value,
-            onTouchDrawing = { unitPosition -> artViewModel.updateDrawing(unitPosition) },
-            onTapPalette = { paletteIndex -> artViewModel.updatePaletteActiveIndex(paletteIndex) },
-            onEditColor = { color -> artViewModel.updatePaletteActiveColor(color) },
-            onBrushSizeUpdate = { size -> artViewModel.updateBrush(size) },
-            onTransform = { transformState -> artViewModel.updateTransformState(transformState) },
-            onTransformEnableChange = { enabled -> artViewModel.updateTransformEnabled(enabled) }
-        )
-    }
+    ScreenSurface {
+        AnimatedVisibility(
+            visible = artViewModel.contentReady.collectAsState().value,
+            enter = fadeIn(), exit = None,
+        ) {
+            ArtScreenContent(
+                drawing = artViewModel.drawing.collectAsState().value,
+                palette = artViewModel.palette.collectAsState().value,
+                brushPreview = artViewModel.brushPreview.collectAsState().value,
+                initialBrushSize = artViewModel.brushSize.collectAsState().value,
+                transformState = artViewModel.transformState,
+                transformEnabled = artViewModel.transformEnabled.collectAsState().value,
+                onTouchDrawing = { unitPosition -> artViewModel.updateDrawing(unitPosition) },
+                onTapPalette = { paletteIndex -> artViewModel.updatePaletteActiveIndex(paletteIndex) },
+                onEditColor = { color -> artViewModel.updatePaletteActiveColor(color) },
+                onBrushSizeUpdate = { size -> artViewModel.updateBrush(size) },
+                onTransform = { transformState -> artViewModel.updateTransformState(transformState) },
+                onTransformEnableChange = { enabled -> artViewModel.updateTransformEnabled(enabled) }
+            )
+        } // End AnimatedVisibility
+    } // End ScreenSurface
 
 }
 
@@ -219,12 +222,12 @@ fun PalettePanel(
             ) {
                 when (expanded) {
                     false -> Icon(
-                        imageVector = Icons.Default.ExpandMore,
+                        imageVector = Icons.Outlined.Palette,
                         contentDescription = "Localized description"
                     )
 
                     true -> Icon(
-                        imageVector = Icons.Default.ExpandLess,
+                        imageVector = Icons.Default.Palette,
                         contentDescription = "Localized description"
                     )
                 }

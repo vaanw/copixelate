@@ -2,8 +2,6 @@ package com.copixelate.ui.screens.library
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.MutableTransitionState
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -26,6 +24,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -35,17 +34,20 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.copixelate.data.model.SpaceModel
 import com.copixelate.data.model.toArtSpace
+import com.copixelate.ui.animation.AnimationCatalog.libraryItemEnter
+import com.copixelate.ui.animation.AnimationCatalog.libraryItemExit
 import com.copixelate.ui.common.AddItemFab
 import com.copixelate.ui.common.BitmapImage
 import com.copixelate.ui.nav.NavInfo
 import com.copixelate.ui.nav.navigateTopLevel
 import com.copixelate.ui.util.PreviewSurface
+import com.copixelate.ui.util.ScreenSurface
 import com.copixelate.ui.util.generateDefaultArt
 import com.copixelate.ui.util.toDp
 import com.copixelate.viewmodel.ActivityViewModel
@@ -57,26 +59,31 @@ fun LibraryScreen(
     libraryViewModel: LibraryViewModel,
     activityViewModel: ActivityViewModel
 ) {
-    LibraryScreenContent(
-        spaces = libraryViewModel.allSpaces.collectAsState().value,
-        onCreate = { width, height, paletteSize ->
-            libraryViewModel.createNewArtSpace(width, height, paletteSize)
-        },
-        onDelete = { spaceModel ->
-            libraryViewModel.deleteArtSpace(spaceModel)
-        },
-        onOpen = { spaceModel ->
-            libraryViewModel.updateCurrentSpaceId(spaceModel.id)
-            navController.navigateTopLevel(navInfo = NavInfo.Art)
-        },
-        onExport = { spaceModel, fileName, scaleFactor ->
-            libraryViewModel.exportSpace(spaceModel, fileName, scaleFactor)
-        },
-        onShare = { spaceModel ->
-            activityViewModel.shareSpace(spaceModel, 10)
-        }
-    )
-}
+
+    ScreenSurface {
+        LibraryScreenContent(
+            spaces = libraryViewModel.allSpaces.collectAsState().value,
+            onCreate = { width, height, paletteSize ->
+                libraryViewModel.createNewArtSpace(width, height, paletteSize)
+            },
+            onDelete = { spaceModel ->
+                libraryViewModel.deleteArtSpace(spaceModel)
+            },
+            onOpen = { spaceModel ->
+                libraryViewModel.updateCurrentSpaceId(spaceModel.id) {
+                    navController.navigateTopLevel(navInfo = NavInfo.Art)
+                }
+            },
+            onExport = { spaceModel, fileName, scaleFactor ->
+                libraryViewModel.exportSpace(spaceModel, fileName, scaleFactor)
+            },
+            onShare = { spaceModel ->
+                activityViewModel.shareSpace(spaceModel, 10)
+            }
+        ) // End LibraryScreenContent
+    } // End ScreenSurface
+
+} // End LibraryScreen
 
 @Composable
 private fun LibraryScreenContent(
@@ -90,20 +97,32 @@ private fun LibraryScreenContent(
 
     var cachedSpaces by remember { mutableStateOf(spaces) }
 
-    val addedItems = spaces.toHashSet().minus(cachedSpaces.toHashSet())
-    val removedItems = cachedSpaces.toHashSet().minus(spaces.toHashSet())
+    val workingSpaces = remember(spaces, cachedSpaces) {
+        spaces
+            .union(cachedSpaces)
+            .toList()
+            .sortedBy { it.id }
+    }
 
-    val workingSpaces = spaces
-        .union(cachedSpaces)
-        .toList()
-        .sortedBy { it.id.localId }
+    val addedItems = remember(spaces, cachedSpaces) {
+        spaces.minus(cachedSpaces.toSet())
+    }
+    val removedItems = remember(spaces, cachedSpaces) {
+        cachedSpaces.minus(spaces.toSet())
+    }
 
     var layoutReady by remember { mutableStateOf(false) }
 
-    val lazyListState = rememberLazyListState()
+    val cachedLazyListState = rememberLazyListState()
+
+    val lazyListState = remember(layoutReady) {
+        when (layoutReady) {
+            true -> cachedLazyListState
+            false -> LazyListState()
+        }
+    }
 
     var fabHeight by remember { mutableIntStateOf(0) }
-    val fabClearance = fabHeight.toDp() + 16.dp + 16.dp
 
     var showCreateDialog by remember { mutableStateOf(false) }
     var showExportDialog by remember { mutableStateOf(false) }
@@ -113,65 +132,48 @@ private fun LibraryScreenContent(
     var createJustOccurred by remember { mutableStateOf(false) }
 
     // Scroll to the bottom when a new item is added
-    LaunchedEffect(workingSpaces.size) {
+    LaunchedEffect(spaces.size) {
         if (createJustOccurred) {
-            lazyListState.scrollToItem(index = workingSpaces.lastIndex)
+            lazyListState.scrollToItem(
+                index = workingSpaces.lastIndex,
+                scrollOffset = fabHeight
+            )
             createJustOccurred = false
         }
     }
 
     // Library items
     LazyColumn(
-        state = when (layoutReady) {
-            true -> lazyListState
-            false -> LazyListState()
-        },
+        state = lazyListState,
         contentPadding = PaddingValues(
-            bottom = fabClearance,
-            top = 16.dp, start = 16.dp, end = 16.dp
+            bottom = fabHeight.toDp() + 16.dp + 8.dp,
+            top = 8.dp, start = 16.dp, end = 16.dp
         ),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        modifier = Modifier
+            .fillMaxSize()
     ) {
 
         items(
             items = workingSpaces,
-            key = { item -> item.id.localId!! }
+            key = { item -> item.id.localId }
         ) { spaceModel ->
 
-            val added = addedItems.contains(spaceModel)
-            val removed = removedItems.contains(spaceModel)
-            val initialVisibility = removed || !added
+            val wasAdded = remember(addedItems) { addedItems.contains(spaceModel) }
+            val wasRemoved = remember(removedItems) { removedItems.contains(spaceModel) }
+            val isDynamic = remember(wasAdded, wasRemoved) { wasRemoved || wasAdded }
+            val initialVisibility = remember(wasAdded, wasRemoved) { wasRemoved || !wasAdded }
 
             val visibleState = remember {
                 MutableTransitionState(initialVisibility).apply {
                     // Start animation immediate if this is a new item
-                    if (added) targetState = true
-                }
-            }
-
-            when {
-                // Invisible
-                visibleState.isIdle && !visibleState.currentState -> {
-                    if (removed) {
-                        cachedSpaces = cachedSpaces.toMutableList().apply {
-                            remove(spaceModel)
-                        }
-                    }
-                }
-                // Visible
-                visibleState.isIdle && visibleState.currentState -> {
-                    if (added) {
-                        cachedSpaces = cachedSpaces.toMutableList().apply {
-                            add(spaceModel)
-                        }
-                    }
+                    if (wasAdded) targetState = true
                 }
             }
 
             AnimatedVisibility(
                 visibleState = visibleState,
-                enter = fadeIn(),
-                exit = shrinkVertically()
+                enter = libraryItemEnter,
+                exit = libraryItemExit,
             ) {
 
                 LibraryArtSpaceItem(
@@ -185,10 +187,30 @@ private fun LibraryScreenContent(
                         spaceModelToExport = model
                         showExportDialog = true
                     },
-                    onShare = onShare
+                    onShare = onShare,
+                    modifier = Modifier
+                        .padding(vertical = 8.dp)
                 )
 
             } // End AnimatedVisibility
+
+            val isAnimationComplete = remember(visibleState.isIdle, isDynamic) {
+                visibleState.isIdle && isDynamic
+            }
+
+            if (isAnimationComplete) {
+                SideEffect {
+                    when {
+                        // Visible
+                        visibleState.currentState ->
+                            if (wasAdded) cachedSpaces += spaceModel
+                        // Invisible
+                        !visibleState.currentState ->
+                            if (wasRemoved) cachedSpaces -= spaceModel
+                    } // End when
+                } // End SideEffect
+
+            } // End if
 
         } // End itemsIndexed
 
@@ -204,8 +226,8 @@ private fun LibraryScreenContent(
         AddItemFab(
             onClick = { showCreateDialog = true },
             modifier = Modifier
-                .onGloballyPositioned { coordinates ->
-                    fabHeight = coordinates.size.height
+                .onSizeChanged { intSize ->
+                    fabHeight = intSize.height
                     layoutReady = true
                 }
                 .align(Alignment.BottomEnd)
@@ -244,13 +266,14 @@ private fun LibraryArtSpaceItem(
     onDelete: (SpaceModel) -> Unit,
     onOpen: (SpaceModel) -> Unit,
     onExport: (SpaceModel, String) -> Unit,
-    onShare: (SpaceModel) -> Unit
+    onShare: (SpaceModel) -> Unit,
+    modifier: Modifier = Modifier
 ) {
 
     val artSpace = remember { spaceModel.toArtSpace() }
 
     Card(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
     ) {
 

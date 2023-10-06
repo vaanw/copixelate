@@ -40,11 +40,10 @@ class LibraryViewModel : ViewModel() {
             artRepo.loseSpace(spaceModel = spaceModel)
         }
 
-    fun updateCurrentSpaceId(newId: IdModel) =
+    fun updateCurrentSpaceId(newId: IdModel, onComplete: () -> Unit) =
         viewModelScope.launch {
-            newId.localId?.let {
-                uiRepo.saveCurrentSpaceId(spaceId = it)
-            }
+            uiRepo.saveCurrentSpaceId(spaceId = newId.localId)
+            onComplete()
         }
 
     fun exportSpace(spaceModel: SpaceModel, fileName: String, scaleFactor: Int) {

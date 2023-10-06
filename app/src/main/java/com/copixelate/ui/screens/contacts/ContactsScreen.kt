@@ -24,17 +24,20 @@ import com.copixelate.ui.common.AddItemFab
 import com.copixelate.ui.nav.NavInfo
 import com.copixelate.ui.nav.navigate
 import com.copixelate.ui.util.PreviewSurface
+import com.copixelate.ui.util.ScreenSurface
 import com.copixelate.ui.util.toDp
 
 @Composable
 fun ContactsScreen(navController: NavHostController) {
 
-    ContactsScreenContent(
-        contacts = emptyList(),
-        onAddContact = {
-            navController.navigate(navInfo = NavInfo.Contacts.Add)
-        }
-    )
+    ScreenSurface {
+        ContactsScreenContent(
+            contacts = emptyList(),
+            onAddContact = {
+                navController.navigate(navInfo = NavInfo.Contacts.Add)
+            }
+        )
+    }
 
 }
 
