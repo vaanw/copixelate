@@ -73,8 +73,7 @@ class ArtViewModel : ViewModel() {
                     // if SpaceModel is not found, find a default
                         ?: artRepo.getDefaultSpace()
                             ?.also { value: SpaceModel ->
-                                // localId should never be null since it's provided by Room
-                                uiRepo.saveCurrentSpaceId(spaceId = value.id.localId!!)
+                                uiRepo.saveCurrentSpaceId(spaceId = value.id.localId)
                             }
                         // if a default SpaceModel is not found, create a new one
                         ?: run {

@@ -1,11 +1,15 @@
 package com.copixelate.ui
 
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
+import com.copixelate.ui.animation.AnimationCatalog.screenEnter
+import com.copixelate.ui.animation.AnimationCatalog.screenExit
 import com.copixelate.ui.nav.NavInfo
 import com.copixelate.ui.screens.AuthScreen
 import com.copixelate.ui.screens.SettingsScreen
@@ -31,7 +35,11 @@ fun SetupMainNavGraph(
 
     NavHost(
         navController = navController,
-        startDestination = NavInfo.Art.route
+        startDestination = NavInfo.Art.route,
+        enterTransition = { screenEnter },
+        exitTransition = { screenExit },
+        modifier = Modifier
+            .fillMaxSize()
     ) {
 
         composable(route = NavInfo.Art.route) {

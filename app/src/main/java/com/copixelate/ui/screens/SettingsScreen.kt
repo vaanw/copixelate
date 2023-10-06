@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import com.copixelate.ThemeSetting
 import com.copixelate.data.Auth
 import com.copixelate.ui.util.PreviewSurface
+import com.copixelate.ui.util.ScreenSurface
 import com.copixelate.viewmodel.NavViewModel
 import com.copixelate.viewmodel.SettingsViewModel
 
@@ -32,18 +33,21 @@ fun SettingsScreen(
         .collectAsState()
         .value
 
-    SettingsScreenContent(
-        themeSetting = themeSetting,
-        onSelectTheme = { newTheme ->
-            settingsViewModel.saveThemeSetting(newTheme)
-        },
-        displayName = Auth.displayName,
-        onClickLogout = {
-            Auth.signOut()
-            navViewModel.setSignedOut()
-        }
-    )
-}
+    ScreenSurface {
+        SettingsScreenContent(
+            themeSetting = themeSetting,
+            onSelectTheme = { newTheme ->
+                settingsViewModel.saveThemeSetting(newTheme)
+            },
+            displayName = Auth.displayName,
+            onClickLogout = {
+                Auth.signOut()
+                navViewModel.setSignedOut()
+            }
+        )
+    }
+
+} // End SettingsScreen
 
 @Composable
 fun SettingsScreenContent(
@@ -54,8 +58,9 @@ fun SettingsScreenContent(
 ) {
 
     Column(
-        modifier = Modifier.padding(24.dp),
-        verticalArrangement = Arrangement.spacedBy(24.dp)
+        verticalArrangement = Arrangement.spacedBy(24.dp),
+        modifier = Modifier
+            .padding(24.dp)
     ) {
 
         Text(
@@ -154,11 +159,14 @@ fun SettingsScreenPreview() {
 
     val themeSetting = ThemeSetting.DEFAULT
     PreviewSurface {
-        SettingsScreenContent(
-            themeSetting = themeSetting,
-            onSelectTheme = {},
-            displayName = "Preview-Name",
-            onClickLogout = {}
-        )
+        ScreenSurface {
+            SettingsScreenContent(
+                themeSetting = themeSetting,
+                onSelectTheme = {},
+                displayName = "Preview-Name",
+                onClickLogout = {}
+            )
+        }
     }
+
 }

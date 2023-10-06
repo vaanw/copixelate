@@ -51,7 +51,7 @@ fun CreateItemDialog(
 
     var width by rememberSaveable { mutableStateOf(32) }
     var height by remember { mutableStateOf(32) }
-    var paletteSize by remember { mutableStateOf(4) }
+    var paletteSize by remember { mutableStateOf(6) }
 
     AlertDialog(onDismissRequest = onCancel) {
 

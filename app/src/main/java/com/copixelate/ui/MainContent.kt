@@ -2,20 +2,25 @@ package com.copixelate.ui
 
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarDefaults
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -137,21 +142,36 @@ fun NavBarBuilder(
     onClick: (navInfo: NavInfo.Screen) -> Unit,
 ) {
 
-    NavigationBar {
-        navInfos.forEach { navInfo ->
-            NavigationBarItem(
-                icon = {
-                    Icon(
-                        imageVector = navInfo.icon,
-                        contentDescription = stringResource(navInfo.contentDescriptionResId)
-                    )
-                },
-                label = { Text(stringResource(navInfo.labelResId)) },
-                selected = isSelected(navInfo),
-                onClick = { onClick(navInfo) }
-            ) // End NavigationBarItem
-        } // End navBarItems.forEach
-    } // End NavigationBar
+    Surface(
+        color = NavigationBarDefaults.containerColor,
+        tonalElevation = 1.dp,
+        modifier = Modifier
+            .fillMaxWidth()
+            .wrapContentHeight()
+    ) {
+
+        NavigationBar(
+            containerColor = Color.Transparent,
+            modifier = Modifier
+                .height(48.dp)
+                .padding(horizontal = 16.dp)
+        ) {
+            navInfos.forEach { navInfo ->
+                NavigationBarItem(
+                    icon = {
+                        Icon(
+                            imageVector = navInfo.icon,
+                            contentDescription = stringResource(navInfo.contentDescriptionResId)
+                        )
+                    },
+                    selected = isSelected(navInfo),
+                    onClick = { onClick(navInfo) }
+                ) // End NavigationBarItem
+            } // End navBarItems.forEach
+        } // End NavigationBar
+
+    }
+
 
 }
 

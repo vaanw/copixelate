@@ -10,9 +10,13 @@ import com.copixelate.data.room.SpaceEntity
 import com.copixelate.data.room.SpaceEntityWithArt
 
 data class IdModel(
-    val localId: Long? = null,
+    val localId: Long = 0,
     val remoteId: String? = null,
-)
+) : Comparable<IdModel> {
+    override fun compareTo(other: IdModel): Int {
+        return localId.compareTo(other.localId)
+    }
+}
 
 data class SpaceModel(
     val id: IdModel = IdModel(),
@@ -124,9 +128,9 @@ fun SpaceModel.toEntityWithArt() = SpaceEntityWithArt(
 )
 
 private fun SpaceModel.toEntity() = SpaceEntity(
-    id = id.localId ?: 0,
-    drawingId = drawing.id.localId ?: 0,
-    paletteId = palette.id.localId ?: 0,
+    id = id.localId,
+    drawingId = drawing.id.localId,
+    paletteId = palette.id.localId,
     remoteKey = id.remoteId
 )
 
@@ -138,7 +142,7 @@ private fun DrawingEntity.toModel() = DrawingModel(
 )
 
 private fun DrawingModel.toEntity() = DrawingEntity(
-    id = id.localId ?: 0,
+    id = id.localId,
     pixels = pixels,
     size = this.size.toIntList(),
     remoteKey = id.remoteId
@@ -151,7 +155,7 @@ private fun PaletteEntity.toModel() = PaletteModel(
 )
 
 private fun PaletteModel.toEntity() = PaletteEntity(
-    id = id.localId ?: 0,
+    id = id.localId,
     pixels = pixels,
     remoteKey = id.remoteId
 )
