@@ -13,9 +13,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.unit.IntSize
 
 private const val DEFAULT_SCALE = 1f
@@ -44,7 +43,7 @@ fun TransformTool(
     onStateChange: (TransformState) -> Unit,
     enabled: Boolean,
     modifier: Modifier = Modifier,
-    content: @Composable (Modifier) -> Unit
+    content: @Composable (TransformState) -> Unit
 ) {
 
     var state by remember { mutableStateOf(initialState) }
@@ -91,8 +90,8 @@ fun TransformTool(
         true -> {
             var viewSize by remember { mutableStateOf(IntSize(0, 0)) }
             modifier
-                .onGloballyPositioned { layoutCoordinates ->
-                    viewSize = layoutCoordinates.size
+                .onSizeChanged { size ->
+                    viewSize = size
                 }
                 // Pan and zoom gestures
                 .pointerInput(Unit) {
@@ -113,24 +112,13 @@ fun TransformTool(
                         })
                 }
         }
-    } // end when
+    } // end when / ContentTransformationModifier
 
     Box(
         modifier = ContentTransformationModifier()
     ) {
-
-        content(
-            Modifier
-                // Transform content
-                .graphicsLayer(
-                    scaleX = state.scale,
-                    scaleY = state.scale,
-                    translationX = state.offset.x,
-                    translationY = state.offset.y
-                )
-        )
-
-    } // End Box
+        content(state)
+    }
 
 } // End TransformTool
 
