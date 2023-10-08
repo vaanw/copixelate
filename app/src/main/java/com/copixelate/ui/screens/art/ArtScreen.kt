@@ -367,6 +367,7 @@ private fun Drawing(
     Box(
         modifier = modifier
             .then(GestureModifier())
+            .fillMaxSize()
             .onSizeChanged { size ->
                 totalViewSize = size
             }
@@ -377,8 +378,8 @@ private fun Drawing(
             contentDescription = "Drawing",
             contentScale = ContentScale.FillBounds,
             modifier = Modifier
-                .fillMaxSize()
                 .aspectRatio(state.aspectRatio)
+                .align(Alignment.Center)
                 .graphicsLayer(
                     scaleX = transformState.scale,
                     scaleY = transformState.scale,
