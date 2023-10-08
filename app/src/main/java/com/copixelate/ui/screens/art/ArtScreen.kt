@@ -42,7 +42,6 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -181,7 +180,7 @@ fun PalettePanel(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(80.dp)
+                        .height(64.dp)
                 ) {
 
                     BrushPreview(
@@ -190,7 +189,7 @@ fun PalettePanel(
                     )
                     Palette(
                         palette = palette,
-                        borderStroke = 10.dp,
+                        borderStroke = 8.dp,
                         onTapPalette = { index ->
                             onTapPalette(index)
                             previousColor = palette.pixels[index]
@@ -404,8 +403,8 @@ private fun Palette(
 ) {
 
     var viewWidth by remember { mutableIntStateOf(0) }
-    val paletteItemWidth = max(
-        a = 50.dp,
+    val swatchWidth = max(
+        a = 48.dp,
         b = (viewWidth / palette.pixels.size).toDp()
     )
 
@@ -425,8 +424,8 @@ private fun Palette(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(borderStroke)
-                .onGloballyPositioned { layout ->
-                    viewWidth = layout.size.width
+                .onSizeChanged { size ->
+                    viewWidth = size.width
                 }
         ) {
             itemsIndexed(items = palette.pixels) { index, color ->
@@ -439,7 +438,7 @@ private fun Palette(
                     contentScale = ContentScale.FillBounds,
                     modifier = Modifier
                         .fillMaxHeight()
-                        .width(paletteItemWidth)
+                        .width(swatchWidth)
                         .pointerInput(Unit) {
                             detectTapGestures(
                                 onTap = { onTapPalette(index) }
