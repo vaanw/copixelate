@@ -1,9 +1,5 @@
 package com.copixelate.art
 
-private const val DEFAULT_BRUSH_SIZE = 7
-private val DEFAULT_BRUSH_STYLE = Brush.Style.CIRCLE
-
-
 class ArtSpace {
 
     val state = PublicState(space = this)
@@ -19,10 +15,6 @@ class ArtSpace {
     private val palette = Palette()
     private val drawing = Drawing()
     private val brush = Brush()
-        .restyle(
-            size = DEFAULT_BRUSH_SIZE,
-            style = DEFAULT_BRUSH_STYLE
-        )
 
     private val brushPreview = Drawing()
 
@@ -32,8 +24,7 @@ class ArtSpace {
 
     private fun refreshBrushPreview() {
 
-        val scaleDivisor = 3
-        var previewSize = drawing.size.toMinSquare() / scaleDivisor
+        var previewSize = drawing.size.toMinSquareRoot()
 
         if (previewSize.x <= brush.size)
             previewSize = Point(brush.size + 1, brush.size + 1)

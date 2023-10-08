@@ -21,6 +21,9 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
+const val DEFAULT_BRUSH_SIZE = 1
+const val DEFAULT_TRANSFORM_ENABLED = true
+
 class ArtViewModel : ViewModel() {
 
     private val artRepo = ArtRepo
@@ -35,7 +38,7 @@ class ArtViewModel : ViewModel() {
     private val _drawing = MutableStateFlow(artSpace.state.colorDrawing)
     private val _palette = MutableStateFlow(artSpace.state.palette.toModel())
     private val _brushPreview = MutableStateFlow(artSpace.state.brushPreview)
-    private val _brushSize = MutableStateFlow(artSpace.state.brushSize)
+    private val _brushSize = MutableStateFlow(DEFAULT_BRUSH_SIZE)
 
     val drawing = _drawing.asStateFlow()
     val palette = _palette.asStateFlow()
@@ -45,7 +48,7 @@ class ArtViewModel : ViewModel() {
     private var _transformState = TransformState()
     val transformState get() = _transformState
 
-    private val _transformEnabled = MutableStateFlow(true)
+    private val _transformEnabled = MutableStateFlow(DEFAULT_TRANSFORM_ENABLED)
     val transformEnabled = _transformEnabled.asStateFlow()
 
 
@@ -88,12 +91,15 @@ class ArtViewModel : ViewModel() {
     } // End init()
 
     private fun refreshArtSpace(newArtSpace: ArtSpace) {
-        artSpace = newArtSpace
+        artSpace = newArtSpace.apply {
+            updateBrushSize(DEFAULT_BRUSH_SIZE)
+        }
+        _brushSize.update { artSpace.state.brushSize }
         _drawing.update { artSpace.state.colorDrawing }
         _palette.update { artSpace.state.palette.toModel() }
         _brushPreview.update { artSpace.state.brushPreview }
         _transformState = TransformState()
-        _transformEnabled.update { true }
+        _transformEnabled.update { DEFAULT_TRANSFORM_ENABLED }
     }
 
     fun updateDrawing(unitPosition: PointF) =
