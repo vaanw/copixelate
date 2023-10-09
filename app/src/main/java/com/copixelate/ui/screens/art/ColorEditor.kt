@@ -44,7 +44,7 @@ import com.copixelate.ui.util.PreviewSurface
 import androidx.compose.ui.graphics.Color as ComposeColor
 
 
-fun Int.toHSL(): List<Float> =
+internal fun Int.toHSL(): List<Float> =
     FloatArray(3).apply {
         val r = Color.red(this@toHSL)
         val g = Color.green(this@toHSL)
@@ -52,12 +52,12 @@ fun Int.toHSL(): List<Float> =
         ColorUtils.RGBToHSL(r, g, b, this)
     }.toList()
 
-fun List<Float>.toColor() =
+internal fun List<Float>.toColor() =
     ColorUtils.HSLToColor(toFloatArray())
 
 
 @Composable
-fun ColorEditor(
+internal fun ColorEditor(
     colorComponents: List<Float>,
     previousColor: Int,
     modifier: Modifier = Modifier,
@@ -194,7 +194,7 @@ fun ColorEditor(
 }
 
 
-const val SLIDER_HEIGHT = 40
+private const val SLIDER_HEIGHT = 40
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -242,10 +242,10 @@ private fun ColorEditorSlider(
 } // End PaletteToolSlider
 
 
-const val THUMB_SIZE = 40
-const val THUMB_PADDING = 3
-const val THUMB_BORDER_WIDTH = 3
-const val TRACK_WIDTH = 3
+private const val THUMB_SIZE = 40
+private const val THUMB_PADDING = 3
+private const val THUMB_BORDER_WIDTH = 3
+private const val TRACK_WIDTH = 3
 
 @Composable
 private fun ColorEditorSliderThumb() {
