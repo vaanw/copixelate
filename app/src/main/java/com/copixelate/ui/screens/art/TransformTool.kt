@@ -35,10 +35,10 @@ data class TransformState(
  * @param enabled Determines if the transform tool will respond to user input.
  * @param modifier [Modifier] applied to the outermost component.
  * @param content Composable content to be transformed, typically a [Drawing].
- * The transformation is received as a [Modifier].
+ * The transformation is received as a [TransformState].
  */
 @Composable
-fun TransformTool(
+internal fun TransformTool(
     initialState: TransformState,
     onStateChange: (TransformState) -> Unit,
     enabled: Boolean,

@@ -3,20 +3,13 @@ package com.copixelate.ui.screens.art
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExitTransition.Companion.None
 import androidx.compose.animation.fadeIn
-import androidx.compose.foundation.gestures.detectDragGestures
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.outlined.Palette
@@ -36,22 +29,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.max
 import com.copixelate.R
 import com.copixelate.art.PixelGrid
-import com.copixelate.art.Point
 import com.copixelate.art.PointF
 import com.copixelate.data.model.PaletteModel
 import com.copixelate.data.model.SpaceModel
@@ -62,7 +47,6 @@ import com.copixelate.ui.theme.disable
 import com.copixelate.ui.util.PreviewSurface
 import com.copixelate.ui.util.ScreenSurface
 import com.copixelate.ui.util.generateDefaultArt
-import com.copixelate.ui.util.toDp
 import com.copixelate.viewmodel.ArtViewModel
 
 @Composable
@@ -93,7 +77,7 @@ fun ArtScreen(artViewModel: ArtViewModel) {
 }
 
 @Composable
-fun ArtScreenContent(
+private fun ArtScreenContent(
     drawing: PixelGrid,
     palette: PaletteModel,
     brushPreview: PixelGrid,
@@ -155,7 +139,7 @@ fun ArtScreenContent(
 } // ArtScreenContent
 
 @Composable
-fun PalettePanel(
+private fun PalettePanel(
     palette: PaletteModel,
     brushPreview: PixelGrid,
     initialBrushSize: Int,
@@ -284,173 +268,6 @@ private fun DrawingToolBar(
 
     } // End Row
 } // End DrawingToolBar
-
-private fun calculateCorrectedPosition(
-    position: Offset,
-    totalViewSize: IntSize,
-    adjustedViewSize: IntSize,
-    transformState: TransformState
-): Offset {
-
-    // Correct for aspect ratio
-    //
-    val aspectRatioCorrection = Offset(
-        x = (totalViewSize.width - adjustedViewSize.width) / 2f,
-        y = (totalViewSize.height - adjustedViewSize.height) / 2f
-    )
-    // Invert aspect ratio
-    val withoutAspectRatio = position - aspectRatioCorrection
-
-    // Correct for transformation
-    //
-    val scalingOrigin = Offset(
-        x = adjustedViewSize.width / 2f,
-        y = adjustedViewSize.height / 2f
-    )
-    // Invert translation
-    val withoutTranslation = withoutAspectRatio - transformState.offset
-    // Invert scaling
-    return ((withoutTranslation - scalingOrigin) / transformState.scale) + scalingOrigin
-
-} // End calculateCorrectedPosition
-
-private fun IntSize.toPoint() = Point(width, height)
-private fun Offset.toPointF() = PointF(x, y)
-
-@Composable
-private fun Drawing(
-    state: PixelGrid,
-    transformState: TransformState,
-    editable: Boolean,
-    onTouchDrawing: (unitPosition: PointF) -> Unit,
-    modifier: Modifier = Modifier
-) {
-
-    var totalViewSize by remember { mutableStateOf(IntSize.Zero) }
-    var bitmapViewSize by remember { mutableStateOf(IntSize.Zero) }
-
-    fun handleGesture(position: Offset) {
-        val correctedPosition = calculateCorrectedPosition(
-            position = position,
-            totalViewSize = totalViewSize,
-            adjustedViewSize = bitmapViewSize,
-            transformState = transformState
-        )
-        val unitPosition =
-            correctedPosition.toPointF() / bitmapViewSize.toPoint()
-        onTouchDrawing(unitPosition)
-    }
-
-    @Composable
-    fun GestureModifier() = when (editable) {
-        false -> Modifier
-
-        true -> Modifier
-            // Draw on press gesture
-            .pointerInput(Unit) {
-                detectTapGestures(
-                    onPress = { position ->
-                        handleGesture(position)
-                    }
-                )
-            }
-            // Draw on drag gesture
-            .pointerInput(Unit) {
-                detectDragGestures { change, _ ->
-                    handleGesture(change.position)
-                }
-            }
-    } // End when / PointerInputModifier
-
-    // Main container
-    Box(
-        modifier = modifier
-            .then(GestureModifier())
-            .fillMaxSize()
-            .onSizeChanged { size ->
-                totalViewSize = size
-            }
-    ) {
-
-        BitmapImage(
-            pixelGrid = state,
-            contentDescription = "Drawing",
-            contentScale = ContentScale.FillBounds,
-            modifier = Modifier
-                .aspectRatio(state.aspectRatio)
-                .align(Alignment.Center)
-                .graphicsLayer(
-                    scaleX = transformState.scale,
-                    scaleY = transformState.scale,
-                    translationX = transformState.offset.x,
-                    translationY = transformState.offset.y,
-                )
-                .onSizeChanged { size ->
-                    bitmapViewSize = size
-                }
-        ) // End BitmapImage
-
-    } // End Box
-
-} // End Drawing
-
-@Composable
-private fun Palette(
-    palette: PaletteModel,
-    borderStroke: Dp,
-    onTapPalette: (index: Int) -> Unit,
-    modifier: Modifier = Modifier
-) {
-
-    var viewWidth by remember { mutableIntStateOf(0) }
-    val swatchWidth = max(
-        a = 48.dp,
-        b = (viewWidth / palette.pixels.size).toDp()
-    )
-
-    Box(
-        contentAlignment = Alignment.Center,
-        modifier = modifier
-    ) {
-        // Palette border
-        BitmapImage(
-            color = palette.activeColor,
-            contentDescription = "Drawing palette border",
-            contentScale = ContentScale.FillBounds,
-            modifier = Modifier.fillMaxSize()
-        )
-        // Palette items
-        LazyRow(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(borderStroke)
-                .onSizeChanged { size ->
-                    viewWidth = size.width
-                }
-        ) {
-            itemsIndexed(items = palette.pixels) { index, color ->
-                BitmapImage(
-                    pixelGrid = PixelGrid(
-                        pixels = intArrayOf(color),
-                        size = Point(1)
-                    ),
-                    contentDescription = "Drawing palette border",
-                    contentScale = ContentScale.FillBounds,
-                    modifier = Modifier
-                        .fillMaxHeight()
-                        .width(swatchWidth)
-                        .pointerInput(Unit) {
-                            detectTapGestures(
-                                onTap = { onTapPalette(index) }
-                            )
-                        }
-                )
-            } // End itemsIndexed
-        } // End Lazy Row (Palette items)
-
-    } // End Box
-
-} // End Palette
 
 @Composable
 private fun BrushPreview(
