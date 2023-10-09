@@ -136,7 +136,8 @@ fun ArtScreenContent(
                 transformable = transformEnabled,
                 onUpdateTransformable = onTransformEnableChange,
                 modifier = Modifier
-                    .align(Alignment.TopEnd)
+                    .align(Alignment.BottomEnd)
+                    .padding(4.dp)
             )
 
         }
@@ -263,8 +264,6 @@ private fun DrawingToolBar(
 
     Row(modifier = modifier) {
 
-        val bgColor = MaterialTheme.colorScheme.background
-
         // Enable transformable-mode (pan & zoom)
         IconToggleButton(
             checked = transformable,
@@ -272,8 +271,8 @@ private fun DrawingToolBar(
                 onUpdateTransformable(newValue)
             },
             colors = IconButtonDefaults.iconToggleButtonColors(
-                containerColor = bgColor,
-                checkedContainerColor = bgColor,
+                containerColor = MaterialTheme.colorScheme.background,
+                checkedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
                 contentColor = LocalContentColor.current.disable()
             )
         ) {
@@ -509,7 +508,7 @@ fun ArtScreenPreview() {
     var brushSize by remember { mutableIntStateOf(artSpace.state.brushSize) }
 
     var transformState by remember { mutableStateOf(TransformState(scale = 0.5f)) }
-    var transformEnabled by remember { mutableStateOf(false) }
+    var transformEnabled by remember { mutableStateOf(true) }
 
     PreviewSurface {
         ArtScreenContent(
