@@ -1,7 +1,5 @@
 package com.copixelate.ui.screens.art
 
-import androidx.compose.foundation.gestures.detectDragGestures
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
@@ -23,20 +21,25 @@ import com.copixelate.art.Point
 import com.copixelate.art.PointF
 import com.copixelate.ui.common.BitmapImage
 
+enum class TouchStatus {
+    STARTED,
+    ONGOING,
+    ENDED
+}
 
 @Composable
 internal fun Drawing(
     state: PixelGrid,
     transformState: TransformState,
     editable: Boolean,
-    onTouchDrawing: (unitPosition: PointF) -> Unit,
+    onTouchDrawing: (unitPosition: PointF, status: TouchStatus) -> Unit,
     modifier: Modifier = Modifier
 ) {
 
     var totalViewSize by remember { mutableStateOf(IntSize.Zero) }
     var bitmapViewSize by remember { mutableStateOf(IntSize.Zero) }
 
-    fun handleGesture(position: Offset) {
+    fun handleGesture(position: Offset, status: TouchStatus) {
         val correctedPosition = calculateCorrectedPosition(
             position = position,
             totalViewSize = totalViewSize,
@@ -45,7 +48,7 @@ internal fun Drawing(
         )
         val unitPosition =
             correctedPosition.toPointF() / bitmapViewSize.toPoint()
-        onTouchDrawing(unitPosition)
+        onTouchDrawing(unitPosition, status)
     }
 
     @Composable
@@ -53,21 +56,21 @@ internal fun Drawing(
         false -> Modifier
 
         true -> Modifier
-            // Draw on press gesture
             .pointerInput(Unit) {
-                detectTapGestures(
-                    onPress = { position ->
-                        handleGesture(position)
+                // Drawing gesture
+                awaitPointerEventScope {
+                    while (true) {
+                        val change = awaitPointerEvent().changes.first()
+                        val touchStatus = when {
+                            change.pressed && !change.previousPressed -> TouchStatus.STARTED
+                            change.pressed -> TouchStatus.ONGOING
+                            else -> TouchStatus.ENDED
+                        }
+                        handleGesture(change.position, touchStatus)
                     }
-                )
-            }
-            // Draw on drag gesture
-            .pointerInput(Unit) {
-                detectDragGestures { change, _ ->
-                    handleGesture(change.position)
                 }
-            }
-    } // End when / PointerInputModifier
+            } // End pointerInput
+    } // End when / GestureModifier
 
     // Main container
     Box(

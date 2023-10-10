@@ -48,6 +48,7 @@ import com.copixelate.ui.util.PreviewSurface
 import com.copixelate.ui.util.ScreenSurface
 import com.copixelate.ui.util.generateDefaultArt
 import com.copixelate.viewmodel.ArtViewModel
+import com.copixelate.viewmodel.DEFAULT_BRUSH_SIZE
 
 @Composable
 fun ArtScreen(artViewModel: ArtViewModel) {
@@ -64,12 +65,29 @@ fun ArtScreen(artViewModel: ArtViewModel) {
                 initialBrushSize = artViewModel.brushSize.collectAsState().value,
                 transformState = artViewModel.transformState,
                 transformEnabled = artViewModel.transformEnabled.collectAsState().value,
-                onTouchDrawing = { unitPosition -> artViewModel.updateDrawing(unitPosition) },
-                onTapPalette = { paletteIndex -> artViewModel.updatePaletteActiveIndex(paletteIndex) },
-                onEditColor = { color -> artViewModel.updatePaletteActiveColor(color) },
-                onBrushSizeUpdate = { size -> artViewModel.updateBrush(size) },
-                onTransform = { transformState -> artViewModel.updateTransformState(transformState) },
-                onTransformEnableChange = { enabled -> artViewModel.updateTransformEnabled(enabled) }
+                historyAvailability = artViewModel.historyAvailability.collectAsState().value,
+
+                onTouchDrawing = { unitPosition, touchStatus ->
+                    artViewModel.updateDrawing(unitPosition, touchStatus)
+                },
+                onTapPalette = { paletteIndex ->
+                    artViewModel.updatePaletteActiveIndex(paletteIndex)
+                },
+                onEditColor = { color ->
+                    artViewModel.updatePaletteActiveColor(color)
+                },
+                onBrushSizeUpdate = { size ->
+                    artViewModel.updateBrush(size)
+                },
+                onTransform = { transformState ->
+                    artViewModel.updateTransformState(transformState)
+                },
+                onClickTransformEnable = { enabled ->
+                    artViewModel.updateTransformEnabled(enabled)
+                },
+                onClickHistory = { redo ->
+                    artViewModel.updateDrawingHistory(redo)
+                }
             )
         } // End AnimatedVisibility
     } // End ScreenSurface
@@ -84,12 +102,14 @@ private fun ArtScreenContent(
     initialBrushSize: Int,
     transformState: TransformState,
     transformEnabled: Boolean,
-    onTouchDrawing: (unitPosition: PointF) -> Unit,
+    historyAvailability: HistoryAvailability,
+    onTouchDrawing: (unitPosition: PointF, status: TouchStatus) -> Unit,
     onTapPalette: (paletteIndex: Int) -> Unit,
     onEditColor: (color: Int) -> Unit,
     onBrushSizeUpdate: (Int) -> Unit,
     onTransform: (transformState: TransformState) -> Unit,
-    onTransformEnableChange: (enabled: Boolean) -> Unit
+    onClickTransformEnable: (enabled: Boolean) -> Unit,
+    onClickHistory: (Boolean) -> Unit,
 ) {
 
     Column {
@@ -116,9 +136,17 @@ private fun ArtScreenContent(
                 )
             }
 
+            HistoryToolBar(
+                availability = historyAvailability,
+                onClickHistory = onClickHistory,
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(4.dp)
+            )
+
             DrawingToolBar(
                 transformable = transformEnabled,
-                onUpdateTransformable = onTransformEnableChange,
+                onUpdateTransformable = onClickTransformEnable,
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
                     .padding(4.dp)
@@ -316,6 +344,9 @@ fun ArtScreenPreview() {
             SpaceModel()
                 .generateDefaultArt(8, 16, 2)
                 .toArtSpace()
+                .apply {
+                    updateBrushSize(DEFAULT_BRUSH_SIZE)
+                }
         )
     }
 
@@ -327,6 +358,15 @@ fun ArtScreenPreview() {
     var transformState by remember { mutableStateOf(TransformState(scale = 0.5f)) }
     var transformEnabled by remember { mutableStateOf(true) }
 
+    var historyAvailability by remember { mutableStateOf(HistoryAvailability()) }
+
+    fun refreshHistoryAvailability() {
+        historyAvailability = historyAvailability.copy(
+            drawingUndo = artSpace.state.drawingUndoAvailable,
+            drawingRedo = artSpace.state.drawingRedoAvailable
+        )
+    }
+
     PreviewSurface {
         ArtScreenContent(
             drawing = drawing,
@@ -335,9 +375,18 @@ fun ArtScreenPreview() {
             initialBrushSize = brushSize,
             transformState = transformState,
             transformEnabled = transformEnabled,
-            onTouchDrawing = { unitPosition ->
+            historyAvailability = historyAvailability,
+
+            onTouchDrawing = { unitPosition, touchStatus ->
+                if (touchStatus == TouchStatus.STARTED)
+                    artSpace.startDrawingHistoryRecord()
                 artSpace.updateDrawing(unitPosition = unitPosition)
                 drawing = artSpace.state.colorDrawing
+                if (touchStatus == TouchStatus.ENDED) {
+                    artSpace.endDrawingHistoryRecord()
+                    refreshHistoryAvailability()
+                }
+
             },
             onTapPalette = { paletteIndex ->
                 artSpace.updatePaletteActiveIndex(index = paletteIndex)
@@ -358,8 +407,16 @@ fun ArtScreenPreview() {
             onTransform = { newTransformState ->
                 transformState = newTransformState
             },
-            onTransformEnableChange = { enabled ->
+            onClickTransformEnable = { enabled ->
                 transformEnabled = enabled
+            },
+            onClickHistory = { redo ->
+                when (redo) {
+                    false -> artSpace.undoDrawingHistory()
+                    true -> artSpace.redoDrawingHistory()
+                }
+                drawing = artSpace.state.colorDrawing
+                refreshHistoryAvailability()
             }
         )
     }

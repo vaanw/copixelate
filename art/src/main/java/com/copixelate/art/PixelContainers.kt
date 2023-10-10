@@ -6,6 +6,8 @@ class PixelGrid(
 ){
     val aspectRatio: Float
         get() = size.x * 1f / size.y
+
+    fun copy(): PixelGrid = PixelGrid(pixels.copyOf(), size)
 }
 
 class PixelRow(
