@@ -10,6 +10,8 @@ class ArtSpace {
         val palette: PixelRow get() = space.palette.state
         val brushPreview: PixelGrid get() = space.brushPreview.colorState
         val brushSize: Int get() = space.brush.size
+        val drawingUndoAvailable: Boolean get() = space.drawing.undoAvailable
+        val drawingRedoAvailable: Boolean get() = space.drawing.redoAvailable
     }
 
     private val palette = Palette()
@@ -178,5 +180,18 @@ class ArtSpace {
             drawing.recolor(palette.colors)
             refreshBrushPreview()
         }
+
+    // History
+    //
+    fun startDrawingHistoryRecord() = drawing.recordHistoricState()
+    fun endDrawingHistoryRecord() = drawing.recordHistory()
+
+    fun undoDrawingHistory() {
+        drawing.undoHistory().recolor(palette.colors)
+    }
+
+    fun redoDrawingHistory() {
+        drawing.redoHistory().recolor(palette.colors)
+    }
 
 }

@@ -1,6 +1,7 @@
 package com.copixelate.art
 
 private const val DEBUG_COLOR = 0x845eb5 // Purple
+private const val HISTORY_LIMIT = 16
 
 internal class Drawing {
 
@@ -46,6 +47,76 @@ internal class Drawing {
     internal fun draw(indexes: IntArray, pixelIndex: Int, pixelColor: Int) {
         indexes.forEach { index ->
             draw(index, pixelIndex, pixelColor)
+        }
+    }
+
+    // History
+    //
+    private val history: ArrayDeque<Map<Int, Pair<Int, Int>>> = ArrayDeque()
+    private var historicState = state.copy()
+    private var historyIndex = 0
+
+    internal val undoAvailable get() = historyIndex > 0
+    internal val redoAvailable get() = historyIndex < history.size
+
+    private fun applyChanges(
+        changeMap: Map<Int, Pair<Int, Int>>,
+        redo: Boolean = false
+    ) = apply {
+        changeMap.forEach { (index, pair) ->
+            val newValue = when (redo) {
+                false -> pair.first
+                true -> pair.second
+            }
+            indexPixels[index] = newValue
+        }
+    }
+
+    internal fun recordHistoricState() {
+        historicState = state.copy()
+    }
+
+    internal fun recordHistory() {
+        val changeMap = mutableMapOf<Int, Pair<Int, Int>>()
+
+        // Scan for and record changes
+        for ((index, historicValue) in historicState.pixels.withIndex()) {
+            val newValue = state.pixels[index]
+            if (historicValue != newValue) {
+                changeMap[index] = Pair(historicValue, newValue)
+            }
+        }
+
+        if (changeMap.isNotEmpty()) {
+            // Remove all future history
+            while (history.size > historyIndex) {
+                history.removeLast()
+            }
+
+            // Add these changes to history
+            history.addLast(changeMap)
+            historyIndex++
+
+            // Limit history size
+            if (history.size > HISTORY_LIMIT) {
+                history.removeFirst()
+                historyIndex--
+            }
+        }
+    }
+
+    internal fun undoHistory() = apply {
+        if (undoAvailable) {
+            val changesMap = history[--historyIndex]
+            applyChanges(changesMap)
+        }
+    }
+
+    internal fun redoHistory() = apply {
+        if (redoAvailable) {
+            val changesMap = history[historyIndex]
+            applyChanges(changesMap, true)
+            historyIndex++
         }
     }
 

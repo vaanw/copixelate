@@ -21,8 +21,8 @@ private const val DEFAULT_SCALE = 1f
 private val DEFAULT_OFFSET = Offset.Zero
 
 data class TransformState(
-    var scale: Float = DEFAULT_SCALE,
-    var offset: Offset = DEFAULT_OFFSET
+    val scale: Float = DEFAULT_SCALE,
+    val offset: Offset = DEFAULT_OFFSET
 )
 
 /**
