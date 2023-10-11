@@ -53,6 +53,9 @@ class ArtViewModel : ViewModel() {
     private val _transformEnabled = MutableStateFlow(DEFAULT_TRANSFORM_ENABLED)
     val transformEnabled = _transformEnabled.asStateFlow()
 
+    private val _historyExpanded = MutableStateFlow(false)
+    val historyExpanded = _historyExpanded.asStateFlow()
+
     private val _historyAvailability = MutableStateFlow(HistoryAvailability())
     val historyAvailability = _historyAvailability.asStateFlow()
 
@@ -206,6 +209,11 @@ class ArtViewModel : ViewModel() {
     fun updateTransformEnabled(enabled: Boolean) =
         viewModelScope.launch {
             _transformEnabled.update { enabled }
+        }
+
+    fun updateHistoryExpanded(expanded: Boolean) =
+        viewModelScope.launch {
+            _historyExpanded.update { expanded }
         }
 
 }

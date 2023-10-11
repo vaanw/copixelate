@@ -14,10 +14,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.outlined.Palette
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.IconToggleButton
-import androidx.compose.material3.LocalContentColor
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -30,12 +27,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.copixelate.R
 import com.copixelate.art.PixelGrid
 import com.copixelate.art.PointF
 import com.copixelate.data.model.PaletteModel
@@ -43,7 +37,6 @@ import com.copixelate.data.model.SpaceModel
 import com.copixelate.data.model.toArtSpace
 import com.copixelate.data.model.toModel
 import com.copixelate.ui.common.BitmapImage
-import com.copixelate.ui.theme.disable
 import com.copixelate.ui.util.PreviewSurface
 import com.copixelate.ui.util.ScreenSurface
 import com.copixelate.ui.util.generateDefaultArt
@@ -65,6 +58,7 @@ fun ArtScreen(artViewModel: ArtViewModel) {
                 initialBrushSize = artViewModel.brushSize.collectAsState().value,
                 transformState = artViewModel.transformState,
                 transformEnabled = artViewModel.transformEnabled.collectAsState().value,
+                historyExpanded = artViewModel.historyExpanded.collectAsState().value,
                 historyAvailability = artViewModel.historyAvailability.collectAsState().value,
 
                 onTouchDrawing = { unitPosition, touchStatus ->
@@ -82,10 +76,13 @@ fun ArtScreen(artViewModel: ArtViewModel) {
                 onTransform = { transformState ->
                     artViewModel.updateTransformState(transformState)
                 },
-                onClickTransformEnable = { enabled ->
+                onClickEnableTransform = { enabled ->
                     artViewModel.updateTransformEnabled(enabled)
                 },
-                onClickHistory = { redo ->
+                onClickExpandHistory = { expanded ->
+                    artViewModel.updateHistoryExpanded(expanded)
+                },
+                onClickDrawingHistory = { redo ->
                     artViewModel.updateDrawingHistory(redo)
                 }
             )
@@ -102,14 +99,16 @@ private fun ArtScreenContent(
     initialBrushSize: Int,
     transformState: TransformState,
     transformEnabled: Boolean,
+    historyExpanded: Boolean,
     historyAvailability: HistoryAvailability,
     onTouchDrawing: (unitPosition: PointF, status: TouchStatus) -> Unit,
     onTapPalette: (paletteIndex: Int) -> Unit,
     onEditColor: (color: Int) -> Unit,
     onBrushSizeUpdate: (Int) -> Unit,
     onTransform: (transformState: TransformState) -> Unit,
-    onClickTransformEnable: (enabled: Boolean) -> Unit,
-    onClickHistory: (Boolean) -> Unit,
+    onClickEnableTransform: (enabled: Boolean) -> Unit,
+    onClickExpandHistory: (expanded: Boolean) -> Unit,
+    onClickDrawingHistory: (Boolean) -> Unit,
 ) {
 
     Column {
@@ -136,23 +135,20 @@ private fun ArtScreenContent(
                 )
             }
 
-            HistoryToolBar(
-                availability = historyAvailability,
-                onClickHistory = onClickHistory,
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .padding(4.dp)
-            )
-
-            DrawingToolBar(
+            DrawingToolbar(
                 transformable = transformEnabled,
-                onUpdateTransformable = onClickTransformEnable,
+                expanded = historyExpanded,
+                historyAvailability = historyAvailability,
+                onClickEnableTransform = onClickEnableTransform,
+                onClickExpand = onClickExpandHistory,
+                onClickDrawingHistory = onClickDrawingHistory,
+                onClickPaletteHistory = {},
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
                     .padding(4.dp)
             )
 
-        }
+        } // End Box
 
         PalettePanel(
             palette = palette,
@@ -268,36 +264,6 @@ private fun PalettePanel(
 } // End PalettePanel
 
 @Composable
-private fun DrawingToolBar(
-    transformable: Boolean,
-    onUpdateTransformable: (Boolean) -> Unit,
-    modifier: Modifier = Modifier
-) {
-
-    Row(modifier = modifier) {
-
-        // Enable transformable-mode (pan & zoom)
-        IconToggleButton(
-            checked = transformable,
-            onCheckedChange = { newValue: Boolean ->
-                onUpdateTransformable(newValue)
-            },
-            colors = IconButtonDefaults.iconToggleButtonColors(
-                containerColor = MaterialTheme.colorScheme.background,
-                checkedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
-                contentColor = LocalContentColor.current.disable()
-            )
-        ) {
-            Icon(
-                imageVector = ImageVector.vectorResource(id = R.drawable.drag_pan),
-                contentDescription = "Enable pan and zoom"
-            )
-        } // End IconToggleButton
-
-    } // End Row
-} // End DrawingToolBar
-
-@Composable
 private fun BrushPreview(
     pixelGrid: PixelGrid,
     contentScale: ContentScale = ContentScale.FillHeight,
@@ -358,6 +324,7 @@ fun ArtScreenPreview() {
     var transformState by remember { mutableStateOf(TransformState(scale = 0.5f)) }
     var transformEnabled by remember { mutableStateOf(true) }
 
+    var historyExpanded by remember { mutableStateOf(false) }
     var historyAvailability by remember { mutableStateOf(HistoryAvailability()) }
 
     fun refreshHistoryAvailability() {
@@ -375,6 +342,7 @@ fun ArtScreenPreview() {
             initialBrushSize = brushSize,
             transformState = transformState,
             transformEnabled = transformEnabled,
+            historyExpanded = historyExpanded,
             historyAvailability = historyAvailability,
 
             onTouchDrawing = { unitPosition, touchStatus ->
@@ -407,10 +375,13 @@ fun ArtScreenPreview() {
             onTransform = { newTransformState ->
                 transformState = newTransformState
             },
-            onClickTransformEnable = { enabled ->
+            onClickEnableTransform = { enabled ->
                 transformEnabled = enabled
             },
-            onClickHistory = { redo ->
+            onClickExpandHistory = { expanded ->
+                historyExpanded = expanded
+            },
+            onClickDrawingHistory = { redo ->
                 when (redo) {
                     false -> artSpace.undoDrawingHistory()
                     true -> artSpace.redoDrawingHistory()
