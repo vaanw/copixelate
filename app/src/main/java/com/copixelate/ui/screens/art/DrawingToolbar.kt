@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
@@ -52,98 +53,114 @@ internal fun DrawingToolbar(
     modifier: Modifier = Modifier
 ) {
 
-    Row(
-        modifier = modifier
-            .background(
-                color = MaterialTheme.colorScheme.background,
-                shape = CircleShape
+    Row(modifier = modifier) {
+
+        // Container needed for background
+        Box() {
+
+            // Background with padding
+            Box(
+                modifier = Modifier
+                    .padding(all = 4.dp)
+                    .matchParentSize()
+                    .background(
+                        color = MaterialTheme.colorScheme.background,
+                        shape = CircleShape
+                    )
+
             )
-    ) {
 
-        AnimatedVisibility(
-            visible = expanded,
-            enter = toolbarEnter,
-            exit = toolbarExit
-        ) {
+            // History icons
+            Row() {
 
-            Row {
-                // Undo palette history button
-                IconButton(
-                    enabled = historyAvailability.paletteUndo,
-                    onClick = { onClickPaletteHistory(false) },
+                // Collapsible history icons
+                AnimatedVisibility(
+                    visible = expanded,
+                    enter = toolbarEnter,
+                    exit = toolbarExit
+                ) {
+
+                    Row {
+                        // Undo palette history button
+                        IconButton(
+                            enabled = historyAvailability.paletteUndo,
+                            onClick = { onClickPaletteHistory(false) },
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Undo,
+                                contentDescription = "Undo palette edit"
+                            )
+                        }
+                        // Palette icon
+                        Icon(
+                            imageVector = Icons.Default.Palette,
+                            contentDescription = "Palette history",
+                            modifier = Modifier
+                                .align(Alignment.CenterVertically)
+                                .size(16.dp)
+                        )
+                        // Redo palette history button
+                        IconButton(
+                            enabled = historyAvailability.paletteRedo,
+                            onClick = { onClickPaletteHistory(true) },
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Redo,
+                                contentDescription = "Redo palette edit"
+                            )
+                        }
+
+                        // Undo drawing history button
+                        IconButton(
+                            enabled = historyAvailability.drawingUndo,
+                            onClick = { onClickDrawingHistory(false) },
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Undo,
+                                contentDescription = "Undo draw"
+                            )
+                        }
+                        // Drawing icon
+                        Icon(
+                            imageVector = Icons.Default.Draw,
+                            contentDescription = "Draw history",
+                            modifier = Modifier
+                                .align(Alignment.CenterVertically)
+                                .size(16.dp)
+                        )
+
+                        // Redo drawing history button
+                        IconButton(
+                            enabled = historyAvailability.drawingRedo,
+                            onClick = { onClickDrawingHistory(true) },
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Redo,
+                                contentDescription = "Redo draw"
+                            )
+                        }
+
+                    } // End Row
+
+                } // End AnimatedVisibility
+
+                // History collapse toggle button
+                IconToggleButton(
+                    checked = expanded,
+                    onCheckedChange = { newValue ->
+                        onClickExpand(newValue)
+                    },
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Undo,
-                        contentDescription = "Undo palette edit"
-                    )
-                }
-                // Palette icon
-                Icon(
-                    imageVector = Icons.Default.Palette,
-                    contentDescription = "Palette history",
-                    modifier = Modifier
-                        .align(Alignment.CenterVertically)
-                        .size(16.dp)
-                )
-                // Redo palette history button
-                IconButton(
-                    enabled = historyAvailability.paletteRedo,
-                    onClick = { onClickPaletteHistory(true) },
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Redo,
-                        contentDescription = "Redo palette edit"
-                    )
-                }
-
-                // Undo drawing history button
-                IconButton(
-                    enabled = historyAvailability.drawingUndo,
-                    onClick = { onClickDrawingHistory(false) },
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Undo,
-                        contentDescription = "Undo draw"
-                    )
-                }
-                // Drawing icon
-                Icon(
-                    imageVector = Icons.Default.Draw,
-                    contentDescription = "Draw history",
-                    modifier = Modifier
-                        .align(Alignment.CenterVertically)
-                        .size(16.dp)
-                )
-
-                // Redo drawing history button
-                IconButton(
-                    enabled = historyAvailability.drawingRedo,
-                    onClick = { onClickDrawingHistory(true) },
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Redo,
-                        contentDescription = "Redo draw"
+                        imageVector = Icons.Default.History,
+                        contentDescription = "Expand/collapse history",
+                        modifier = Modifier
                     )
                 }
 
             } // End Row
 
-        } // End AnimatedVisibility
-
-        // History toggle button
-        IconToggleButton(
-            checked = expanded,
-            onCheckedChange = { newValue ->
-                onClickExpand(newValue)
-            },
-        ) {
-            Icon(
-                imageVector = Icons.Default.History,
-                contentDescription = "Undo draw",
-                modifier = Modifier
-                    .align(Alignment.CenterVertically)
-            )
-        }
+        } // End Box
 
         // Enable transformable-mode (pan & zoom)
         IconToggleButton(
