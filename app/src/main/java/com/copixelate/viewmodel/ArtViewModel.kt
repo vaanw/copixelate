@@ -138,6 +138,15 @@ class ArtViewModel : ViewModel() {
 
         }// End updateDrawing
 
+    fun recordPaletteHistory(end: Boolean) =
+        viewModelScope.launch {
+            when (end) {
+                false -> artSpace.startPaletteHistoryRecord()
+                true -> artSpace.endPaletteHistoryRecord()
+            }
+            refreshHistoryAvailability()
+        }
+
     fun updateDrawingHistory(redo: Boolean) =
         viewModelScope.launch {
             when (redo) {
@@ -149,11 +158,26 @@ class ArtViewModel : ViewModel() {
             artSpace.save()
         }
 
+    fun updatePaletteHistory(redo: Boolean) =
+        viewModelScope.launch {
+            when (redo) {
+                false -> artSpace.undoPaletteHistory()
+                true -> artSpace.redoPaletteHistory()
+            }
+            _palette.update { artSpace.state.palette.toModel() }
+            _drawing.update { artSpace.state.colorDrawing }
+            _brushPreview.update { artSpace.state.brushPreview }
+            refreshHistoryAvailability()
+            artSpace.save()
+        }
+
     private fun refreshHistoryAvailability() {
-        _historyAvailability.update { oldValue ->
-            oldValue.copy(
+        _historyAvailability.update {
+            HistoryAvailability(
                 drawingUndo = artSpace.state.drawingUndoAvailable,
-                drawingRedo = artSpace.state.drawingRedoAvailable
+                drawingRedo = artSpace.state.drawingRedoAvailable,
+                paletteUndo = artSpace.state.paletteUndoAvailable,
+                paletteRedo = artSpace.state.paletteRedoAvailable
             )
         }
     }
