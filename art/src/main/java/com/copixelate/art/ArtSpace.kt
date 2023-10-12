@@ -12,6 +12,8 @@ class ArtSpace {
         val brushSize: Int get() = space.brush.size
         val drawingUndoAvailable: Boolean get() = space.drawing.undoAvailable
         val drawingRedoAvailable: Boolean get() = space.drawing.redoAvailable
+        val paletteUndoAvailable: Boolean get() = space.palette.undoAvailable
+        val paletteRedoAvailable: Boolean get() = space.palette.redoAvailable
     }
 
     private val palette = Palette()
@@ -181,7 +183,7 @@ class ArtSpace {
             refreshBrushPreview()
         }
 
-    // History
+    // Drawing history
     //
     fun startDrawingHistoryRecord() = drawing.recordHistoricState()
     fun endDrawingHistoryRecord() = drawing.recordHistory()
@@ -194,4 +196,21 @@ class ArtSpace {
         drawing.redoHistory().recolor(palette.colors)
     }
 
-}
+    // Palette history
+    //
+    fun startPaletteHistoryRecord() = palette.recordHistoricState()
+    fun endPaletteHistoryRecord() = palette.recordHistory()
+
+    fun undoPaletteHistory() {
+        palette.undoHistory()
+        drawing.recolor(palette.colors)
+        refreshBrushPreview()
+    }
+
+    fun redoPaletteHistory() {
+        palette.redoHistory()
+        drawing.recolor(palette.colors)
+        refreshBrushPreview()
+    }
+
+} // End ArtSpace

@@ -5,17 +5,7 @@ import androidx.compose.animation.ExitTransition.Companion.None
 import androidx.compose.animation.fadeIn
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Palette
-import androidx.compose.material.icons.outlined.Palette
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconToggleButton
-import androidx.compose.material3.Slider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -27,7 +17,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.copixelate.art.PixelGrid
@@ -36,7 +25,6 @@ import com.copixelate.data.model.PaletteModel
 import com.copixelate.data.model.SpaceModel
 import com.copixelate.data.model.toArtSpace
 import com.copixelate.data.model.toModel
-import com.copixelate.ui.common.BitmapImage
 import com.copixelate.ui.util.PreviewSurface
 import com.copixelate.ui.util.ScreenSurface
 import com.copixelate.ui.util.generateDefaultArt
@@ -79,12 +67,19 @@ fun ArtScreen(artViewModel: ArtViewModel) {
                 onClickEnableTransform = { enabled ->
                     artViewModel.updateTransformEnabled(enabled)
                 },
-                onClickExpandHistory = { expanded ->
-                    artViewModel.updateHistoryExpanded(expanded)
+                onRecordPaletteHistory = { end ->
+                    artViewModel.recordPaletteHistory(end)
                 },
                 onClickDrawingHistory = { redo ->
                     artViewModel.updateDrawingHistory(redo)
+                },
+                onClickPaletteHistory = { redo ->
+                    artViewModel.updatePaletteHistory(redo)
+                },
+                onClickExpandHistory = { expanded ->
+                    artViewModel.updateHistoryExpanded(expanded)
                 }
+
             )
         } // End AnimatedVisibility
     } // End ScreenSurface
@@ -101,14 +96,17 @@ private fun ArtScreenContent(
     transformEnabled: Boolean,
     historyExpanded: Boolean,
     historyAvailability: HistoryAvailability,
+
     onTouchDrawing: (unitPosition: PointF, status: TouchStatus) -> Unit,
     onTapPalette: (paletteIndex: Int) -> Unit,
     onEditColor: (color: Int) -> Unit,
     onBrushSizeUpdate: (Int) -> Unit,
     onTransform: (transformState: TransformState) -> Unit,
     onClickEnableTransform: (enabled: Boolean) -> Unit,
-    onClickExpandHistory: (expanded: Boolean) -> Unit,
-    onClickDrawingHistory: (Boolean) -> Unit,
+    onRecordPaletteHistory: (end: Boolean) -> Unit,
+    onClickDrawingHistory: (redo: Boolean) -> Unit,
+    onClickPaletteHistory: (redo: Boolean) -> Unit,
+    onClickExpandHistory: (expanded: Boolean) -> Unit
 ) {
 
     Column {
@@ -142,7 +140,7 @@ private fun ArtScreenContent(
                 onClickEnableTransform = onClickEnableTransform,
                 onClickExpand = onClickExpandHistory,
                 onClickDrawingHistory = onClickDrawingHistory,
-                onClickPaletteHistory = {},
+                onClickPaletteHistory = onClickPaletteHistory,
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
                     .padding(4.dp)
@@ -157,148 +155,11 @@ private fun ArtScreenContent(
             onTapPalette = onTapPalette,
             onEditColor = onEditColor,
             onBrushSizeUpdate = onBrushSizeUpdate,
+            onRecordPaletteHistory = onRecordPaletteHistory
         )
 
     } // End Column
 } // ArtScreenContent
-
-@Composable
-private fun PalettePanel(
-    palette: PaletteModel,
-    brushPreview: PixelGrid,
-    initialBrushSize: Int,
-    onTapPalette: (paletteIndex: Int) -> Unit,
-    onEditColor: (color: Int) -> Unit,
-    onBrushSizeUpdate: (Int) -> Unit
-) {
-
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-
-        var expanded by remember { mutableStateOf(false) }
-
-        var previousColor by remember { mutableIntStateOf(palette.activeColor) }
-        var colorComponents by remember { mutableStateOf(palette.activeColor.toHSL()) }
-
-        Box {
-            // Palette + preview
-            Column(
-                modifier = Modifier
-                    .padding(bottom = 32.dp)
-            ) {
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(64.dp)
-                ) {
-
-                    BrushPreview(
-                        pixelGrid = brushPreview,
-                        modifier = Modifier.fillMaxHeight()
-                    )
-                    Palette(
-                        palette = palette,
-                        borderStroke = 8.dp,
-                        onTapPalette = { index ->
-                            onTapPalette(index)
-                            previousColor = palette.pixels[index]
-                            colorComponents = previousColor.toHSL()
-                        },
-                        modifier = Modifier
-                            .fillMaxHeight()
-                            .weight(1f)
-                    )
-
-                } // End Row
-
-                BrushSizeSlider(
-                    steps = SliderSteps(1, 16, initialBrushSize),
-                    onSizeChange = onBrushSizeUpdate,
-                    modifier = Modifier
-                        .padding(horizontal = 40.dp)
-                )
-
-            } // End Column
-
-            IconToggleButton(
-                checked = expanded,
-                onCheckedChange = { newValue -> expanded = newValue },
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-            ) {
-                when (expanded) {
-                    false -> Icon(
-                        imageVector = Icons.Outlined.Palette,
-                        contentDescription = "Localized description"
-                    )
-
-                    true -> Icon(
-                        imageVector = Icons.Default.Palette,
-                        contentDescription = "Localized description"
-                    )
-                }
-
-            }
-
-        } // End Box
-
-        AnimatedVisibility(visible = expanded) {
-
-            ColorEditor(
-                colorComponents = colorComponents,
-                previousColor = previousColor,
-                onUpdateComponents = { newComponents ->
-                    colorComponents = newComponents
-                    onEditColor(colorComponents.toColor())
-                },
-                onRevert = {
-                    colorComponents = previousColor.toHSL()
-                    onEditColor(colorComponents.toColor())
-                }
-            )
-
-        }
-
-    } // End Column
-
-} // End PalettePanel
-
-@Composable
-private fun BrushPreview(
-    pixelGrid: PixelGrid,
-    contentScale: ContentScale = ContentScale.FillHeight,
-    modifier: Modifier
-) {
-    BitmapImage(
-        pixelGrid = pixelGrid,
-        contentDescription = "Brush preview",
-        contentScale = contentScale,
-        modifier = modifier
-    )
-}
-
-private data class SliderSteps(val min: Int, val max: Int, val default: Int) {
-    val size = max - min
-}
-
-@Composable
-private fun BrushSizeSlider(
-    steps: SliderSteps,
-    onSizeChange: (Int) -> Unit,
-    modifier: Modifier
-) {
-
-    var currentStep by remember { mutableIntStateOf(steps.default) }
-
-    Slider(
-        value = (currentStep - steps.min) * 1f / steps.size,
-        onValueChange = { newValue ->
-            currentStep = (newValue * steps.size + steps.min).toInt()
-            onSizeChange(currentStep)
-        },
-        modifier = modifier
-    )
-}
 
 
 @Preview
@@ -330,7 +191,9 @@ fun ArtScreenPreview() {
     fun refreshHistoryAvailability() {
         historyAvailability = historyAvailability.copy(
             drawingUndo = artSpace.state.drawingUndoAvailable,
-            drawingRedo = artSpace.state.drawingRedoAvailable
+            drawingRedo = artSpace.state.drawingRedoAvailable,
+            paletteUndo = artSpace.state.paletteUndoAvailable,
+            paletteRedo = artSpace.state.paletteRedoAvailable
         )
     }
 
@@ -378,6 +241,13 @@ fun ArtScreenPreview() {
             onClickEnableTransform = { enabled ->
                 transformEnabled = enabled
             },
+            onRecordPaletteHistory = { end ->
+                when (end) {
+                    false -> artSpace.startPaletteHistoryRecord()
+                    true -> artSpace.endPaletteHistoryRecord()
+                }
+                refreshHistoryAvailability()
+            },
             onClickExpandHistory = { expanded ->
                 historyExpanded = expanded
             },
@@ -388,6 +258,15 @@ fun ArtScreenPreview() {
                 }
                 drawing = artSpace.state.colorDrawing
                 refreshHistoryAvailability()
+            },
+            onClickPaletteHistory = { redo ->
+                when (redo) {
+                    false -> artSpace.undoPaletteHistory()
+                    true -> artSpace.redoPaletteHistory()
+                }
+                drawing = artSpace.state.colorDrawing
+                refreshHistoryAvailability()
+                palette = artSpace.state.palette.toModel()
             }
         )
     }
