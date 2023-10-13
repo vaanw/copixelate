@@ -1,7 +1,8 @@
 package com.copixelate.ui.screens.art
 
-import android.animation.ArgbEvaluator
 import android.graphics.Color
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.systemGestureExclusion
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Undo
 import androidx.compose.material3.ButtonDefaults
@@ -20,10 +22,9 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ShapeDefaults
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderPositions
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -34,8 +35,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.LayoutDirection
@@ -43,8 +44,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.graphics.ColorUtils
 import com.copixelate.ui.common.BitmapImage
 import com.copixelate.ui.util.PreviewSurface
-import androidx.compose.ui.graphics.Color as ComposeColor
-
+import kotlin.math.abs
 
 internal fun Int.toHSL(): List<Float> =
     FloatArray(3).apply {
@@ -81,9 +81,17 @@ internal fun ColorEditor(
         onColorChange(colorComponents.toColor())
     }
 
-    Column(
-        modifier = modifier
-    ) {
+    // Main container
+    Column(modifier = modifier) {
+
+        RevertButtonRow(
+            color = color,
+            previousColor = previousColor,
+            onRevert = {
+                colorComponents = previousColor.toHSL()
+                onColorChange(colorComponents.toColor())
+            }
+        )
 
         // Hue slider
         ColorEditorSlider(
@@ -136,79 +144,86 @@ internal fun ColorEditor(
             }
         )
 
-        // Revert
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(ButtonDefaults.MinHeight)
-        ) {
+    } // End Column
 
-            val revertColor = {
-                colorComponents = previousColor.toHSL()
-                onColorChange(colorComponents.toColor())
-            }
-
-            Box(
-                modifier = Modifier
-                    .weight(1f),
-                contentAlignment = Alignment.Center
-            ) {
-
-
-                // Revert preview
-                Row {
-
-                    BitmapImage(
-                        color = colorComponents.toColor(),
-                        contentScale = ContentScale.FillBounds,
-                        contentDescription = "Localized Description",
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxHeight()
-                    )
-                    BitmapImage(
-                        color = previousColor,
-                        contentScale = ContentScale.FillBounds,
-                        contentDescription = "Localized Description",
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxHeight()
-                    )
-
-                }
-
-                IconButton(
-                    onClick = revertColor
-                ) {
-
-                    val iconColor: Int = ArgbEvaluator()
-                        .evaluate(0.5f, previousColor, colorComponents.toColor()) as Int
-
-                    Icon(
-                        imageVector = Icons.Default.Undo,
-                        contentDescription = "",
-                        tint = ComposeColor(iconColor),
-                        modifier = Modifier.size(32.dp)
-                    )
-
-                }
-
-            }
-
-            // Revert button
-            TextButton(
-                shape = RectangleShape,
-                onClick = revertColor
-            ) { Text(text = "Revert") }
-
-        }
-
-    }
 } // End ColorEditor
 
 
-private const val SLIDER_HEIGHT = 40
+@Composable
+private fun RevertButtonRow(
+    color: Int,
+    previousColor: Int,
+    onRevert: () -> Unit
+) {
+
+    Row(
+        modifier = Modifier
+            .height(ButtonDefaults.MinHeight)
+    ) {
+
+        BitmapImage(
+            color = color,
+            contentScale = ContentScale.FillBounds,
+            contentDescription = "Localized Description",
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxHeight()
+        )
+
+        Box(
+            modifier = Modifier
+                .weight(1f),
+            contentAlignment = Alignment.Center
+        ) {
+
+            BitmapImage(
+                color = previousColor,
+                contentScale = ContentScale.FillBounds,
+                contentDescription = "Localized Description",
+                modifier = Modifier
+                    .fillMaxSize()
+            )
+
+            val luminance = remember(previousColor) { Color.luminance(previousColor) }
+            val textLuminance =
+                Color.luminance(MaterialTheme.colorScheme.onSurface.toArgb())
+            val inverseTextLuminance =
+                Color.luminance(MaterialTheme.colorScheme.inverseOnSurface.toArgb())
+
+            // Compare the absolute luminance difference and decide which color to use
+            val iconColor =
+                if (abs(luminance - textLuminance)
+                    > abs(luminance - inverseTextLuminance)
+                ) {
+                    MaterialTheme.colorScheme.onSurface
+                } else {
+                    MaterialTheme.colorScheme.inverseOnSurface
+                }
+
+            androidx.compose.animation.AnimatedVisibility(
+                visible = color != previousColor,
+                enter = fadeIn(),
+                exit = fadeOut()
+            ) {
+                IconButton(
+                    onClick = onRevert
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Undo,
+                        contentDescription = "Undo color change",
+                        tint = iconColor,
+                    )
+
+                }
+            }
+
+        } // End Box
+
+    } // End Row
+} // End RevertButtonRow
+
+
+private const val SLIDER_HEIGHT = 48
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -223,6 +238,7 @@ private fun ColorEditorSlider(
         contentAlignment = Alignment.Center,
         modifier = Modifier
             .height(SLIDER_HEIGHT.dp)
+            .systemGestureExclusion()
     ) {
 
         // Color spectrum
@@ -246,8 +262,7 @@ private fun ColorEditorSlider(
             thumb = { ColorEditorSliderThumb() },
             track = { sliderPositions ->
                 ColorEditorSliderTrack(
-                    sliderPositions = sliderPositions,
-                    color = MaterialTheme.colorScheme.primary
+                    sliderPositions = sliderPositions
                 )
             }
         )
@@ -256,13 +271,16 @@ private fun ColorEditorSlider(
 } // End PaletteToolSlider
 
 
-private const val THUMB_SIZE = 40
-private const val THUMB_PADDING = 3
-private const val THUMB_BORDER_WIDTH = 3
-private const val TRACK_WIDTH = 3
+private const val THUMB_SIZE = 48
+private const val THUMB_PADDING = 4
+private const val THUMB_BORDER_WIDTH = 2
+private const val TRACK_WIDTH = 4
 
 @Composable
 private fun ColorEditorSliderThumb() {
+
+    val outerColor = MaterialTheme.colorScheme.primary
+    val innerColor = MaterialTheme.colorScheme.surfaceVariant
 
     Box(
         contentAlignment = Alignment.Center,
@@ -272,23 +290,23 @@ private fun ColorEditorSliderThumb() {
     ) {
         Box(
             modifier = Modifier
+                .fillMaxSize()
+                .border(
+                    width = (2 * THUMB_BORDER_WIDTH).dp,
+                    color = innerColor,
+                    shape = ShapeDefaults.ExtraSmall
+                )
+        )
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
                 .border(
                     width = THUMB_BORDER_WIDTH.dp,
-                    color = MaterialTheme.colorScheme.surface
+                    color = outerColor,
+                    shape = ShapeDefaults.ExtraSmall
                 )
-                .fillMaxSize()
-                .padding(THUMB_BORDER_WIDTH.dp)
-        ) {
-            Box(
-                modifier = Modifier
-                    .border(
-                        width = (THUMB_BORDER_WIDTH / 3 + 1).dp,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    .fillMaxSize()
+        )
 
-            )
-        }
     }
 
 } // End ColorEditorSliderThumb
@@ -296,8 +314,10 @@ private fun ColorEditorSliderThumb() {
 @Composable
 private fun ColorEditorSliderTrack(
     sliderPositions: SliderPositions,
-    color: ComposeColor,
 ) {
+
+    val activeColor = MaterialTheme.colorScheme.primary
+    val inactiveColor = MaterialTheme.colorScheme.surfaceVariant
 
     Canvas(
         Modifier
@@ -340,21 +360,21 @@ private fun ColorEditorSliderTrack(
 
         if ((sliderStart.x < centerStart.x).xor(isRtl)) {
             drawLine(
-                color,
+                activeColor,
                 sliderStart,
                 centerStart,
                 trackStrokeWidth,
-                StrokeCap.Square
+                StrokeCap.Round
             )
         }
 
         if ((sliderEnd.x > centerEnd.x).xor(isRtl)) {
             drawLine(
-                color,
+                inactiveColor,
                 centerEnd,
                 sliderEnd,
                 trackStrokeWidth,
-                StrokeCap.Square
+                StrokeCap.Round
             )
         }
     } // End Canvas
@@ -367,11 +387,14 @@ private fun ColorEditorPreview() {
     PreviewSurface {
 
         val opaquePurple = 0xFF5F46EA.toInt()
-        var color by remember { mutableIntStateOf(opaquePurple) }
+        val opaquePink = 0xFFd673b2.toInt()
+
+        var color by remember { mutableIntStateOf(opaquePink) }
+        val previousColor = remember { opaquePurple }
 
         ColorEditor(
             color = color,
-            previousColor = color,
+            previousColor = previousColor,
             onColorChange = { newColor ->
                 color = newColor
             },
