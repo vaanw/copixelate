@@ -25,7 +25,9 @@ import androidx.compose.material3.SliderPositions
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -58,12 +60,26 @@ internal fun List<Float>.toColor() =
 
 @Composable
 internal fun ColorEditor(
-    colorComponents: List<Float>,
+    color: Int,
     previousColor: Int,
+    onColorChange: (Int) -> Unit,
     modifier: Modifier = Modifier,
-    onUpdateComponents: (List<Float>) -> Unit = {},
-    onRevert: () -> Unit = {},
 ) {
+
+    var colorComponents by remember { mutableStateOf(color.toHSL()) }
+
+    LaunchedEffect(color) {
+        if (colorComponents.toColor() != color) {
+            colorComponents = color.toHSL()
+        }
+    }
+
+    fun updateColorComponent(index: Int, newValue: Float) {
+        colorComponents = colorComponents
+            .toMutableList()
+            .apply { this[index] = newValue }
+        onColorChange(colorComponents.toColor())
+    }
 
     Column(
         modifier = modifier
@@ -74,9 +90,7 @@ internal fun ColorEditor(
             value = colorComponents[0],
             valueRange = 0f..360f,
             onValueChange = { newValue ->
-                onUpdateComponents(colorComponents.toMutableList()
-                    .apply { this[0] = newValue }
-                )
+                updateColorComponent(0, newValue)
             },
             colors = List(
                 size = 18
@@ -93,9 +107,7 @@ internal fun ColorEditor(
             value = colorComponents[1],
             valueRange = 0f..1f,
             onValueChange = { newValue ->
-                onUpdateComponents(colorComponents.toMutableList()
-                    .apply { this[1] = newValue }
-                )
+                updateColorComponent(1, newValue)
             },
             colors = List(
                 size = 10
@@ -112,9 +124,7 @@ internal fun ColorEditor(
             value = colorComponents[2],
             valueRange = 0f..1f,
             onValueChange = { newValue ->
-                onUpdateComponents(colorComponents.toMutableList()
-                    .apply { this[2] = newValue }
-                )
+                updateColorComponent(2, newValue)
             },
             colors = List(
                 size = 10
@@ -134,6 +144,10 @@ internal fun ColorEditor(
                 .height(ButtonDefaults.MinHeight)
         ) {
 
+            val revertColor = {
+                colorComponents = previousColor.toHSL()
+                onColorChange(colorComponents.toColor())
+            }
 
             Box(
                 modifier = Modifier
@@ -143,7 +157,7 @@ internal fun ColorEditor(
 
 
                 // Revert preview
-                Row{
+                Row {
 
                     BitmapImage(
                         color = colorComponents.toColor(),
@@ -165,7 +179,7 @@ internal fun ColorEditor(
                 }
 
                 IconButton(
-                    onClick = { onRevert() },
+                    onClick = revertColor
                 ) {
 
                     val iconColor: Int = ArgbEvaluator()
@@ -185,13 +199,13 @@ internal fun ColorEditor(
             // Revert button
             TextButton(
                 shape = RectangleShape,
-                onClick = { onRevert() }
+                onClick = revertColor
             ) { Text(text = "Revert") }
 
         }
 
     }
-}
+} // End ColorEditor
 
 
 private const val SLIDER_HEIGHT = 40
@@ -277,7 +291,7 @@ private fun ColorEditorSliderThumb() {
         }
     }
 
-}
+} // End ColorEditorSliderThumb
 
 @Composable
 private fun ColorEditorSliderTrack(
@@ -345,22 +359,22 @@ private fun ColorEditorSliderTrack(
         }
     } // End Canvas
 
-}
+} // ColorEditorSliderTrack
 
 @Preview
 @Composable
 private fun ColorEditorPreview() {
     PreviewSurface {
 
-        val color = 0x5f46ea // Purple
-        val previousColor = 0xcc1cbd // Pink
-        var colorComponents by remember { mutableStateOf(color.toHSL()) }
+        val opaquePurple = 0xFF5F46EA.toInt()
+        var color by remember { mutableIntStateOf(opaquePurple) }
 
         ColorEditor(
-            colorComponents = colorComponents,
-            previousColor = previousColor,
-            onUpdateComponents = { newComponents -> colorComponents = newComponents },
-            onRevert = { colorComponents = previousColor.toHSL() }
+            color = color,
+            previousColor = color,
+            onColorChange = { newColor ->
+                color = newColor
+            },
         )
     }
 }

@@ -118,7 +118,7 @@ class ArtViewModel : ViewModel() {
         viewModelScope.launch {
 
             if (touchStatus == TouchStatus.STARTED)
-                artSpace.startDrawingHistoryRecord()
+                artSpace.beginDrawingHistoryRecord()
 
             artSpace.updateDrawing(unitPosition).let { result ->
                 when (result) {

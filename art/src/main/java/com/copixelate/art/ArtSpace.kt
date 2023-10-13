@@ -6,12 +6,12 @@ class ArtSpace {
 
     class PublicState(private val space: ArtSpace) {
         val colorDrawing: PixelGrid get() = space.drawing.colorState
-        val drawing: PixelGrid get() = space.drawing.state
+        val indexDrawing: PixelGrid get() = space.drawing.indexState
         val palette: PixelRow get() = space.palette.state
         val brushPreview: PixelGrid get() = space.brushPreview.colorState
         val brushSize: Int get() = space.brush.size
-        val drawingUndoAvailable: Boolean get() = space.drawing.undoAvailable
-        val drawingRedoAvailable: Boolean get() = space.drawing.redoAvailable
+        val drawingUndoAvailable: Boolean get() = space.drawing.historian.undoAvailable
+        val drawingRedoAvailable: Boolean get() = space.drawing.historian.redoAvailable
         val paletteUndoAvailable: Boolean get() = space.palette.undoAvailable
         val paletteRedoAvailable: Boolean get() = space.palette.redoAvailable
     }
@@ -185,8 +185,8 @@ class ArtSpace {
 
     // Drawing history
     //
-    fun startDrawingHistoryRecord() = drawing.recordHistoricState()
-    fun endDrawingHistoryRecord() = drawing.recordHistory()
+    fun beginDrawingHistoryRecord() = drawing.beginHistoryRecord()
+    fun endDrawingHistoryRecord() = drawing.endHistoryRecord()
 
     fun undoDrawingHistory() {
         drawing.undoHistory().recolor(palette.colors)
