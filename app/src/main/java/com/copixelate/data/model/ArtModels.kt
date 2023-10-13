@@ -72,7 +72,7 @@ fun SpaceModel.toArtSpace() = ArtSpace().apply {
 }
 
 fun SpaceModel.copyFrom(artSpace: ArtSpace) = copy(
-    drawing = artSpace.state.drawing.toModel().copy(id = this.drawing.id),
+    drawing = artSpace.state.indexDrawing.toModel().copy(id = this.drawing.id),
     palette = artSpace.state.palette.toModel().copy(id = this.palette.id)
 )
 

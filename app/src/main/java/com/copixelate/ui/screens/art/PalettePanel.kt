@@ -43,9 +43,7 @@ internal fun PalettePanel(
     Column {
 
         var expanded by remember { mutableStateOf(false) }
-
         var previousColor by remember { mutableIntStateOf(palette.activeColor) }
-        var colorComponents by remember { mutableStateOf(palette.activeColor.toHSL()) }
 
         Box {
             // Palette + preview
@@ -68,9 +66,8 @@ internal fun PalettePanel(
                         palette = palette,
                         borderStroke = 8.dp,
                         onTapPalette = { index ->
-                            onTapPalette(index)
                             previousColor = palette.pixels[index]
-                            colorComponents = previousColor.toHSL()
+                            onTapPalette(index)
                         },
                         modifier = Modifier
                             .fillMaxHeight()
@@ -125,21 +122,16 @@ internal fun PalettePanel(
             }
 
             ColorEditor(
-                colorComponents = colorComponents,
+                color = palette.activeColor,
                 previousColor = previousColor,
-                onUpdateComponents = { newComponents ->
-                    colorComponents = newComponents
+                onColorChange = { newColor ->
 
                     if (!isRecordingHistory) {
                         onRecordPaletteHistory(false)
                         isRecordingHistory = true
                     }
 
-                    onEditColor(colorComponents.toColor())
-                },
-                onRevert = {
-                    colorComponents = previousColor.toHSL()
-                    onEditColor(colorComponents.toColor())
+                    onEditColor(newColor)
                 }
             ) // End ColorEditor
 

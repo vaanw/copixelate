@@ -21,8 +21,6 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.max
-import com.copixelate.art.PixelGrid
-import com.copixelate.art.Point
 import com.copixelate.data.model.PaletteModel
 import com.copixelate.ui.common.BitmapImage
 import com.copixelate.ui.util.toDp
@@ -63,10 +61,7 @@ internal fun Palette(
         ) {
             itemsIndexed(items = palette.pixels) { index, color ->
                 BitmapImage(
-                    pixelGrid = PixelGrid(
-                        pixels = intArrayOf(color),
-                        size = Point(1)
-                    ),
+                    color = color,
                     contentDescription = "Drawing palette border",
                     contentScale = ContentScale.FillBounds,
                     modifier = Modifier

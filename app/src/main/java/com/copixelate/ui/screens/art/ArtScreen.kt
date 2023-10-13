@@ -210,7 +210,7 @@ fun ArtScreenPreview() {
 
             onTouchDrawing = { unitPosition, touchStatus ->
                 if (touchStatus == TouchStatus.STARTED)
-                    artSpace.startDrawingHistoryRecord()
+                    artSpace.beginDrawingHistoryRecord()
                 artSpace.updateDrawing(unitPosition = unitPosition)
                 drawing = artSpace.state.colorDrawing
                 if (touchStatus == TouchStatus.ENDED) {
