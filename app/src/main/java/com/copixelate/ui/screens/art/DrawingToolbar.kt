@@ -31,21 +31,16 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.copixelate.R
+import com.copixelate.art.HistoryAvailability
 import com.copixelate.ui.animation.AnimationCatalog.toolbarEnter
 import com.copixelate.ui.animation.AnimationCatalog.toolbarExit
-
-data class HistoryAvailability(
-    val drawingUndo: Boolean = false,
-    val drawingRedo: Boolean = false,
-    val paletteUndo: Boolean = false,
-    val paletteRedo: Boolean = false
-)
 
 @Composable
 internal fun DrawingToolbar(
     transformable: Boolean,
     expanded: Boolean,
-    historyAvailability: HistoryAvailability,
+    drawingHistory: HistoryAvailability,
+    paletteHistory: HistoryAvailability,
     onClickEnableTransform: (transformEnabled: Boolean) -> Unit,
     onClickExpand: (expanded: Boolean) -> Unit,
     onClickDrawingHistory: (redo: Boolean) -> Unit,
@@ -71,7 +66,7 @@ internal fun DrawingToolbar(
             )
 
             // History icons
-            Row() {
+            Row {
 
                 // Collapsible history icons
                 AnimatedVisibility(
@@ -83,7 +78,7 @@ internal fun DrawingToolbar(
                     Row {
                         // Undo palette history button
                         IconButton(
-                            enabled = historyAvailability.paletteUndo,
+                            enabled = paletteHistory.undoAvailable,
                             onClick = { onClickPaletteHistory(false) },
                         ) {
                             Icon(
@@ -101,7 +96,7 @@ internal fun DrawingToolbar(
                         )
                         // Redo palette history button
                         IconButton(
-                            enabled = historyAvailability.paletteRedo,
+                            enabled = paletteHistory.redoAvailable,
                             onClick = { onClickPaletteHistory(true) },
                         ) {
                             Icon(
@@ -112,7 +107,7 @@ internal fun DrawingToolbar(
 
                         // Undo drawing history button
                         IconButton(
-                            enabled = historyAvailability.drawingUndo,
+                            enabled = drawingHistory.undoAvailable,
                             onClick = { onClickDrawingHistory(false) },
                         ) {
                             Icon(
@@ -131,7 +126,7 @@ internal fun DrawingToolbar(
 
                         // Redo drawing history button
                         IconButton(
-                            enabled = historyAvailability.drawingRedo,
+                            enabled = drawingHistory.redoAvailable,
                             onClick = { onClickDrawingHistory(true) },
                         ) {
                             Icon(
@@ -197,12 +192,8 @@ internal fun DrawingToolbarPreview() {
         DrawingToolbar(
             transformable = true,
             expanded = expanded,
-            historyAvailability = HistoryAvailability(
-                drawingUndo = true,
-                drawingRedo = false,
-                paletteUndo = true,
-                paletteRedo = false
-            ),
+            drawingHistory = HistoryAvailability(undoAvailable = false, redoAvailable = true),
+            paletteHistory = HistoryAvailability(undoAvailable = true, redoAvailable = false),
             onClickEnableTransform = {},
             onClickExpand = { newValue ->
                 expanded = newValue

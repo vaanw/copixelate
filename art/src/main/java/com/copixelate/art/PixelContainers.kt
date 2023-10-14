@@ -16,6 +16,11 @@ class PixelRow(
         get() = pixels[activeIndex]
 }
 
+class HistoryAvailability(
+    val undoAvailable: Boolean,
+    val redoAvailable: Boolean
+)
+
 class PixelUpdate(
     val key: Int,
     val value: Int

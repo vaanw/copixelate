@@ -19,6 +19,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.copixelate.art.HistoryAvailability
 import com.copixelate.art.PixelGrid
 import com.copixelate.art.PointF
 import com.copixelate.data.model.PaletteModel
@@ -46,8 +47,9 @@ fun ArtScreen(artViewModel: ArtViewModel) {
                 initialBrushSize = artViewModel.brushSize.collectAsState().value,
                 transformState = artViewModel.transformState,
                 transformEnabled = artViewModel.transformEnabled.collectAsState().value,
+                drawingHistory = artViewModel.drawingHistory.collectAsState().value,
+                paletteHistory = artViewModel.paletteHistory.collectAsState().value,
                 historyExpanded = artViewModel.historyExpanded.collectAsState().value,
-                historyAvailability = artViewModel.historyAvailability.collectAsState().value,
 
                 onTouchDrawing = { unitPosition, touchStatus ->
                     artViewModel.updateDrawing(unitPosition, touchStatus)
@@ -94,8 +96,9 @@ private fun ArtScreenContent(
     initialBrushSize: Int,
     transformState: TransformState,
     transformEnabled: Boolean,
+    drawingHistory: HistoryAvailability,
+    paletteHistory: HistoryAvailability,
     historyExpanded: Boolean,
-    historyAvailability: HistoryAvailability,
 
     onTouchDrawing: (unitPosition: PointF, status: TouchStatus) -> Unit,
     onTapPalette: (paletteIndex: Int) -> Unit,
@@ -136,7 +139,8 @@ private fun ArtScreenContent(
             DrawingToolbar(
                 transformable = transformEnabled,
                 expanded = historyExpanded,
-                historyAvailability = historyAvailability,
+                drawingHistory = drawingHistory,
+                paletteHistory = paletteHistory,
                 onClickEnableTransform = onClickEnableTransform,
                 onClickExpand = onClickExpandHistory,
                 onClickDrawingHistory = onClickDrawingHistory,
@@ -185,17 +189,10 @@ fun ArtScreenPreview() {
     var transformState by remember { mutableStateOf(TransformState(scale = 0.5f)) }
     var transformEnabled by remember { mutableStateOf(true) }
 
+    var drawingHistory by remember { mutableStateOf(artSpace.state.drawingHistory) }
+    var paletteHistory by remember { mutableStateOf(artSpace.state.paletteHistory) }
     var historyExpanded by remember { mutableStateOf(false) }
-    var historyAvailability by remember { mutableStateOf(HistoryAvailability()) }
 
-    fun refreshHistoryAvailability() {
-        historyAvailability = historyAvailability.copy(
-            drawingUndo = artSpace.state.drawingUndoAvailable,
-            drawingRedo = artSpace.state.drawingRedoAvailable,
-            paletteUndo = artSpace.state.paletteUndoAvailable,
-            paletteRedo = artSpace.state.paletteRedoAvailable
-        )
-    }
 
     PreviewSurface {
         ArtScreenContent(
@@ -205,19 +202,21 @@ fun ArtScreenPreview() {
             initialBrushSize = brushSize,
             transformState = transformState,
             transformEnabled = transformEnabled,
+            drawingHistory = drawingHistory,
+            paletteHistory = paletteHistory,
             historyExpanded = historyExpanded,
-            historyAvailability = historyAvailability,
 
             onTouchDrawing = { unitPosition, touchStatus ->
                 if (touchStatus == TouchStatus.STARTED)
-                    artSpace.beginDrawingHistoryRecord()
+                    artSpace.recordDrawingHistory()
+
                 artSpace.updateDrawing(unitPosition = unitPosition)
                 drawing = artSpace.state.colorDrawing
-                if (touchStatus == TouchStatus.ENDED) {
-                    artSpace.endDrawingHistoryRecord()
-                    refreshHistoryAvailability()
-                }
 
+                if (touchStatus == TouchStatus.ENDED) {
+                    artSpace.recordDrawingHistory(end = true)
+                    drawingHistory = artSpace.state.drawingHistory
+                }
             },
             onTapPalette = { paletteIndex ->
                 artSpace.updatePaletteActiveIndex(index = paletteIndex)
@@ -242,31 +241,22 @@ fun ArtScreenPreview() {
                 transformEnabled = enabled
             },
             onRecordPaletteHistory = { end ->
-                when (end) {
-                    false -> artSpace.startPaletteHistoryRecord()
-                    true -> artSpace.endPaletteHistoryRecord()
-                }
-                refreshHistoryAvailability()
+                artSpace.recordPaletteHistory(end)
+                paletteHistory = artSpace.state.paletteHistory
             },
             onClickExpandHistory = { expanded ->
                 historyExpanded = expanded
             },
             onClickDrawingHistory = { redo ->
-                when (redo) {
-                    false -> artSpace.undoDrawingHistory()
-                    true -> artSpace.redoDrawingHistory()
-                }
+                artSpace.applyDrawingHistory(redo)
                 drawing = artSpace.state.colorDrawing
-                refreshHistoryAvailability()
+                drawingHistory = artSpace.state.drawingHistory
             },
             onClickPaletteHistory = { redo ->
-                when (redo) {
-                    false -> artSpace.undoPaletteHistory()
-                    true -> artSpace.redoPaletteHistory()
-                }
+                artSpace.applyPaletteHistory(redo)
                 drawing = artSpace.state.colorDrawing
-                refreshHistoryAvailability()
                 palette = artSpace.state.palette.toModel()
+                paletteHistory = artSpace.state.paletteHistory
             }
         )
     }

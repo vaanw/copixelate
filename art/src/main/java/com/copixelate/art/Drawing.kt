@@ -10,8 +10,8 @@ internal class Drawing {
     internal var size: Point = Point(1)
         private set
 
-    val colorState get() = PixelGrid(colorPixels, size)
-    val indexState get() = PixelGrid(indexPixels, size)
+    internal val colorState get() = PixelGrid(colorPixels, size)
+    internal val indexState get() = PixelGrid(indexPixels, size)
 
     internal val lastIndex get() = indexPixels.lastIndex
 
@@ -51,17 +51,12 @@ internal class Drawing {
 
     // History
     //
-    internal val historian = Historian()
+    internal val history get() = historian.state
+    private val historian = Historian()
 
-    internal fun beginHistoryRecord() = historian.beginRecord(indexPixels)
-    internal fun endHistoryRecord() = historian.endRecord(indexPixels)
-
-    internal fun undoHistory() = apply {
-        historian.undoHistory(indexPixels)
-    }
-
-    internal fun redoHistory() = apply {
-        historian.redoHistory(indexPixels)
+    internal fun recordHistory(end: Boolean) = historian.recordHistory(indexPixels, end)
+    internal fun applyHistory(redo: Boolean) = apply {
+        historian.applyHistory(indexPixels, redo)
     }
 
 }

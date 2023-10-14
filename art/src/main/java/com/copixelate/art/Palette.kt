@@ -1,7 +1,6 @@
 package com.copixelate.art
 
 private const val DEBUG_COLOR = 0x5e77b5 // Blue
-private const val HISTORY_LIMIT = 16
 
 internal class Palette {
 
@@ -51,72 +50,12 @@ internal class Palette {
 
     // History
     //
-    private val history: ArrayDeque<Map<Int, Pair<Int, Int>>> = ArrayDeque()
-    private var historicState = colors.copyOf()
-    private var historyIndex = 0
+    internal val history get() = historian.state
+    private val historian = Historian()
 
-    internal val undoAvailable get() = historyIndex > 0
-    internal val redoAvailable get() = historyIndex < history.size
-
-    private fun applyChanges(
-        changeMap: Map<Int, Pair<Int, Int>>,
-        redo: Boolean = false
-    ) = apply {
-        changeMap.forEach { (index, pair) ->
-            val newValue = when (redo) {
-                false -> pair.first
-                true -> pair.second
-            }
-            colors[index] = newValue
-        }
-    }
-
-    internal fun recordHistoricState() {
-        historicState = colors.copyOf()
-    }
-
-    internal fun recordHistory() {
-        val changeMap = mutableMapOf<Int, Pair<Int, Int>>()
-
-        // Scan for and record changes
-        for ((index, historicValue) in historicState.withIndex()) {
-            val newValue = state.pixels[index]
-            if (historicValue != newValue) {
-                changeMap[index] = Pair(historicValue, newValue)
-            }
-        }
-
-        if (changeMap.isNotEmpty()) {
-            // Remove all future history
-            while (history.size > historyIndex) {
-                history.removeLast()
-            }
-
-            // Add these changes to history
-            history.addLast(changeMap)
-            historyIndex++
-
-            // Limit history size
-            if (history.size > HISTORY_LIMIT) {
-                history.removeFirst()
-                historyIndex--
-            }
-        }
-    }
-
-    internal fun undoHistory() = apply {
-        if (undoAvailable) {
-            val changesMap = history[--historyIndex]
-            applyChanges(changesMap)
-        }
-    }
-
-    internal fun redoHistory() = apply {
-        if (redoAvailable) {
-            val changesMap = history[historyIndex]
-            applyChanges(changesMap, true)
-            historyIndex++
-        }
+    internal fun recordHistory(end: Boolean) = historian.recordHistory(colors, end)
+    internal fun applyHistory(redo: Boolean) = apply {
+        historian.applyHistory(colors, redo)
     }
 
 }
