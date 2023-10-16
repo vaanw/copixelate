@@ -10,10 +10,8 @@ class ArtSpace {
         val palette: PixelRow get() = space.palette.state
         val brushPreview: PixelGrid get() = space.brushPreview.colorState
         val brushSize: Int get() = space.brush.size
-        val drawingUndoAvailable: Boolean get() = space.drawing.historian.undoAvailable
-        val drawingRedoAvailable: Boolean get() = space.drawing.historian.redoAvailable
-        val paletteUndoAvailable: Boolean get() = space.palette.undoAvailable
-        val paletteRedoAvailable: Boolean get() = space.palette.redoAvailable
+        val drawingHistory: HistoryAvailability get() = space.drawing.history
+        val paletteHistory: HistoryAvailability get() = space.palette.history
     }
 
     private val palette = Palette()
@@ -185,30 +183,30 @@ class ArtSpace {
 
     // Drawing history
     //
-    fun beginDrawingHistoryRecord() = drawing.beginHistoryRecord()
-    fun endDrawingHistoryRecord() = drawing.endHistoryRecord()
+    fun recordDrawingHistory(end: Boolean = false): ArtSpaceResult<Unit> =
+        try {
+            drawing.recordHistory(end)
+            ArtSpaceResult.Success(Unit)
+        } catch (e: IllegalStateException) {
+            ArtSpaceResult.Failure(e)
+        }
 
-    fun undoDrawingHistory() {
-        drawing.undoHistory().recolor(palette.colors)
-    }
-
-    fun redoDrawingHistory() {
-        drawing.redoHistory().recolor(palette.colors)
+    fun applyDrawingHistory(redo: Boolean) {
+        drawing.applyHistory(redo).recolor(palette.colors)
     }
 
     // Palette history
     //
-    fun startPaletteHistoryRecord() = palette.recordHistoricState()
-    fun endPaletteHistoryRecord() = palette.recordHistory()
+    fun recordPaletteHistory(end: Boolean = false): ArtSpaceResult<Unit> =
+        try {
+            palette.recordHistory(end)
+            ArtSpaceResult.Success(Unit)
+        } catch (e: IllegalStateException) {
+            ArtSpaceResult.Failure(e)
+        }
 
-    fun undoPaletteHistory() {
-        palette.undoHistory()
-        drawing.recolor(palette.colors)
-        refreshBrushPreview()
-    }
-
-    fun redoPaletteHistory() {
-        palette.redoHistory()
+    fun applyPaletteHistory(redo: Boolean) {
+        palette.applyHistory(redo)
         drawing.recolor(palette.colors)
         refreshBrushPreview()
     }

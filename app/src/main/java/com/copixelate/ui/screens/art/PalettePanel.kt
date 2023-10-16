@@ -43,7 +43,7 @@ internal fun PalettePanel(
     Column {
 
         var expanded by remember { mutableStateOf(false) }
-        var previousColor by remember { mutableIntStateOf(palette.activeColor) }
+        var previousColor by remember(expanded) { mutableIntStateOf(palette.activeColor) }
 
         Box {
             // Palette + preview
@@ -125,10 +125,10 @@ internal fun PalettePanel(
                 color = palette.activeColor,
                 previousColor = previousColor,
                 onColorChange = { newColor ->
-
+                    // If color changes, begin recording history
                     if (!isRecordingHistory) {
-                        onRecordPaletteHistory(false)
                         isRecordingHistory = true
+                        onRecordPaletteHistory(false)
                     }
 
                     onEditColor(newColor)

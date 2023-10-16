@@ -98,10 +98,9 @@ private fun LibraryScreenContent(
     var cachedSpaces by remember { mutableStateOf(spaces) }
 
     val workingSpaces = remember(spaces, cachedSpaces) {
-        spaces
-            .union(cachedSpaces)
-            .toList()
-            .sortedBy { it.id }
+        val spaceIds = spaces.map { it.id }.toSet()
+        val uniqueCachedSpaces = cachedSpaces.filterNot { it.id in spaceIds }
+        (spaces + uniqueCachedSpaces).sortedBy { it.id }
     }
 
     val addedItems = remember(spaces, cachedSpaces) {
@@ -165,7 +164,7 @@ private fun LibraryScreenContent(
 
             val visibleState = remember {
                 MutableTransitionState(initialVisibility).apply {
-                    // Start animation immediate if this is a new item
+                    // Start animation immediately if this is a new item
                     if (wasAdded) targetState = true
                 }
             }
@@ -270,7 +269,7 @@ private fun LibraryArtSpaceItem(
     modifier: Modifier = Modifier
 ) {
 
-    val artSpace = remember { spaceModel.toArtSpace() }
+    val artSpace = remember(spaceModel) { spaceModel.toArtSpace() }
 
     Card(
         modifier = modifier

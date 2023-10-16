@@ -12,7 +12,6 @@ import com.copixelate.data.model.toArtSpace
 import com.copixelate.data.model.toModel
 import com.copixelate.data.repo.ArtRepo
 import com.copixelate.data.repo.UiRepo
-import com.copixelate.ui.screens.art.HistoryAvailability
 import com.copixelate.ui.screens.art.TouchStatus
 import com.copixelate.ui.screens.art.TransformState
 import com.copixelate.ui.util.generateDefaultArt
@@ -53,11 +52,14 @@ class ArtViewModel : ViewModel() {
     private val _transformEnabled = MutableStateFlow(DEFAULT_TRANSFORM_ENABLED)
     val transformEnabled = _transformEnabled.asStateFlow()
 
+    private val _drawingHistory = MutableStateFlow(artSpace.state.drawingHistory)
+    val drawingHistory = _drawingHistory.asStateFlow()
+
+    private val _paletteHistory = MutableStateFlow(artSpace.state.paletteHistory)
+    val paletteHistory = _paletteHistory.asStateFlow()
+
     private val _historyExpanded = MutableStateFlow(false)
     val historyExpanded = _historyExpanded.asStateFlow()
-
-    private val _historyAvailability = MutableStateFlow(HistoryAvailability())
-    val historyAvailability = _historyAvailability.asStateFlow()
 
 
     init {
@@ -106,19 +108,32 @@ class ArtViewModel : ViewModel() {
         _drawing.update { artSpace.state.colorDrawing }
         _palette.update { artSpace.state.palette.toModel() }
         _brushPreview.update { artSpace.state.brushPreview }
+        _drawingHistory.update { artSpace.state.drawingHistory }
+        _paletteHistory.update { artSpace.state.paletteHistory }
         _transformState = TransformState()
         _transformEnabled.update { DEFAULT_TRANSFORM_ENABLED }
     }
 
-    private suspend inline fun ArtSpace.save() = artRepo.saveSpace(
-        spaceModel = spaceModel.copyFrom(artSpace = this)
-    )
+    private suspend inline fun ArtSpace.save() {
+        val artSpaceToSave = this
+        viewModelScope.launch {
+            artRepo.saveSpace(
+                spaceModel = spaceModel.copyFrom(artSpace = artSpaceToSave)
+            )
+        }
+    }
+
+    private fun logFailure(result: ArtSpaceResult<Any>) {
+        if (result.isFailure)
+            Log.d(javaClass.simpleName, result.toString())
+    }
 
     fun updateDrawing(unitPosition: PointF, touchStatus: TouchStatus) =
         viewModelScope.launch {
 
             if (touchStatus == TouchStatus.STARTED)
-                artSpace.beginDrawingHistoryRecord()
+                artSpace.recordDrawingHistory()
+                    .run { logFailure(this) }
 
             artSpace.updateDrawing(unitPosition).let { result ->
                 when (result) {
@@ -127,60 +142,41 @@ class ArtViewModel : ViewModel() {
                         artSpace.save()
                     }
 
-                    is ArtSpaceResult.Failure -> Log.d(javaClass.simpleName, result.toString())
+                    is ArtSpaceResult.Failure -> logFailure(result)
                 }
             }
 
             if (touchStatus == TouchStatus.ENDED) {
-                artSpace.endDrawingHistoryRecord()
-                refreshHistoryAvailability()
+                artSpace.recordDrawingHistory(end = true)
+                    .run { logFailure(this) }
+                _drawingHistory.update { artSpace.state.drawingHistory }
             }
 
         }// End updateDrawing
 
     fun recordPaletteHistory(end: Boolean) =
         viewModelScope.launch {
-            when (end) {
-                false -> artSpace.startPaletteHistoryRecord()
-                true -> artSpace.endPaletteHistoryRecord()
-            }
-            refreshHistoryAvailability()
+            artSpace.recordPaletteHistory(end)
+            _paletteHistory.update { artSpace.state.paletteHistory }
         }
 
     fun updateDrawingHistory(redo: Boolean) =
         viewModelScope.launch {
-            when (redo) {
-                false -> artSpace.undoDrawingHistory()
-                true -> artSpace.redoDrawingHistory()
-            }
+            artSpace.applyDrawingHistory(redo)
             _drawing.update { artSpace.state.colorDrawing }
-            refreshHistoryAvailability()
+            _drawingHistory.update { artSpace.state.drawingHistory }
             artSpace.save()
         }
 
     fun updatePaletteHistory(redo: Boolean) =
         viewModelScope.launch {
-            when (redo) {
-                false -> artSpace.undoPaletteHistory()
-                true -> artSpace.redoPaletteHistory()
-            }
+            artSpace.applyPaletteHistory(redo = redo)
             _palette.update { artSpace.state.palette.toModel() }
             _drawing.update { artSpace.state.colorDrawing }
             _brushPreview.update { artSpace.state.brushPreview }
-            refreshHistoryAvailability()
+            _paletteHistory.update { artSpace.state.paletteHistory }
             artSpace.save()
         }
-
-    private fun refreshHistoryAvailability() {
-        _historyAvailability.update {
-            HistoryAvailability(
-                drawingUndo = artSpace.state.drawingUndoAvailable,
-                drawingRedo = artSpace.state.drawingRedoAvailable,
-                paletteUndo = artSpace.state.paletteUndoAvailable,
-                paletteRedo = artSpace.state.paletteRedoAvailable
-            )
-        }
-    }
 
     fun updatePaletteActiveIndex(paletteIndex: Int) =
         viewModelScope.launch {
