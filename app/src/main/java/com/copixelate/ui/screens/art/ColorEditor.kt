@@ -1,6 +1,9 @@
 package com.copixelate.ui.screens.art
 
 import android.graphics.Color
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.Spring.StiffnessVeryLow
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Canvas
@@ -184,36 +187,44 @@ private fun RevertButtonRow(
                     .fillMaxSize()
             )
 
-            val luminance = remember(previousColor) { Color.luminance(previousColor) }
+            val backgroundLuminance =
+                Color.luminance(previousColor)
             val textLuminance =
                 Color.luminance(MaterialTheme.colorScheme.onSurface.toArgb())
             val inverseTextLuminance =
                 Color.luminance(MaterialTheme.colorScheme.inverseOnSurface.toArgb())
 
-            // Compare the absolute luminance difference and decide which color to use
+            // Choose icon color based on luminance
             val iconColor =
-                if (abs(luminance - textLuminance)
-                    > abs(luminance - inverseTextLuminance)
+                when (abs(backgroundLuminance - textLuminance)
+                        > abs(backgroundLuminance - inverseTextLuminance)
                 ) {
-                    MaterialTheme.colorScheme.onSurface
-                } else {
-                    MaterialTheme.colorScheme.inverseOnSurface
+                    true -> MaterialTheme.colorScheme.onSurface
+                    false -> MaterialTheme.colorScheme.inverseOnSurface
                 }
 
+            val animatedIconColor by animateColorAsState(
+                targetValue = iconColor,
+                animationSpec = spring(stiffness = StiffnessVeryLow),
+                label = "RevertIconColorAnimation"
+            )
+
+            val isColorMismatch = remember(color) { color != previousColor }
+
             androidx.compose.animation.AnimatedVisibility(
-                visible = color != previousColor,
+                visible = isColorMismatch,
                 enter = fadeIn(),
-                exit = fadeOut()
+                exit = fadeOut(),
             ) {
+
                 IconButton(
                     onClick = onRevert
                 ) {
                     Icon(
                         imageVector = Icons.Default.Undo,
-                        contentDescription = "Undo color change",
-                        tint = iconColor,
+                        contentDescription = "Undo color edit",
+                        tint = animatedIconColor,
                     )
-
                 }
             }
 
