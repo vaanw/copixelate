@@ -1,6 +1,7 @@
 package com.copixelate.ui.screens.art
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -15,6 +16,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.Slider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -40,10 +42,22 @@ internal fun PalettePanel(
     onRecordPaletteHistory: (end: Boolean) -> Unit
 ) {
 
+
+
     Column {
 
-        var expanded by remember { mutableStateOf(false) }
-        var previousColor by remember(expanded) { mutableIntStateOf(palette.activeColor) }
+        var previousColor by remember(palette.activeIndex) {
+            mutableIntStateOf(palette.activeColor)
+        }
+
+        // Expanding / collapsing animation state
+        val expanding = remember { MutableTransitionState(false) }
+
+        // Update previous color when collapsing animation completes
+        LaunchedEffect(expanding.isIdle) {
+            if (expanding.isIdle && !expanding.currentState)
+                previousColor = palette.activeColor
+        }
 
         Box {
             // Palette + preview
@@ -65,10 +79,7 @@ internal fun PalettePanel(
                     Palette(
                         palette = palette,
                         borderStroke = 8.dp,
-                        onTapPalette = { index ->
-                            previousColor = palette.pixels[index]
-                            onTapPalette(index)
-                        },
+                        onTapPalette = onTapPalette,
                         modifier = Modifier
                             .fillMaxHeight()
                             .weight(1f)
@@ -87,12 +98,14 @@ internal fun PalettePanel(
 
             // Toggle ColorEditor visibility
             IconToggleButton(
-                checked = expanded,
-                onCheckedChange = { newValue -> expanded = newValue },
+                checked = expanding.targetState,
+                onCheckedChange = { newValue ->
+                    expanding.targetState = newValue
+                },
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
             ) {
-                when (expanded) {
+                when (expanding.targetState) {
                     false -> Icon(
                         imageVector = Icons.Outlined.Palette,
                         contentDescription = "Open color picker"
@@ -109,15 +122,17 @@ internal fun PalettePanel(
         } // End Box
 
         // Collapsible ColorEditor with history
-        AnimatedVisibility(visible = expanded) {
+        AnimatedVisibility(visibleState = expanding) {
 
             var isRecordingHistory by remember { mutableStateOf(false) }
 
-            // If activeIndex or expanded changes, end history record
-            LaunchedEffect(palette.activeIndex, expanded) {
-                if (isRecordingHistory) {
-                    onRecordPaletteHistory(true)
-                    isRecordingHistory = false
+            // If activeIndex changes or composition is disposed, end history record
+            DisposableEffect(palette.activeIndex){
+                onDispose {
+                    if (isRecordingHistory) {
+                        onRecordPaletteHistory(true)
+                        isRecordingHistory = false
+                    }
                 }
             }
 
