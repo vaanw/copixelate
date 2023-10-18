@@ -75,7 +75,7 @@ fun ExportImageDialog(
                 Spacer(modifier = Modifier.height(32.dp))
 
                 // Scale factor editor
-                DialogIntValueEditor(
+                IntEditor(
                     label = "Scale",
                     value = scaleFactor,
                     onValueChange = { newValue ->
