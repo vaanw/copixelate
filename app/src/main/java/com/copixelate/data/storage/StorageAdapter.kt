@@ -36,7 +36,7 @@ object StorageAdapter {
         }
 
         val newImageDetails = ContentValues().apply {
-            put(MediaStore.Images.Media.DISPLAY_NAME, fileName)
+            put(MediaStore.Images.Media.DISPLAY_NAME, "$fileName.png")
             put(MediaStore.Images.Media.IS_PENDING, 1)
         }
 

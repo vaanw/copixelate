@@ -28,4 +28,8 @@
     <string name="nav_content_description_contacts_add">Go to Add Contacts</string>
     <string name="nav_content_description_settings">Go to Settings</string>
 
+    <!-- Export File Naming -->
+    <string name="export_filename_prefix">@string/app_name</string>
+    <string name="export_filename_separator">-</string>
+
 </resources>

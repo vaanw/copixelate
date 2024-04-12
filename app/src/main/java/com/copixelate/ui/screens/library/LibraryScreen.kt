@@ -35,9 +35,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.copixelate.R
 import com.copixelate.data.model.SpaceModel
 import com.copixelate.data.model.toArtSpace
 import com.copixelate.ui.animation.AnimationCatalog.libraryItemEnter
@@ -243,13 +245,22 @@ private fun LibraryScreenContent(
             onCancel = { showCreateDialog = false }
         )
 
+    val context = LocalContext.current
+    val exportFileNamePrefix = remember {
+        context.getString(R.string.export_filename_prefix) +
+                context.getString(R.string.export_filename_separator)
+    }
+
+    fun generateUniqueFilename() =
+        exportFileNamePrefix + System.currentTimeMillis().toString()
+
     // Dialog, export image
     if (showExportDialog)
         ExportImageDialog(
             onExport = { scaleFactor ->
                 onExport(
                     spaceModelToExport,
-                    "copixelate-tmp.png",
+                    generateUniqueFilename(),
                     scaleFactor
                 )
             },
