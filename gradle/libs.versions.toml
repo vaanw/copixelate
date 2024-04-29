@@ -1,0 +1,84 @@
+[versions]
+
+# Project-level versions
+androidGradlePlugin = "8.3.1"
+kotlin = "1.9.10"
+kotlinSymbolProcessing = "1.9.10-1.0.13"
+
+# App module versions
+kotlinComposeCompiler = "1.5.3" # Used for composeOptions in app build.gradle.kts
+lifecycle = "2.6.2"
+room = "2.6.0"
+
+
+[plugins]
+
+# Project-level plugins
+android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+# App module plugins
+kotlin-serialization = "org.jetbrains.kotlin.plugin.serialization:1.9.10"
+devtools-ksp = { id = "com.google.devtools.ksp", version.ref = "kotlinSymbolProcessing" }
+protobuf = "com.google.protobuf:0.9.4"
+# Shared plugins
+google-services = "com.google.gms.google-services:4.4.0"
+
+
+[libraries]
+
+# Kotlin
+androidx-core-ktx = "androidx.core:core-ktx:1.12.0"
+kotlinx-serialization = "org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0"
+ksp-api = { module = "com.google.devtools.ksp:symbol-processing-api", version.ref = "kotlinSymbolProcessing" }
+protobuf-protoc = "com.google.protobuf:protoc:3.24.4" # Used for protobuf generation in app build.gradle.kts
+
+# ViewModel
+androidx-lifecycle-viewmodel-ktx = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "lifecycle" }
+androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycle" }
+
+# Compose
+androidx-activity-compose = "androidx.activity:activity-compose:1.8.0"
+androidx-navigation-compose = "androidx.navigation:navigation-compose:2.7.4"
+# Bill of Materials, https://developer.android.com/jetpack/compose/bom
+androidx-compose-bom = "androidx.compose:compose-bom:2023.10.01"
+androidx-compose-ui = { group = "androidx.compose.ui", name = "ui" }
+androidx-compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
+androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3" }
+androidx-compose-materialIcons = { group = "androidx.compose.material", name = "material-icons-extended" }
+
+# Splash Screen
+androidx-core-splashscreen = "androidx.core:core-splashscreen:1.0.1"
+
+# Proto DataStore
+androidx-datastore = "androidx.datastore:datastore:1.0.0"
+protobuf-javalite = "com.google.protobuf:protobuf-javalite:3.24.4"
+
+# Room
+androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
+androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
+androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
+androidx-room-paging = { module = "androidx.room:room-paging", version.ref = "room" }
+
+# Google Play Services
+android-gms-playServicesAuth = "com.google.android.gms:play-services-auth:20.7.0"
+
+#// Firebase
+#// Bill of Materials, https://firebase.google.com/support/release-notes/android
+firebase-bom = "com.google.firebase:firebase-bom:32.4.1"
+firebase-auth-ktx = { group = "com.google.firebase", name = "firebase-auth-ktx" }
+firebase-database-ktx = { group = "com.google.firebase", name = "firebase-database-ktx" }
+
+# App Module Testing
+junit = "junit:junit:4.13.2"
+androidx-junit = "androidx.test.ext:junit:1.1.5"
+androidx-espresso-core = "androidx.test.espresso:espresso-core:3.5.1"
+# Compose Testing
+androidx-compose-ui-uiTestJunit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
+androidx-compose-ui-uiTooling = { group = "androidx.compose.ui", name = "ui-tooling" }
+androidx-compose-ui-uiTestManifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
+
+# Art Module Testing
+junit-jupiter-api = "org.junit.jupiter:junit-jupiter-api:5.10.0"
+junit-jupiter-params = "org.junit.jupiter:junit-jupiter-params:5.10.0"
+junit-jupiter-engine = "org.junit.jupiter:junit-jupiter-engine:5.10.0"
