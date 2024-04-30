@@ -1,3 +1,6 @@
+import java.io.FileInputStream
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -23,8 +26,22 @@ android {
         ksp { arg("room.schemaLocation", "$projectDir/schemas") }
     }
 
+    signingConfigs {
+        create("release") {
+            // Retrieve signing credentials from secret file
+            Properties().run {
+                load(FileInputStream(project.file("keystore.properties")))
+                storePassword = this["storePassword"] as String
+                keyPassword = this["keyPassword"] as String
+                keyAlias = this["keyAlias"] as String
+                storeFile = file(this["storeFile"] as String)
+            }
+        }
+    }
+
     buildTypes {
         getByName("release") {
+            signingConfig = signingConfigs.getByName("release")
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(
