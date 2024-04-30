@@ -29,13 +29,18 @@ android {
     signingConfigs {
         create("release") {
             // Retrieve signing credentials from secret file
-            Properties().run {
-                load(FileInputStream(project.file("keystore.properties")))
-                storePassword = this["storePassword"] as String
-                keyPassword = this["keyPassword"] as String
-                keyAlias = this["keyAlias"] as String
-                storeFile = file(this["storeFile"] as String)
-            }
+            val file = project.file("keystore.properties")
+            when (file.exists()) {
+                false -> println("Warning: ${file.name} file is missing")
+                true ->
+                    Properties().run {
+                        load(FileInputStream(file))
+                        storePassword = this["storePassword"] as String
+                        keyPassword = this["keyPassword"] as String
+                        keyAlias = this["keyAlias"] as String
+                        storeFile = file(this["storeFile"] as String)
+                    }
+            } // End when
         }
     }
 
