@@ -8,13 +8,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.ContentCopy
-import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.Share
-import androidx.compose.material.icons.outlined.Delete
-import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -48,6 +41,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.copixelate.ui.common.ValidatedTextInputField
+import com.copixelate.ui.icon.IconCatalog
 import com.copixelate.ui.theme.disableIf
 import com.copixelate.ui.util.InputValidation
 import com.copixelate.ui.util.PreviewSurface
@@ -193,7 +187,7 @@ private fun ShareCodeTool(
                     IconButton(
                         onClick = { /* Handle click */ }) {
                         Icon(
-                            imageVector = Icons.Filled.Share,
+                            imageVector = IconCatalog.share,
                             contentDescription = "Localized description"
                         )
                     }
@@ -202,7 +196,7 @@ private fun ShareCodeTool(
                         onClick = { /* Handle click */ }
                     ) {
                         Icon(
-                            imageVector = Icons.Filled.ContentCopy,
+                            imageVector = IconCatalog.copy,
                             contentDescription = "Localized description"
                         )
                     }
@@ -237,7 +231,7 @@ private fun ShareCodeToolMenu(
             onClick = { isMenuExpanded = true }
         ) {
             Icon(
-                imageVector = Icons.Filled.MoreVert,
+                imageVector = IconCatalog.moreVertical,
                 contentDescription = "Localized description"
             )
         }
@@ -254,7 +248,7 @@ private fun ShareCodeToolMenu(
                 },
                 leadingIcon = {
                     Icon(
-                        Icons.Outlined.Delete,
+                        IconCatalog.delete,
                         contentDescription = null
                     )
                 })
@@ -263,7 +257,7 @@ private fun ShareCodeToolMenu(
                 onClick = { onRenew() },
                 leadingIcon = {
                     Icon(
-                        Icons.Outlined.Refresh,
+                        IconCatalog.refresh,
                         contentDescription = null
                     )
                 })
@@ -399,7 +393,7 @@ private fun TopBar(
                 onClick = onClickBack
             ) {
                 Icon(
-                    imageVector = Icons.Filled.ArrowBack,
+                    imageVector = IconCatalog.back,
                     contentDescription = "Localized description"
                 )
             }

@@ -7,8 +7,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.AddPhotoAlternate
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.Button
@@ -28,6 +26,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.copixelate.ui.icon.IconCatalog
 import com.copixelate.ui.util.PreviewSurface
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -55,7 +54,7 @@ fun CreateItemDialog(
             ) {
 
                 Icon(
-                    imageVector = Icons.Outlined.AddPhotoAlternate,
+                    imageVector = IconCatalog.addPhoto,
                     contentDescription = "Localized description",
                     modifier = Modifier
                         .align(Alignment.CenterHorizontally)

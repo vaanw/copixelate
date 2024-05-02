@@ -8,11 +8,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.KeyboardArrowLeft
-import androidx.compose.material.icons.filled.KeyboardArrowRight
-import androidx.compose.material.icons.filled.KeyboardDoubleArrowLeft
-import androidx.compose.material.icons.filled.KeyboardDoubleArrowRight
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -25,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.copixelate.ui.icon.IconCatalog
 import com.copixelate.ui.util.PreviewSurface
 import kotlin.math.ceil
 import kotlin.math.floor
@@ -140,7 +136,7 @@ private fun IntTuner(
                 modifier = Modifier.size(iconSize),
             ) {
                 Icon(
-                    imageVector = Icons.Default.KeyboardArrowLeft,
+                    imageVector = IconCatalog.left,
                     contentDescription = "Localized description"
                 )
             }
@@ -151,7 +147,7 @@ private fun IntTuner(
                 modifier = Modifier.size(iconSize)
             ) {
                 Icon(
-                    imageVector = Icons.Default.KeyboardDoubleArrowLeft,
+                    imageVector = IconCatalog.doubleLeft,
                     contentDescription = "Localized description"
                 )
             }
@@ -173,7 +169,7 @@ private fun IntTuner(
                 modifier = Modifier.size(iconSize),
             ) {
                 Icon(
-                    imageVector = Icons.Default.KeyboardDoubleArrowRight,
+                    imageVector = IconCatalog.doubleRight,
                     contentDescription = "Localized description"
                 )
             }
@@ -184,7 +180,7 @@ private fun IntTuner(
                 modifier = Modifier.size(iconSize)
             ) {
                 Icon(
-                    imageVector = Icons.Default.KeyboardArrowRight,
+                    imageVector = IconCatalog.right,
                     contentDescription = "Localized description"
                 )
             }

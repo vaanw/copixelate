@@ -18,8 +18,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.systemGestureExclusion
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.Undo
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -46,6 +44,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.ColorUtils
 import com.copixelate.ui.common.BitmapImage
+import com.copixelate.ui.icon.IconCatalog
 import com.copixelate.ui.util.PreviewSurface
 import kotlin.math.abs
 
@@ -221,7 +220,7 @@ private fun RevertButtonRow(
                     onClick = onRevert
                 ) {
                     Icon(
-                        imageVector = Icons.AutoMirrored.Default.Undo,
+                        imageVector = IconCatalog.undo,
                         contentDescription = "Undo color edit",
                         tint = animatedIconColor,
                     )

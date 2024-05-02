@@ -4,9 +4,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -21,6 +18,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import com.copixelate.ui.icon.IconCatalog
 import com.copixelate.ui.util.InputValidity
 
 @Composable
@@ -105,8 +103,8 @@ fun SecretTextInputField(
         },
         trailingIcon = {
             val image = when (visibility) {
-                Visibility.VISIBLE -> Icons.Filled.VisibilityOff
-                Visibility.HIDDEN -> Icons.Filled.Visibility
+                Visibility.VISIBLE -> IconCatalog.invisible
+                Visibility.HIDDEN -> IconCatalog.visible
             }
             val contentDescription = when (visibility) {
                 Visibility.VISIBLE -> "Hide password"
