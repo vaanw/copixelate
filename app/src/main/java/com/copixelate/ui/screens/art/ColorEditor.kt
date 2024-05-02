@@ -19,7 +19,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.systemGestureExclusion
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Undo
+import androidx.compose.material.icons.automirrored.filled.Undo
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -27,7 +27,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ShapeDefaults
 import androidx.compose.material3.Slider
-import androidx.compose.material3.SliderPositions
+import androidx.compose.material3.SliderState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -221,7 +221,7 @@ private fun RevertButtonRow(
                     onClick = onRevert
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Undo,
+                        imageVector = Icons.AutoMirrored.Default.Undo,
                         contentDescription = "Undo color edit",
                         tint = animatedIconColor,
                     )
@@ -273,7 +273,7 @@ private fun ColorEditorSlider(
             thumb = { ColorEditorSliderThumb() },
             track = { sliderPositions ->
                 ColorEditorSliderTrack(
-                    sliderPositions = sliderPositions
+                    sliderState = sliderPositions
                 )
             }
         )
@@ -322,17 +322,19 @@ private fun ColorEditorSliderThumb() {
 
 } // End ColorEditorSliderThumb
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ColorEditorSliderTrack(
-    sliderPositions: SliderPositions,
+    sliderState: SliderState
 ) {
 
     val activeColor = MaterialTheme.colorScheme.primary
     val inactiveColor = MaterialTheme.colorScheme.surfaceVariant
 
+    val normalValue = sliderState.value / sliderState.valueRange.endInclusive
+
     Canvas(
-        Modifier
-            .fillMaxWidth()
+        Modifier.fillMaxWidth()
     ) {
         val isRtl = layoutDirection == LayoutDirection.Rtl
 
@@ -347,9 +349,7 @@ private fun ColorEditorSliderTrack(
 
         val trackStrokeWidth = TRACK_WIDTH.dp.toPx()
 
-        val thumbCenter = (sliderStart.x
-                + (sliderEnd.x - sliderStart.x)
-                * sliderPositions.activeRange.endInclusive)
+        val thumbCenter = (sliderEnd.x - sliderStart.x) * normalValue + sliderStart.x
         val thumbOffset = (THUMB_SIZE / 2 - THUMB_PADDING).dp.toPx()
 
         val centerLeft = Offset(
