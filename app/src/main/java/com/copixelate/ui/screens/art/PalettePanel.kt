@@ -9,9 +9,6 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Palette
-import androidx.compose.material.icons.outlined.Palette
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.Slider
@@ -30,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import com.copixelate.art.PixelGrid
 import com.copixelate.data.model.PaletteModel
 import com.copixelate.ui.common.BitmapImage
+import com.copixelate.ui.icon.IconCatalog
 
 @Composable
 internal fun PalettePanel(
@@ -107,12 +105,12 @@ internal fun PalettePanel(
             ) {
                 when (expanding.targetState) {
                     false -> Icon(
-                        imageVector = Icons.Outlined.Palette,
+                        imageVector = IconCatalog.paletteAlt,
                         contentDescription = "Open color picker"
                     )
 
                     true -> Icon(
-                        imageVector = Icons.Default.Palette,
+                        imageVector = IconCatalog.palette,
                         contentDescription = "Close color picker"
                     )
                 }

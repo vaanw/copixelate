@@ -14,11 +14,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Draw
-import androidx.compose.material.icons.filled.Save
-import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -46,6 +41,7 @@ import com.copixelate.ui.animation.AnimationCatalog.libraryItemEnter
 import com.copixelate.ui.animation.AnimationCatalog.libraryItemExit
 import com.copixelate.ui.common.AddItemFab
 import com.copixelate.ui.common.BitmapImage
+import com.copixelate.ui.icon.IconCatalog
 import com.copixelate.ui.nav.NavInfo
 import com.copixelate.ui.nav.navigateTopLevel
 import com.copixelate.ui.util.PreviewSurface
@@ -307,7 +303,7 @@ private fun LibraryArtSpaceItem(
                     onClick = { onDelete(spaceModel) }
                 ) {
                     Icon(
-                        imageVector = Icons.Filled.Delete,
+                        imageVector = IconCatalog.delete,
                         contentDescription = "Localized description"
                     )
                 }
@@ -325,7 +321,7 @@ private fun LibraryArtSpaceItem(
                         }
                     ) {
                         Icon(
-                            imageVector = Icons.Filled.Save,
+                            imageVector = IconCatalog.save,
                             contentDescription = "Localized description"
                         )
                     }
@@ -336,7 +332,7 @@ private fun LibraryArtSpaceItem(
                         }
                     ) {
                         Icon(
-                            imageVector = Icons.Filled.Share,
+                            imageVector = IconCatalog.share,
                             contentDescription = "Localized description"
                         )
                     }
@@ -345,7 +341,7 @@ private fun LibraryArtSpaceItem(
                         onClick = { onOpen(spaceModel) }
                     ) {
                         Icon(
-                            imageVector = Icons.Filled.Draw,
+                            imageVector = IconCatalog.draw,
                             contentDescription = "Localized description"
                         )
                     }

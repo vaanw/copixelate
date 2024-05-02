@@ -8,12 +8,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Draw
-import androidx.compose.material.icons.filled.History
-import androidx.compose.material.icons.filled.Palette
-import androidx.compose.material.icons.filled.Redo
-import androidx.compose.material.icons.filled.Undo
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
@@ -26,14 +20,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.copixelate.R
 import com.copixelate.art.HistoryAvailability
-import com.copixelate.ui.animation.AnimationCatalog.toolbarEnter
-import com.copixelate.ui.animation.AnimationCatalog.toolbarExit
+import com.copixelate.ui.animation.AnimationCatalog
+import com.copixelate.ui.icon.IconCatalog
 
 @Composable
 internal fun DrawingToolbar(
@@ -71,8 +62,8 @@ internal fun DrawingToolbar(
                 // Collapsible history icons
                 AnimatedVisibility(
                     visible = expanded,
-                    enter = toolbarEnter,
-                    exit = toolbarExit
+                    enter = AnimationCatalog.toolbarEnter,
+                    exit = AnimationCatalog.toolbarExit
                 ) {
 
                     Row {
@@ -82,13 +73,13 @@ internal fun DrawingToolbar(
                             onClick = { onClickPaletteHistory(false) },
                         ) {
                             Icon(
-                                imageVector = Icons.Default.Undo,
+                                imageVector = IconCatalog.undo,
                                 contentDescription = "Undo palette edit"
                             )
                         }
                         // Palette icon
                         Icon(
-                            imageVector = Icons.Default.Palette,
+                            imageVector = IconCatalog.palette,
                             contentDescription = "Palette history",
                             modifier = Modifier
                                 .align(Alignment.CenterVertically)
@@ -100,7 +91,7 @@ internal fun DrawingToolbar(
                             onClick = { onClickPaletteHistory(true) },
                         ) {
                             Icon(
-                                imageVector = Icons.Default.Redo,
+                                imageVector = IconCatalog.redo,
                                 contentDescription = "Redo palette edit"
                             )
                         }
@@ -111,13 +102,13 @@ internal fun DrawingToolbar(
                             onClick = { onClickDrawingHistory(false) },
                         ) {
                             Icon(
-                                imageVector = Icons.Default.Undo,
+                                imageVector = IconCatalog.undo,
                                 contentDescription = "Undo draw"
                             )
                         }
                         // Drawing icon
                         Icon(
-                            imageVector = Icons.Default.Draw,
+                            imageVector = IconCatalog.draw,
                             contentDescription = "Draw history",
                             modifier = Modifier
                                 .align(Alignment.CenterVertically)
@@ -130,7 +121,7 @@ internal fun DrawingToolbar(
                             onClick = { onClickDrawingHistory(true) },
                         ) {
                             Icon(
-                                imageVector = Icons.Default.Redo,
+                                imageVector = IconCatalog.redo,
                                 contentDescription = "Redo draw"
                             )
                         }
@@ -147,7 +138,7 @@ internal fun DrawingToolbar(
                     },
                 ) {
                     Icon(
-                        imageVector = Icons.Default.History,
+                        imageVector = IconCatalog.history,
                         contentDescription = "Expand/collapse history",
                         modifier = Modifier
                     )
@@ -169,7 +160,7 @@ internal fun DrawingToolbar(
             )
         ) {
             Icon(
-                imageVector = ImageVector.vectorResource(id = R.drawable.drag_pan),
+                imageVector = IconCatalog.dragPan(),
                 contentDescription = "Enable pan and zoom"
             )
         } // End IconToggleButton
