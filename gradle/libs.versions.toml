@@ -1,14 +1,14 @@
 [versions]
 
 # Project-level versions
-androidGradlePlugin = "8.3.1"
-kotlin = "1.9.10"
-kotlinSymbolProcessing = "1.9.10-1.0.13"
+androidGradlePlugin = "8.3.2"
+kotlin = "1.9.23"
+kotlinSymbolProcessing = "1.9.23-1.0.20"
 
 # App module versions
-kotlinComposeCompiler = "1.5.3" # Used for composeOptions in app build.gradle.kts
-lifecycle = "2.6.2"
-room = "2.6.0"
+kotlinComposeCompiler = "1.5.12" # Used for composeOptions in app build.gradle.kts
+lifecycle = "2.7.0"
+room = "2.6.1"
 
 
 [plugins]
@@ -18,17 +18,17 @@ android-application = { id = "com.android.application", version.ref = "androidGr
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 # App module plugins
-kotlin-serialization = "org.jetbrains.kotlin.plugin.serialization:1.9.10"
+kotlin-serialization = "org.jetbrains.kotlin.plugin.serialization:1.9.23"
 devtools-ksp = { id = "com.google.devtools.ksp", version.ref = "kotlinSymbolProcessing" }
 protobuf = "com.google.protobuf:0.9.4"
 # Shared plugins
-google-services = "com.google.gms.google-services:4.4.0"
+google-services = "com.google.gms.google-services:4.4.1"
 
 
 [libraries]
 
 # Kotlin
-androidx-core-ktx = "androidx.core:core-ktx:1.12.0"
+androidx-core-ktx = "androidx.core:core-ktx:1.13.0"
 kotlinx-serialization = "org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0"
 ksp-api = { module = "com.google.devtools.ksp:symbol-processing-api", version.ref = "kotlinSymbolProcessing" }
 protobuf-protoc = "com.google.protobuf:protoc:3.24.4" # Used for protobuf generation in app build.gradle.kts
@@ -38,10 +38,10 @@ androidx-lifecycle-viewmodel-ktx = { module = "androidx.lifecycle:lifecycle-view
 androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycle" }
 
 # Compose
-androidx-activity-compose = "androidx.activity:activity-compose:1.8.0"
-androidx-navigation-compose = "androidx.navigation:navigation-compose:2.7.4"
+androidx-activity-compose = "androidx.activity:activity-compose:1.9.0"
+androidx-navigation-compose = "androidx.navigation:navigation-compose:2.7.7"
 # Bill of Materials, https://developer.android.com/jetpack/compose/bom
-androidx-compose-bom = "androidx.compose:compose-bom:2023.10.01"
+androidx-compose-bom = "androidx.compose:compose-bom:2024.04.01"
 androidx-compose-ui = { group = "androidx.compose.ui", name = "ui" }
 androidx-compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
 androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3" }
@@ -51,8 +51,8 @@ androidx-compose-materialIcons = { group = "androidx.compose.material", name = "
 androidx-core-splashscreen = "androidx.core:core-splashscreen:1.0.1"
 
 # Proto DataStore
-androidx-datastore = "androidx.datastore:datastore:1.0.0"
-protobuf-javalite = "com.google.protobuf:protobuf-javalite:3.24.4"
+androidx-datastore = "androidx.datastore:datastore:1.1.0"
+protobuf-javalite = "com.google.protobuf:protobuf-javalite:3.25.3"
 
 # Room
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
@@ -61,11 +61,11 @@ androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
 androidx-room-paging = { module = "androidx.room:room-paging", version.ref = "room" }
 
 # Google Play Services
-android-gms-playServicesAuth = "com.google.android.gms:play-services-auth:20.7.0"
+android-gms-playServicesAuth = "com.google.android.gms:play-services-auth:21.1.0"
 
 #// Firebase
 #// Bill of Materials, https://firebase.google.com/support/release-notes/android
-firebase-bom = "com.google.firebase:firebase-bom:32.4.1"
+firebase-bom = "com.google.firebase:firebase-bom:32.8.1"
 firebase-auth-ktx = { group = "com.google.firebase", name = "firebase-auth-ktx" }
 firebase-database-ktx = { group = "com.google.firebase", name = "firebase-database-ktx" }
 
