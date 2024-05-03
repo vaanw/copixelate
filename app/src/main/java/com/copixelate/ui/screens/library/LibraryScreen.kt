@@ -180,7 +180,7 @@ private fun LibraryScreenContent(
                         onDelete(spaceModel)
                     },
                     onOpen = onOpen,
-                    onExport = { model, fileName ->
+                    onExport = { model ->
                         spaceModelToExport = model
                         showExportDialog = true
                     },
@@ -271,7 +271,7 @@ private fun LibraryArtSpaceItem(
     spaceModel: SpaceModel,
     onDelete: (SpaceModel) -> Unit,
     onOpen: (SpaceModel) -> Unit,
-    onExport: (SpaceModel, String) -> Unit,
+    onExport: (SpaceModel) -> Unit,
     onShare: (SpaceModel) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -317,7 +317,7 @@ private fun LibraryArtSpaceItem(
                     // Export icon button
                     IconButton(
                         onClick = {
-                            onExport(spaceModel, "copixelate-tmp-export.png")
+                            onExport(spaceModel)
                         }
                     ) {
                         Icon(
