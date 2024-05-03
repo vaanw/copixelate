@@ -1,8 +1,11 @@
 package com.copixelate.data.firebase
 
-import com.google.firebase.database.*
+import com.google.firebase.database.ChildEventListener
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
-import com.google.firebase.database.ktx.getValue
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.awaitClose
@@ -84,8 +87,11 @@ object FirebaseAdapter {
                     // send update as Pair<String, T>
                     snapshot.apply {
                         key?.let { key ->
-                            getValue<T>()?.let { value ->
-                                trySend(Pair(key, value))
+                            // getValue<T>()?.let { value ->
+                            //   trySend(Pair(key, value))
+                            // }
+                            value?.let { value ->
+                                trySend(Pair(key, value as T))
                             }
                         }
                     }
@@ -111,8 +117,10 @@ object FirebaseAdapter {
             val listener = object : ValueEventListener {
 
                 override fun onDataChange(dataSnapshot: DataSnapshot) {
-                    dataSnapshot.getValue<T>()?.let { value ->
-                        continuation.resume(value)
+                    // dataSnapshot.getValue<T>()?.let { value ->
+                    //  continuation.resume(value)
+                    dataSnapshot.value?.let { value ->
+                        continuation.resume(value as T)
                     } ?: continuation.cancel(NullPointerException())
                 }
 

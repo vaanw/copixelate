@@ -7,8 +7,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AlertDialogDefaults
+import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -18,7 +18,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -36,11 +36,11 @@ fun CreateItemDialog(
     onCancel: () -> Unit
 ) {
 
-    var width by rememberSaveable { mutableStateOf(32) }
-    var height by remember { mutableStateOf(32) }
-    var paletteSize by remember { mutableStateOf(6) }
+    var width by rememberSaveable { mutableIntStateOf(32) }
+    var height by remember { mutableIntStateOf(32) }
+    var paletteSize by remember { mutableIntStateOf(6) }
 
-    AlertDialog(onDismissRequest = onCancel) {
+    BasicAlertDialog(onDismissRequest = onCancel) {
 
         Surface(
             shape = MaterialTheme.shapes.large,
@@ -123,10 +123,6 @@ fun CreateItemDialog(
     } // End AlertDialog
 
 } // End AddItemDialog
-
-
-
-
 
 
 @Preview
