@@ -20,14 +20,14 @@ import com.copixelate.ui.screens.library.LibraryScreen
 import com.copixelate.viewmodel.ActivityViewModel
 import com.copixelate.viewmodel.ArtViewModel
 import com.copixelate.viewmodel.LibraryViewModel
-import com.copixelate.viewmodel.NavViewModel
 import com.copixelate.viewmodel.SettingsViewModel
+import com.copixelate.viewmodel.UserViewModel
 
 @Composable
 fun SetupMainNavGraph(
     navController: NavHostController,
     activityViewModel: ActivityViewModel,
-    navViewModel: NavViewModel,
+    userViewModel: UserViewModel,
     settingsViewModel: SettingsViewModel,
     artViewModel: ArtViewModel = viewModel(),
     libraryViewModel: LibraryViewModel = viewModel(),
@@ -55,7 +55,7 @@ fun SetupMainNavGraph(
         }
 
         composable(route = NavInfo.Login.route) {
-            AuthScreen(navController, navViewModel)
+            AuthScreen(navController, userViewModel)
         }
 
         navigation(
@@ -70,11 +70,10 @@ fun SetupMainNavGraph(
             }
         }
 
-
         composable(route = NavInfo.Settings.route) {
             SettingsScreen(
                 settingsViewModel = settingsViewModel,
-                navViewModel = navViewModel
+                userViewModel = userViewModel
             )
         }
 

@@ -61,7 +61,7 @@ fun ValidatedTextInputField(
             Text(
                 text = stringResource(validity.stringId),
                 color = MaterialTheme.colorScheme.error,
-                style = MaterialTheme.typography.labelSmall,
+                style = MaterialTheme.typography.labelMedium,
                 modifier = Modifier.padding(start = 8.dp, bottom = 0.dp)
             )
         }
