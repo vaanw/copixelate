@@ -1,8 +1,13 @@
 package com.copixelate.ui.screens
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
@@ -16,16 +21,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.copixelate.ThemeSetting
-import com.copixelate.data.Auth
+import com.copixelate.data.model.AuthStatus
+import com.copixelate.ui.animation.AnimationCatalog
 import com.copixelate.ui.util.PreviewSurface
 import com.copixelate.ui.util.ScreenSurface
-import com.copixelate.viewmodel.NavViewModel
 import com.copixelate.viewmodel.SettingsViewModel
+import com.copixelate.viewmodel.UserViewModel
 
 @Composable
 fun SettingsScreen(
     settingsViewModel: SettingsViewModel,
-    navViewModel: NavViewModel
+    userViewModel: UserViewModel
 ) {
 
     val themeSetting = settingsViewModel
@@ -33,16 +39,18 @@ fun SettingsScreen(
         .collectAsState()
         .value
 
+    val user = userViewModel.user.collectAsState().value
+
     ScreenSurface {
         SettingsScreenContent(
             themeSetting = themeSetting,
             onSelectTheme = { newTheme ->
                 settingsViewModel.saveThemeSetting(newTheme)
             },
-            displayName = Auth.displayName,
+            displayName = user.displayName,
+            signedIn = user.authStatus is AuthStatus.SignedIn,
             onClickLogout = {
-                Auth.signOut()
-                navViewModel.setSignedOut()
+                userViewModel.signOut()
             }
         )
     }
@@ -54,6 +62,7 @@ fun SettingsScreenContent(
     themeSetting: ThemeSetting,
     onSelectTheme: (ThemeSetting) -> Unit,
     displayName: String,
+    signedIn: Boolean,
     onClickLogout: () -> Unit
 ) {
 
@@ -68,20 +77,42 @@ fun SettingsScreenContent(
             style = MaterialTheme.typography.displaySmall,
         )
 
-        Text(text = "Display Name: $displayName")
-
-        Button(
-            onClick = onClickLogout,
-        ) {
-            Text(text = "Logout")
-        }
+        // Appearance Section
+        Text(
+            text = "Appearance",
+            style = MaterialTheme.typography.headlineSmall
+        )
 
         ThemePicker(
             themeSetting = themeSetting,
             onSelectTheme = onSelectTheme
         )
 
-    }
+        // Account Section
+        AnimatedVisibility(
+            visible = signedIn,
+            enter = AnimationCatalog.settingsSectionEnter,
+            exit = AnimationCatalog.settingsSectionExit
+        ) {
+
+            Column(verticalArrangement = Arrangement.spacedBy(24.dp)) {
+                Text(
+                    text = "Account",
+                    style = MaterialTheme.typography.headlineSmall
+                )
+
+                Text(text = "Display Name: $displayName")
+
+                Button(
+                    onClick = onClickLogout,
+                ) {
+                    Text(text = "Logout")
+                }
+            }
+
+        }
+
+    } // End Column
 
 }
 
@@ -164,6 +195,7 @@ fun SettingsScreenPreview() {
                 themeSetting = themeSetting,
                 onSelectTheme = {},
                 displayName = "Preview-Name",
+                signedIn = true,
                 onClickLogout = {}
             )
         }

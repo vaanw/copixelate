@@ -3,7 +3,7 @@ package com.copixelate.data.repo
 import android.graphics.Bitmap
 import android.net.Uri
 import com.copixelate.data.bitmap.createScaledBitmap
-import com.copixelate.data.firebase.FirebaseAdapter
+import com.copixelate.data.firebase.FirebaseDatabaseAdapter
 import com.copixelate.data.model.SpaceModel
 import com.copixelate.data.model.toEntityWithArt
 import com.copixelate.data.model.toModel
@@ -17,7 +17,7 @@ import kotlinx.coroutines.flow.map
 object ArtRepo {
 
     private val room = RoomAdapter
-    private val firebase = FirebaseAdapter
+    private val firebase = FirebaseDatabaseAdapter
     private val storage = StorageAdapter
 
     suspend fun saveSpace(spaceModel: SpaceModel): Long =

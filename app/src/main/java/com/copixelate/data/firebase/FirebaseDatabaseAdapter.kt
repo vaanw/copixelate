@@ -17,7 +17,7 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.tasks.await
 import kotlin.coroutines.resume
 
-object FirebaseAdapter {
+object FirebaseDatabaseAdapter {
 
     private val root = Firebase.database.reference
 

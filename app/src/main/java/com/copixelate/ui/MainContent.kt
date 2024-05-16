@@ -26,27 +26,29 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.copixelate.FeatureFlags
 import com.copixelate.ThemeSetting
+import com.copixelate.data.model.AuthStatus
 import com.copixelate.ui.nav.NavInfo
 import com.copixelate.ui.nav.compareTopLevelRoute
 import com.copixelate.ui.nav.navigateTopLevel
 import com.copixelate.ui.theme.CopixelateTheme
 import com.copixelate.ui.util.PreviewSurface
 import com.copixelate.viewmodel.ActivityViewModel
-import com.copixelate.viewmodel.NavViewModel
 import com.copixelate.viewmodel.SettingsViewModel
+import com.copixelate.viewmodel.UserViewModel
 
 @Composable
 fun MainContent(
     navController: NavHostController,
     activityViewModel: ActivityViewModel,
+    userViewModel: UserViewModel = viewModel(),
     settingsViewModel: SettingsViewModel = viewModel()
 ) {
 
     val isCoopAvailable = FeatureFlags.IS_COOP_AVAILABLE
 
-    val navViewModel: NavViewModel = viewModel()
-
     val navBackStackEntry by navController.currentBackStackEntryAsState()
+
+    val isSignedIn = userViewModel.user.collectAsState().value.authStatus is AuthStatus.SignedIn
 
     val themeSetting = settingsViewModel.themeSetting.collectAsState().value
 
@@ -57,7 +59,7 @@ fun MainContent(
 
                 MainNavBar(
                     isCoopAvailable = isCoopAvailable,
-                    isSignedIn = navViewModel.isSignedIn.collectAsState().value,
+                    isSignedIn = isSignedIn,
                     isSelected = { navInfo ->
                         navBackStackEntry.compareTopLevelRoute(navInfo = navInfo)
                     },
@@ -73,7 +75,7 @@ fun MainContent(
                 SetupMainNavGraph(
                     navController = navController,
                     activityViewModel = activityViewModel,
-                    navViewModel = navViewModel,
+                    userViewModel = userViewModel,
                     settingsViewModel = settingsViewModel,
                 )
 

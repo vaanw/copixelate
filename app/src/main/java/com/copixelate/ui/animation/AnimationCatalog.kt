@@ -21,4 +21,8 @@ object AnimationCatalog {
     // Drawing Screen
     val toolbarEnter = expandHorizontally(expandFrom = Alignment.End) + fadeIn()
     val toolbarExit = shrinkHorizontally(shrinkTowards = Alignment.End) + fadeOut()
+
+    // Settings Screen
+    val settingsSectionEnter = fadeIn()
+    val settingsSectionExit = fadeOut()
 }
