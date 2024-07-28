@@ -1,7 +1,7 @@
 package com.copixelate.data.model
 
 sealed class AuthStatus {
-    data object SignedIn : AuthStatus()
+    data class SignedIn(val uid: String) : AuthStatus()
     data object SignedOut : AuthStatus()
     data object Pending : AuthStatus()
     data class Failed(val errorMessage: String) : AuthStatus()
@@ -9,7 +9,7 @@ sealed class AuthStatus {
 
 const val DEFAULT_DISPLAY_NAME = "Noname"
 
-data class UserModel(
+data class AuthModel(
     val authStatus: AuthStatus = AuthStatus.SignedOut,
-    val displayName: String = DEFAULT_DISPLAY_NAME
+    val displayName: String = DEFAULT_DISPLAY_NAME,
 )

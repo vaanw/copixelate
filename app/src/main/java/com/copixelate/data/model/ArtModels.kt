@@ -9,15 +9,6 @@ import com.copixelate.data.room.PaletteEntity
 import com.copixelate.data.room.SpaceEntity
 import com.copixelate.data.room.SpaceEntityWithArt
 
-data class IdModel(
-    val localId: Long = 0,
-    val remoteId: String? = null,
-) : Comparable<IdModel> {
-    override fun compareTo(other: IdModel): Int {
-        return localId.compareTo(other.localId)
-    }
-}
-
 data class SpaceModel(
     val id: IdModel = IdModel(),
     val palette: PaletteModel = PaletteModel(),
@@ -110,13 +101,12 @@ private fun Point.toSizeModel() = SizeModel(x = x, y = y)
 //
 
 // Primitive Types
-private fun Long.toIDModel() = IdModel(localId = this)
 private fun List<Int>.toSizeModel() = SizeModel(x = this[0], y = this[1])
 private fun SizeModel.toIntList() = listOf(x, y)
 
 // SpaceEntity
 fun SpaceEntityWithArt.toModel(): SpaceModel = SpaceModel(
-    id = this.space.id.toIDModel(),
+    id = IdModel(space.id, space.remoteKey),
     drawing = drawing.toModel(),
     palette = palette.toModel(),
 )
@@ -131,12 +121,12 @@ private fun SpaceModel.toEntity() = SpaceEntity(
     id = id.localId,
     drawingId = drawing.id.localId,
     paletteId = palette.id.localId,
-    remoteKey = id.remoteId
+    remoteKey = id.remoteKey
 )
 
 // DrawingEntity
 private fun DrawingEntity.toModel() = DrawingModel(
-    id = IdModel(localId = id),
+    id = IdModel(id, remoteKey),
     size = size.toSizeModel(),
     pixels = pixels
 )
@@ -145,17 +135,17 @@ private fun DrawingModel.toEntity() = DrawingEntity(
     id = id.localId,
     pixels = pixels,
     size = this.size.toIntList(),
-    remoteKey = id.remoteId
+    remoteKey = id.remoteKey
 )
 
 // PaletteEntity
 private fun PaletteEntity.toModel() = PaletteModel(
-    id = IdModel(localId = id),
+    id = IdModel(id, remoteKey),
     pixels = pixels
 )
 
 private fun PaletteModel.toEntity() = PaletteEntity(
     id = id.localId,
     pixels = pixels,
-    remoteKey = id.remoteId
+    remoteKey = id.remoteKey
 )

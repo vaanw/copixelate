@@ -10,43 +10,37 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
 
-sealed interface AuthResult<out T> {
-    data class Success<T>(val value: T) : AuthResult<T>
-    data class Failure(val exception: Exception) : AuthResult<Nothing>
-    data object Pending : AuthResult<Nothing>
-}
-
 object FirebaseAuthAdapter {
 
     private val auth: FirebaseAuth = Firebase.auth
 
     init {
         auth.addAuthStateListener { authState ->
-            handleAuthSuccess(authState.currentUser)
+            reportAuthSuccess(authState.currentUser)
         }
     }
 
-    private val _firebaseUserSharedFlow: MutableSharedFlow<AuthResult<FirebaseUser?>> =
+    private val _firebaseUserSharedFlow: MutableSharedFlow<FirebaseStatus<FirebaseUser?>> =
         MutableSharedFlow(extraBufferCapacity = 1)
 
     val firebaseUserSharedFlow = _firebaseUserSharedFlow.asSharedFlow()
 
-    private fun handleAuthSuccess(firebaseUser: FirebaseUser?) =
-        _firebaseUserSharedFlow.tryEmit(AuthResult.Success(firebaseUser))
+    private fun reportAuthSuccess(firebaseUser: FirebaseUser?) =
+        _firebaseUserSharedFlow.tryEmit(FirebaseStatus.Success(firebaseUser))
 
-    private fun handleAuthFailure(e: Exception) =
-        _firebaseUserSharedFlow.tryEmit(AuthResult.Failure(e))
+    private fun reportAuthFailure(e: Exception) =
+        _firebaseUserSharedFlow.tryEmit(FirebaseStatus.Failure(e))
 
-    private fun setAuthPending() =
-        _firebaseUserSharedFlow.tryEmit(AuthResult.Pending)
+    private fun reportAuthPending() =
+        _firebaseUserSharedFlow.tryEmit(FirebaseStatus.Pending)
 
     suspend fun signIn(email: String, password: String): Unit =
         suspendCancellableCoroutine { continuation ->
-            setAuthPending()
+            reportAuthPending()
             auth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener { task ->
                     task.exception?.run {
-                        handleAuthFailure(this)
+                        reportAuthFailure(this)
                     }
                     continuation.resume(Unit)
                 }
@@ -56,11 +50,11 @@ object FirebaseAuthAdapter {
 
     suspend fun createAccount(email: String, password: String): Unit =
         suspendCancellableCoroutine { continuation ->
-            setAuthPending()
+            reportAuthPending()
             auth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener { task ->
                     task.exception?.run {
-                        handleAuthFailure(this)
+                        reportAuthFailure(this)
                     }
                     continuation.resume(Unit)
                 }
@@ -77,7 +71,7 @@ object FirebaseAuthAdapter {
 
                 firebaseUser.updateProfile(profileUpdates)
                     .addOnCompleteListener { task ->
-                        if (task.isSuccessful) handleAuthSuccess(firebaseUser)
+                        if (task.isSuccessful) reportAuthSuccess(firebaseUser)
                         continuation.resume(Unit)
                     }
             }
