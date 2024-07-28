@@ -39,7 +39,7 @@ fun SettingsScreen(
         .collectAsState()
         .value
 
-    val user = userViewModel.user.collectAsState().value
+    val auth = userViewModel.auth.collectAsState().value
 
     ScreenSurface {
         SettingsScreenContent(
@@ -47,8 +47,8 @@ fun SettingsScreen(
             onSelectTheme = { newTheme ->
                 settingsViewModel.saveThemeSetting(newTheme)
             },
-            displayName = user.displayName,
-            signedIn = user.authStatus is AuthStatus.SignedIn,
+            displayName = auth.displayName,
+            signedIn = auth.authStatus is AuthStatus.SignedIn,
             onClickLogout = {
                 userViewModel.signOut()
             }

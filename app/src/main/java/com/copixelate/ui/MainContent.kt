@@ -48,7 +48,7 @@ fun MainContent(
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
 
-    val isSignedIn = userViewModel.user.collectAsState().value.authStatus is AuthStatus.SignedIn
+    val isSignedIn = userViewModel.auth.collectAsState().value.authStatus is AuthStatus.SignedIn
 
     val themeSetting = settingsViewModel.themeSetting.collectAsState().value
 

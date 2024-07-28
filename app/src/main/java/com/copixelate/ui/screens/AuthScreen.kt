@@ -44,7 +44,7 @@ import com.copixelate.viewmodel.UserViewModel
 @Composable
 fun AuthScreen(navController: NavController, userViewModel: UserViewModel) {
 
-    val authStatus = userViewModel.user.collectAsState().value.authStatus
+    val authStatus = userViewModel.auth.collectAsState().value.authStatus
 
     if (authStatus is AuthStatus.SignedIn && navController.compareRoute(navInfo = NavInfo.Login))
         navController.navigateTopLevel(navInfo = NavInfo.Contacts)

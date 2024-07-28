@@ -80,9 +80,10 @@ dependencies {
     implementation(libs.kotlinx.serialization)
     implementation(libs.ksp.api)
 
-    // ViewModel
+    // Lifecycle
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.androidx.lifecycle.process)
 
     // Compose
     implementation(libs.androidx.activity.compose)

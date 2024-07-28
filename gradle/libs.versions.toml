@@ -33,9 +33,10 @@ kotlinx-serialization = "org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0"
 ksp-api = { module = "com.google.devtools.ksp:symbol-processing-api", version.ref = "kotlinSymbolProcessing" }
 protobuf-protoc = "com.google.protobuf:protoc:3.24.4" # Used for protobuf generation in app build.gradle.kts
 
-# ViewModel
+# Lifecycle
 androidx-lifecycle-viewmodel-ktx = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "lifecycle" }
 androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycle" }
+androidx-lifecycle-process = { module = "androidx.lifecycle:lifecycle-process", version.ref = "lifecycle" }
 
 # Compose
 androidx-activity-compose = "androidx.activity:activity-compose:1.9.0"

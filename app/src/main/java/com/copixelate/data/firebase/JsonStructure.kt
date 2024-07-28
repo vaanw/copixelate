@@ -4,6 +4,21 @@ import com.google.firebase.database.IgnoreExtraProperties
 import com.google.firebase.database.PropertyName
 
 @IgnoreExtraProperties
+data class UserJson(
+    @PropertyName("contact_code")
+    val contactCode: Int? = null,
+)
+
+@IgnoreExtraProperties
+data class InvitationJson(
+//    @PropertyName("inviter_uid")
+    @get:PropertyName("inviter_uid")
+    val inviterUid: String? = null,
+    @PropertyName("type")
+    val type: String? = null
+)
+
+@IgnoreExtraProperties
 data class SizeJson(
     @PropertyName("x")
     val x: Int? = null,

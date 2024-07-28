@@ -1,65 +1,70 @@
 package com.copixelate.data.repo
 
-import com.copixelate.data.firebase.AuthResult
-import com.copixelate.data.firebase.FirebaseAuthAdapter
-import com.copixelate.data.firebase.FirebaseAuthAdapter.firebaseUserSharedFlow
-import com.copixelate.data.model.AuthStatus
-import com.copixelate.data.model.DEFAULT_DISPLAY_NAME
+import androidx.lifecycle.ProcessLifecycleOwner
+import androidx.lifecycle.lifecycleScope
+import com.copixelate.data.firebase.FirebaseDatabaseAdapter
+import com.copixelate.data.firebase.FirebaseResult.Failure
 import com.copixelate.data.model.UserModel
-import com.google.firebase.auth.FirebaseUser
+import com.copixelate.data.model.toEntity
+import com.copixelate.data.model.toModel
+import com.copixelate.data.room.RoomAdapter
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
+import kotlin.random.Random
 
 object UserRepo {
 
-    private val auth = FirebaseAuthAdapter
+    private val firebaseDatabase = FirebaseDatabaseAdapter
+    private val room = RoomAdapter
 
-    fun userModelFlow(): Flow<UserModel> =
-        firebaseUserSharedFlow.map { authResult ->
-            authResult.toModel()
+    private val lifecycleScope = ProcessLifecycleOwner.get().lifecycleScope
+
+    private val userModelFlow: Flow<UserModel> =
+        room.userFlow().map { entity ->
+            entity.toModel()
         }
 
-    suspend fun signIn(email: String, password: String) =
-        auth.signIn(email, password)
+    private val userModelStateFlow: StateFlow<UserModel> =
+        userModelFlow
+            .stateIn(
+                scope = lifecycleScope,
+                started = WhileSubscribed(),
+                initialValue = UserModel(),
+            )
 
-    fun signOut() = auth.signOut()
+    private suspend fun saveUser(userModel: UserModel) =
+        room.saveUser(userModel.toEntity())
 
-    suspend fun signUp(email: String, password: String, displayName: String) {
-        auth.createAccount(email, password)
-        auth.updateDisplayName(displayName)
+    suspend fun generateContactCode() = AuthRepo.doIfSignedIn { uid ->
+        generateContactCode(uid)
     }
 
-} // End UserRepo
+    private suspend fun generateContactCode(uid: String) {
 
-private fun AuthResult<FirebaseUser?>.toModel(): UserModel =
-    when (this) {
-        is AuthResult.Success -> toModel()
-        is AuthResult.Pending -> toModel()
-        is AuthResult.Failure -> toModel()
+        val codeFormat = "%012d"
+        var newCode: String
+
+        do {
+            val rand12 = Random.nextLong(from = 0, until = 9999_9999_9999)
+            newCode = codeFormat.format(rand12.toString())
+            val result = firebaseDatabase.getContactCodeUid(newCode)
+
+            if (result is Failure) {
+                if (result.exception is NullPointerException) break
+                else return
+            }
+        } while (true)
+
+        firebaseDatabase.setContactCode(uid, newCode).run {
+            if (success) {
+                // Save to local database
+                val newUserModel = userModelStateFlow.value.copy(contactCode = newCode)
+                saveUser(newUserModel)
+            }
+        }
     }
 
-private fun AuthResult.Success<FirebaseUser?>.toModel(): UserModel =
-    value?.toModel() ?: UserModel()
-
-private fun AuthResult.Pending.toModel(): UserModel =
-    UserModel(authStatus = AuthStatus.Pending)
-
-private fun AuthResult.Failure.toModel(): UserModel =
-    UserModel(
-        authStatus =
-        AuthStatus.Failed(
-            errorMessage = exception.message ?: "No message provided by exception"
-        )
-    )
-
-val FirebaseUser.isAuthenticated: Boolean
-    get() = !isAnonymous
-
-private fun FirebaseUser.toModel(): UserModel =
-    UserModel(
-        authStatus = when (isAuthenticated) {
-            false -> AuthStatus.SignedOut
-            true -> AuthStatus.SignedIn
-        },
-        displayName = displayName ?: DEFAULT_DISPLAY_NAME
-    )
+}
