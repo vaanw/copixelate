@@ -7,7 +7,7 @@ kotlinSymbolProcessing = "1.9.23-1.0.20"
 
 # App module versions
 kotlinComposeCompiler = "1.5.12" # Used for composeOptions in app build.gradle.kts
-lifecycle = "2.7.0"
+lifecycle = "2.8.4"
 room = "2.6.1"
 
 
@@ -22,13 +22,13 @@ kotlin-serialization = "org.jetbrains.kotlin.plugin.serialization:1.9.23"
 devtools-ksp = { id = "com.google.devtools.ksp", version.ref = "kotlinSymbolProcessing" }
 protobuf = "com.google.protobuf:0.9.4"
 # Shared plugins
-google-services = "com.google.gms.google-services:4.4.1"
+google-services = "com.google.gms.google-services:4.4.2"
 
 
 [libraries]
 
 # Kotlin
-androidx-core-ktx = "androidx.core:core-ktx:1.13.0"
+androidx-core-ktx = "androidx.core:core-ktx:1.13.1"
 kotlinx-serialization = "org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0"
 ksp-api = { module = "com.google.devtools.ksp:symbol-processing-api", version.ref = "kotlinSymbolProcessing" }
 protobuf-protoc = "com.google.protobuf:protoc:3.24.4" # Used for protobuf generation in app build.gradle.kts
@@ -39,10 +39,10 @@ androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-
 androidx-lifecycle-process = { module = "androidx.lifecycle:lifecycle-process", version.ref = "lifecycle" }
 
 # Compose
-androidx-activity-compose = "androidx.activity:activity-compose:1.9.0"
+androidx-activity-compose = "androidx.activity:activity-compose:1.9.1"
 androidx-navigation-compose = "androidx.navigation:navigation-compose:2.7.7"
 # Bill of Materials, https://developer.android.com/jetpack/compose/bom
-androidx-compose-bom = "androidx.compose:compose-bom:2024.04.01"
+androidx-compose-bom = "androidx.compose:compose-bom:2024.06.00"
 androidx-compose-ui = { group = "androidx.compose.ui", name = "ui" }
 androidx-compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
 androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3" }
@@ -52,7 +52,7 @@ androidx-compose-materialIcons = { group = "androidx.compose.material", name = "
 androidx-core-splashscreen = "androidx.core:core-splashscreen:1.0.1"
 
 # Proto DataStore
-androidx-datastore = "androidx.datastore:datastore:1.1.0"
+androidx-datastore = "androidx.datastore:datastore:1.1.1"
 protobuf-javalite = "com.google.protobuf:protobuf-javalite:3.25.3"
 
 # Room
@@ -62,18 +62,18 @@ androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
 androidx-room-paging = { module = "androidx.room:room-paging", version.ref = "room" }
 
 # Google Play Services
-android-gms-playServicesAuth = "com.google.android.gms:play-services-auth:21.1.0"
+android-gms-playServicesAuth = "com.google.android.gms:play-services-auth:21.2.0"
 
 #// Firebase
 #// Bill of Materials, https://firebase.google.com/support/release-notes/android
-firebase-bom = "com.google.firebase:firebase-bom:32.8.1"
+firebase-bom = "com.google.firebase:firebase-bom:33.1.2"
 firebase-auth-ktx = { group = "com.google.firebase", name = "firebase-auth-ktx" }
 firebase-database-ktx = { group = "com.google.firebase", name = "firebase-database-ktx" }
 
 # App Module Testing
 junit = "junit:junit:4.13.2"
-androidx-junit = "androidx.test.ext:junit:1.1.5"
-androidx-espresso-core = "androidx.test.espresso:espresso-core:3.5.1"
+androidx-junit = "androidx.test.ext:junit:1.2.1"
+androidx-espresso-core = "androidx.test.espresso:espresso-core:3.6.1"
 # Compose Testing
 androidx-compose-ui-uiTestJunit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidx-compose-ui-uiTooling = { group = "androidx.compose.ui", name = "ui-tooling" }
