@@ -2,11 +2,10 @@
 
 # Project-level versions
 androidGradlePlugin = "8.5.1"
-kotlin = "1.9.23"
-kotlinSymbolProcessing = "1.9.23-1.0.20"
+kotlin = "2.0.0"
+kotlinSymbolProcessing = "2.0.0-1.0.24"
 
 # App module versions
-kotlinComposeCompiler = "1.5.12" # Used for composeOptions in app build.gradle.kts
 lifecycle = "2.8.4"
 room = "2.6.1"
 
@@ -21,6 +20,7 @@ kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-serialization = "org.jetbrains.kotlin.plugin.serialization:1.9.23"
 devtools-ksp = { id = "com.google.devtools.ksp", version.ref = "kotlinSymbolProcessing" }
 protobuf = "com.google.protobuf:0.9.4"
+compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 # Shared plugins
 google-services = "com.google.gms.google-services:4.4.2"
 
@@ -29,7 +29,7 @@ google-services = "com.google.gms.google-services:4.4.2"
 
 # Kotlin
 androidx-core-ktx = "androidx.core:core-ktx:1.13.1"
-kotlinx-serialization = "org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0"
+kotlinx-serialization = "org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3"
 ksp-api = { module = "com.google.devtools.ksp:symbol-processing-api", version.ref = "kotlinSymbolProcessing" }
 protobuf-protoc = "com.google.protobuf:protoc:3.24.4" # Used for protobuf generation in app build.gradle.kts
 
