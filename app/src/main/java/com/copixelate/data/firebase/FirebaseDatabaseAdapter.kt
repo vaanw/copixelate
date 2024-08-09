@@ -24,7 +24,7 @@ object FirebaseDatabaseAdapter {
 
     private enum class Paths(val pathString: String) {
         Users("users"),
-        ContactCodes("contact_codes"),
+        FriendCodes("friend_codes"),
         Invitations("invitations"),
         Spaces("spaces"),
         Drawings("drawings"),
@@ -32,28 +32,28 @@ object FirebaseDatabaseAdapter {
         Sizes("sizes")
     }
 
-    internal suspend fun getContactCode(
+    internal suspend fun getFriendCode(
         uid: String
     ): FirebaseResult<String> =
-        root.child(Paths.ContactCodes.pathString)
+        root.child(Paths.FriendCodes.pathString)
             .child(uid)
             .requestValue()
 
-    internal suspend fun getContactCodeUid(
-        contactCode: String
+    internal suspend fun getFriendCodeUid(
+        friendCode: String
     ): FirebaseResult<String> =
-        root.child(Paths.ContactCodes.pathString)
+        root.child(Paths.FriendCodes.pathString)
             .orderByValue()
-            .equalTo(contactCode)
+            .equalTo(friendCode)
             .requestValue()
 
-    internal suspend fun setContactCode(
+    internal suspend fun setFriendCode(
         uid: String,
-        contactCode: String
+        friendCode: String
     ): FirebaseResult<Unit> =
-        root.child(Paths.ContactCodes.pathString)
+        root.child(Paths.FriendCodes.pathString)
             .child(uid)
-            .submitValue(contactCode)
+            .submitValue(friendCode)
 
     internal suspend fun pushInvitationJson(
         inviteeUid: String,

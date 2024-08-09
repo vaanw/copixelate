@@ -29,8 +29,8 @@ object RoomAdapter {
     fun userFlow(): Flow<UserEntity> = db.userDao().userFlow()
     suspend fun saveUser(entity: UserEntity) = db.userDao().replaceUser(entity)
 
-    fun userContactsFlow(userId: Long): Flow<List<ContactEntity>> = db.userDao().userContactsFlow(userId)
-    suspend fun saveContact(contact: ContactEntity): Long = db.userDao().insertContact(contact)
-    suspend fun loseContact(contact: ContactEntity): Unit = db.userDao().deleteContact(contact)
+    fun userFriendFlow(userId: Long): Flow<List<FriendEntity>> = db.userDao().userFriendFlow(userId)
+    suspend fun saveFriend(contact: FriendEntity): Long = db.userDao().insertFriend(contact)
+    suspend fun loseFriend(contact: FriendEntity): Unit = db.userDao().deleteContact(contact)
 
 }

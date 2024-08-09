@@ -38,11 +38,11 @@ object UserRepo {
     private suspend fun saveUser(userModel: UserModel) =
         room.saveUser(userModel.toEntity())
 
-    suspend fun generateContactCode() = AuthRepo.doIfSignedIn { uid ->
-        generateContactCode(uid)
+    suspend fun generateFriendCode() = AuthRepo.doIfSignedIn { uid ->
+        generateFriendCode(uid)
     }
 
-    private suspend fun generateContactCode(uid: String) {
+    private suspend fun generateFriendCode(uid: String) {
 
         val codeFormat = "%012d"
         var newCode: String
@@ -50,7 +50,7 @@ object UserRepo {
         do {
             val rand12 = Random.nextLong(from = 0, until = 9999_9999_9999)
             newCode = codeFormat.format(rand12.toString())
-            val result = firebaseDatabase.getContactCodeUid(newCode)
+            val result = firebaseDatabase.getFriendCodeUid(newCode)
 
             if (result is Failure) {
                 if (result.exception is NullPointerException) break
@@ -58,10 +58,10 @@ object UserRepo {
             }
         } while (true)
 
-        firebaseDatabase.setContactCode(uid, newCode).run {
+        firebaseDatabase.setFriendCode(uid, newCode).run {
             if (success) {
                 // Save to local database
-                val newUserModel = userModelStateFlow.value.copy(contactCode = newCode)
+                val newUserModel = userModelStateFlow.value.copy(friendCode = newCode)
                 saveUser(newUserModel)
             }
         }

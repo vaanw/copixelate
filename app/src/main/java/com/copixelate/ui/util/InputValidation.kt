@@ -31,12 +31,12 @@ object InputValidation {
             false -> InputValidity.Invalid.Password.NoMatch
         }
 
-    fun checkContactCode(value: String): InputValidity =
+    fun checkFriendCode(value: String): InputValidity =
         when (
             Regex(pattern = "^\\d{12}").matches(value)
         ) {
             true -> InputValidity.Valid
-            false -> InputValidity.Invalid.ContactCode.Invalid
+            false -> InputValidity.Invalid.FriendCode.Invalid
         }
 
 }
@@ -71,8 +71,8 @@ sealed class InputValidity {
             object NoMatch : Password(R.string.invalid_password_no_match)
         }
 
-        sealed class ContactCode(stringId: Int) : Invalid(stringId) {
-            object Invalid : ContactCode(R.string.invalid_contact_code)
+        sealed class FriendCode(stringId: Int) : Invalid(stringId) {
+            object Invalid : FriendCode(R.string.invalid_friend_code)
         }
 
     }

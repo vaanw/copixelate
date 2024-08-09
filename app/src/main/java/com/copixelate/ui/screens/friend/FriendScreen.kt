@@ -1,4 +1,4 @@
-package com.copixelate.ui.screens.contacts
+package com.copixelate.ui.screens.friend
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
@@ -28,27 +28,27 @@ import com.copixelate.ui.util.ScreenSurface
 import com.copixelate.ui.util.toDp
 
 @Composable
-fun ContactsScreen(navController: NavHostController) {
+fun FriendScreen(navController: NavHostController) {
 
     ScreenSurface {
-        ContactsScreenContent(
-            contacts = emptyList(),
-            onAddContact = {
-                navController.navigate(navInfo = NavInfo.Contacts.Add)
+        FriendScreenContent(
+            friends = emptyList(),
+            onAddFriend = {
+                navController.navigate(navInfo = NavInfo.Friend.Add)
             }
         )
     }
 
 }
 
-data class FauxContactModel(
+data class FauxFriendModel(
     val name: String
 )
 
 @Composable
-fun ContactsScreenContent(
-    contacts: List<FauxContactModel>,
-    onAddContact: () -> Unit
+fun FriendScreenContent(
+    friends: List<FauxFriendModel>,
+    onAddFriend: () -> Unit
 ) {
 
     var fabHeight by remember { mutableStateOf(0) }
@@ -57,7 +57,7 @@ fun ContactsScreenContent(
     Scaffold(
         floatingActionButton = {
             AddItemFab(
-                onClick = { onAddContact() },
+                onClick = { onAddFriend() },
                 modifier = Modifier
                     .onGloballyPositioned { coordinates ->
                         fabHeight = coordinates.size.height
@@ -79,18 +79,18 @@ fun ContactsScreenContent(
                 // Header text
                 item {
                     Text(
-                        text = "Contacts",
+                        text = "Friends",
                         style = MaterialTheme.typography.displaySmall,
                         modifier = Modifier
                             .padding(top = 24.dp, start = 24.dp, end = 24.dp, bottom = 16.dp)
                     )
                 }
 
-                // Contacts list
-                itemsIndexed(items = contacts) { index, contactModel ->
-                    ContactsListItem(
-                        contactModel = contactModel,
-                        isLast = contacts.lastIndex == index
+                // Friends list
+                itemsIndexed(items = friends) { index, friendModel ->
+                    FriendListItem(
+                        friendModel = friendModel,
+                        isLast = friends.lastIndex == index
                     )
                 }
 
@@ -102,14 +102,14 @@ fun ContactsScreenContent(
 }
 
 @Composable
-fun ContactsListItem(
-    contactModel: FauxContactModel,
+fun FriendListItem(
+    friendModel: FauxFriendModel,
     isLast: Boolean,
 ) {
     ListItem(
         headlineContent = {
             Text(
-                text = contactModel.name,
+                text = friendModel.name,
                 style = MaterialTheme.typography.headlineSmall,
                 modifier = Modifier.padding(start = 0.dp)
             )
@@ -122,14 +122,14 @@ fun ContactsListItem(
 
 @Preview
 @Composable
-fun ContactsScreenPreview() {
+fun FriendScreenPreview() {
 
     PreviewSurface {
-        ContactsScreenContent(
-            contacts = List<FauxContactModel>(20) { index ->
-                FauxContactModel(name = "Preview Contact $index")
+        FriendScreenContent(
+            friends = List<FauxFriendModel>(20) { index ->
+                FauxFriendModel(name = "Preview Friend $index")
             },
-            onAddContact = {}
+            onAddFriend = {}
         )
     }
 

@@ -14,8 +14,8 @@ import com.copixelate.ui.nav.NavInfo
 import com.copixelate.ui.screens.AuthScreen
 import com.copixelate.ui.screens.SettingsScreen
 import com.copixelate.ui.screens.art.ArtScreen
-import com.copixelate.ui.screens.contacts.AddContactsScreen
-import com.copixelate.ui.screens.contacts.ContactsScreen
+import com.copixelate.ui.screens.friend.AddFriendScreen
+import com.copixelate.ui.screens.friend.FriendScreen
 import com.copixelate.ui.screens.library.LibraryScreen
 import com.copixelate.viewmodel.ActivityViewModel
 import com.copixelate.viewmodel.ArtViewModel
@@ -59,14 +59,14 @@ fun SetupMainNavGraph(
         }
 
         navigation(
-            route = NavInfo.Contacts.route,
-            startDestination = NavInfo.Contacts.Start.route
+            route = NavInfo.Friend.route,
+            startDestination = NavInfo.Friend.Start.route
         ) {
-            composable(route = NavInfo.Contacts.Start.route) {
-                ContactsScreen(navController = navController)
+            composable(route = NavInfo.Friend.Start.route) {
+                FriendScreen(navController = navController)
             }
-            composable(route = NavInfo.Contacts.Add.route) {
-                AddContactsScreen(navController = navController)
+            composable(route = NavInfo.Friend.Add.route) {
+                AddFriendScreen(navController = navController)
             }
         }
 

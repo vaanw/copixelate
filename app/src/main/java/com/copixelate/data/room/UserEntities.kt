@@ -10,11 +10,11 @@ import androidx.room.PrimaryKey
 data class UserEntity(
     @PrimaryKey(autoGenerate = true) val id: Long,
     @ColumnInfo(name = "remote_key") val remoteKey: String?,
-    @ColumnInfo(name = "contact_code") val contactCode: String?
+    @ColumnInfo(name = "friend_code") val friendCode: String?
 )
 
 @Entity(
-    tableName = "contact",
+    tableName = "friend",
     indices = [Index(value = ["user_id"])],
     foreignKeys = [ForeignKey(
         entity = UserEntity::class,
@@ -23,7 +23,7 @@ data class UserEntity(
         onDelete = ForeignKey.CASCADE
     )]
 )
-data class ContactEntity(
+data class FriendEntity(
     @PrimaryKey(autoGenerate = true) val id: Long,
     @ColumnInfo(name = "user_id") val userId: Long,
     @ColumnInfo(name = "invitation") val invitation: Boolean,

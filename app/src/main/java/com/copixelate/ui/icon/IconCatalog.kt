@@ -48,7 +48,7 @@ object IconCatalog {
     val collections = Icons.Filled.Collections
     val login = Icons.AutoMirrored.Filled.Login
     val settings = Icons.Filled.Settings
-    val contacts = Icons.Filled.Contacts
+    val friend = Icons.Filled.Contacts
 
     val share = Icons.Filled.Share
     val copy = Icons.Filled.ContentCopy

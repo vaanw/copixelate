@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "13fffdf1cd8d36e61b2c2d60ffc569cb",
+    "identityHash": "e99271a970ab92a6f79983948d6971b6",
     "entities": [
       {
         "tableName": "user",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `remote_key` TEXT, `contact_code` TEXT)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `remote_key` TEXT, `friend_code` TEXT)",
         "fields": [
           {
             "fieldPath": "id",
@@ -21,8 +21,8 @@
             "notNull": false
           },
           {
-            "fieldPath": "contactCode",
-            "columnName": "contact_code",
+            "fieldPath": "friendCode",
+            "columnName": "friend_code",
             "affinity": "TEXT",
             "notNull": false
           }
@@ -37,7 +37,7 @@
         "foreignKeys": []
       },
       {
-        "tableName": "contact",
+        "tableName": "friend",
         "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `user_id` INTEGER NOT NULL, `invitation` INTEGER NOT NULL, `display_name` TEXT, FOREIGN KEY(`user_id`) REFERENCES `user`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
@@ -73,13 +73,13 @@
         },
         "indices": [
           {
-            "name": "index_contact_user_id",
+            "name": "index_friend_user_id",
             "unique": false,
             "columnNames": [
               "user_id"
             ],
             "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_contact_user_id` ON `${TABLE_NAME}` (`user_id`)"
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_friend_user_id` ON `${TABLE_NAME}` (`user_id`)"
           }
         ],
         "foreignKeys": [
@@ -250,7 +250,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '13fffdf1cd8d36e61b2c2d60ffc569cb')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'e99271a970ab92a6f79983948d6971b6')"
     ]
   }
 }

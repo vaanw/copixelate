@@ -34,20 +34,20 @@ object NavInfo {
         contentDescriptionResId = R.string.nav_content_description_settings
     )
 
-    object Contacts : TopScreen(
-        route = "nav-route-contacts",
-        icon = IconCatalog.contacts,
-        labelResId = R.string.nav_label_contacts,
-        contentDescriptionResId = R.string.nav_content_description_contacts
+    object Friend : TopScreen(
+        route = "nav-route-friend",
+        icon = IconCatalog.friend,
+        labelResId = R.string.nav_label_friend,
+        contentDescriptionResId = R.string.nav_content_description_friend
     ) {
         object Start: SubScreen(
-            route = "nav-route-contacts-start",
-            contentDescriptionResId = Contacts.contentDescriptionResId
+            route = "nav-route-friend-start",
+            contentDescriptionResId = Friend.contentDescriptionResId
         )
 
         object Add: SubScreen(
-            route = "nav-route-contacts-add",
-            contentDescriptionResId = R.string.nav_content_description_contacts_add
+            route = "nav-route-friend-add",
+            contentDescriptionResId = R.string.nav_content_description_friend_add
         )
     }
 

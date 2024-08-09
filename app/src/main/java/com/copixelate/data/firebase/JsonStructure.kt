@@ -5,8 +5,8 @@ import com.google.firebase.database.PropertyName
 
 @IgnoreExtraProperties
 data class UserJson(
-    @PropertyName("contact_code")
-    val contactCode: Int? = null,
+    @PropertyName("friend_code")
+    val friendCode: Int? = null,
 )
 
 @IgnoreExtraProperties
