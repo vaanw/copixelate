@@ -7,7 +7,7 @@ import androidx.room.TypeConverters
 @Database(
     entities = [
         UserEntity::class,
-        ContactEntity::class,
+        FriendEntity::class,
         SpaceEntity::class,
         DrawingEntity::class,
         PaletteEntity::class

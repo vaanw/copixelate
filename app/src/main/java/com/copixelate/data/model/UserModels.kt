@@ -4,10 +4,10 @@ import com.copixelate.data.room.UserEntity
 
 data class UserModel (
     val id: IdModel = IdModel(),
-    val contactCode: String? = null,
+    val friendCode: String? = null,
 )
 
-data class ContactModel (
+data class FriendModel (
     val id: IdModel = IdModel(),
     val displayName: String
 )
@@ -19,11 +19,11 @@ data class ContactModel (
 // UserEntity
 fun UserEntity.toModel(): UserModel = UserModel(
     id = IdModel(id, remoteKey),
-    contactCode = contactCode
+    friendCode = friendCode
 )
 
 fun UserModel.toEntity(): UserEntity = UserEntity(
     id = id.localId,
     remoteKey = id.remoteKey,
-    contactCode = contactCode
+    friendCode = friendCode
 )

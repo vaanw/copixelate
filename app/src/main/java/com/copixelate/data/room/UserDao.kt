@@ -29,15 +29,15 @@ interface UserDao {
     @Query("DELETE FROM user")
     suspend fun deleteAllUsers()
 
-    // Contact Queries
+    // Friend Queries
 
-    @Query("SELECT * FROM contact WHERE user_id = :userId")
-    fun userContactsFlow(userId: Long): Flow<List<ContactEntity>>
+    @Query("SELECT * FROM friend WHERE user_id = :userId")
+    fun userFriendFlow(userId: Long): Flow<List<FriendEntity>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertContact(contact: ContactEntity): Long
+    suspend fun insertFriend(friend: FriendEntity): Long
 
     @Delete
-    suspend fun deleteContact(contact: ContactEntity)
+    suspend fun deleteContact(friend: FriendEntity)
 
 }

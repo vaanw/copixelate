@@ -124,7 +124,7 @@ fun MainNavBar(
                 .apply {
                     when (isSignedIn) {
                         false -> add(index = 2, element = NavInfo.Login)
-                        true -> add(index = 2, element = NavInfo.Contacts)
+                        true -> add(index = 2, element = NavInfo.Friend)
                     }
                 }
         }

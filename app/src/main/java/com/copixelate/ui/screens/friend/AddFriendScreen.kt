@@ -1,4 +1,4 @@
-package com.copixelate.ui.screens.contacts
+package com.copixelate.ui.screens.friend
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
@@ -49,7 +49,7 @@ import kotlin.math.abs
 import kotlin.random.Random
 
 @Composable
-fun AddContactsScreen(navController: NavHostController) {
+fun AddFriendScreen(navController: NavHostController) {
 
     fun randomSegment() =
         abs(Random(System.nanoTime()).nextInt())
@@ -59,26 +59,26 @@ fun AddContactsScreen(navController: NavHostController) {
     fun randomCode() = "${randomSegment()}-${randomSegment()}-${randomSegment()}"
 
     var isActive by remember { mutableStateOf(false) }
-    var contactCode by remember { mutableStateOf(randomCode()) }
+    var friendCode by remember { mutableStateOf(randomCode()) }
 
-    AddContactsScreenContent(
-        contactCode = contactCode,
+    AddFriendScreenContent(
+        friendCode = friendCode,
         onClickBack = { navController.navigateUp() },
-        isActiveContactCode = isActive,
-        onActivateContactCode = { isActive = true },
-        onDeactivateContactCode = { isActive = false },
-        onRefreshContactCode = { contactCode = randomCode() },
+        isActiveFriendCode = isActive,
+        onActivateFriendCode = { isActive = true },
+        onDeactivateFriendCode = { isActive = false },
+        onRefreshFriendCode = { friendCode = randomCode() },
     )
 }
 
 @Composable
-private fun AddContactsScreenContent(
-    contactCode: String,
+private fun AddFriendScreenContent(
+    friendCode: String,
     onClickBack: () -> Unit = {},
-    isActiveContactCode: Boolean = false,
-    onActivateContactCode: () -> Unit = {},
-    onDeactivateContactCode: () -> Unit = {},
-    onRefreshContactCode: () -> Unit = {},
+    isActiveFriendCode: Boolean = false,
+    onActivateFriendCode: () -> Unit = {},
+    onDeactivateFriendCode: () -> Unit = {},
+    onRefreshFriendCode: () -> Unit = {},
 ) {
 
     var isKeyboardOpen by remember { mutableStateOf(false) }
@@ -102,11 +102,11 @@ private fun AddContactsScreenContent(
 
 
                         ShareCodeTool(
-                            contactCode = contactCode,
-                            isActive = isActiveContactCode,
-                            onActivate = onActivateContactCode,
-                            onDeactivate = onDeactivateContactCode,
-                            onRenew = onRefreshContactCode
+                            friendCode = friendCode,
+                            isActive = isActiveFriendCode,
+                            onActivate = onActivateFriendCode,
+                            onDeactivate = onDeactivateFriendCode,
+                            onRenew = onRefreshFriendCode
                             // modifier = Modifier.padding(top = 8.dp)
                         )
 
@@ -134,7 +134,7 @@ private fun AddContactsScreenContent(
 
 @Composable
 private fun ShareCodeTool(
-    contactCode: String,
+    friendCode: String,
     isActive: Boolean,
     onActivate: () -> Unit,
     onDeactivate: () -> Unit,
@@ -157,7 +157,7 @@ private fun ShareCodeTool(
 
             Text(
                 text = when (isActive) {
-                    true -> contactCode
+                    true -> friendCode
                     false -> "0000-0000-0000"
                 },
                 style = MaterialTheme.typography.headlineMedium,
@@ -272,16 +272,16 @@ private fun EnterCodeTool(
     modifier: Modifier = Modifier
 ) {
 
-    class ContactCodeVisualTransformation : VisualTransformation {
+    class FriendCodeVisualTransformation : VisualTransformation {
 
         override fun filter(text: AnnotatedString): TransformedText {
             return TransformedText(
-                text = AnnotatedString(text.text.formatAsContactCode()),
+                text = AnnotatedString(text.text.formatAsFriendCode()),
                 offsetMapping = offsetMapping
             )
         }
 
-//        private fun String.formatAsContactCode(): String = StringBuilder(
+//        private fun String.formatAsFriendCode(): String = StringBuilder(
 //            // Remove all except digits
 ////            replace(Regex("\\D"), "")
 //            replace(Regex(" "), " ")
@@ -290,7 +290,7 @@ private fun EnterCodeTool(
 //            if (length > 4) insert(4, "-")
 //        }.toString()
 
-        private fun String.formatAsContactCode(): String =
+        private fun String.formatAsFriendCode(): String =
             StringBuilder(this)
                 .apply {
                     if (length > 8) insert(8, "-")
@@ -331,9 +331,9 @@ private fun EnterCodeTool(
 
 //            var textFieldValueState by remember { mutableStateOf(TextFieldValue(text = "")) }
 
-            // Contact code text input
+            // Friend code text input
             ValidatedTextInputField(
-                // label = { Text(text = "Contact Code") },
+                // label = { Text(text = "Friend Code") },
                 onValueChange = { value ->
 //                    if (value.length > inputValue.length + 1) {
 ////                        moveCursorToEnd()
@@ -356,9 +356,9 @@ private fun EnterCodeTool(
 //                    )
                     inputValue = value.replace(Regex("\\D"), "")
                 },
-                visualTransformation = ContactCodeVisualTransformation(),
+                visualTransformation = FriendCodeVisualTransformation(),
                 value = inputValue,
-                validity = InputValidation.checkContactCode(inputValue),
+                validity = InputValidation.checkFriendCode(inputValue),
                 textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.Center),
                 keyboardType = KeyboardType.Number,
                 imeAction = ImeAction.Done,
@@ -387,7 +387,7 @@ private fun TopBar(
     onClickBack: () -> Unit
 ) {
     TopAppBar(
-        title = { Text("Add Contacts") },
+        title = { Text("Add Friends") },
         navigationIcon = {
             IconButton(
                 onClick = onClickBack
@@ -404,15 +404,15 @@ private fun TopBar(
 
 @Preview
 @Composable
-private fun AddContactsScreenPreview() {
+private fun AddFriendScreenPreview() {
 
     var isActive by remember { mutableStateOf(false) }
 
     PreviewSurface {
-        AddContactsScreenContent(
-            contactCode = "3487-3896-5634",
-            isActiveContactCode = isActive,
-            onActivateContactCode = { isActive = true }
+        AddFriendScreenContent(
+            friendCode = "3487-3896-5634",
+            isActiveFriendCode = isActive,
+            onActivateFriendCode = { isActive = true }
         )
     }
 
@@ -424,7 +424,7 @@ private fun ShareCodeToolPreview() {
     PreviewSurface {
         Column(modifier = Modifier.padding(all = 16.dp)) {
             ShareCodeTool(
-                contactCode = "3487-3896-5634",
+                friendCode = "3487-3896-5634",
                 isActive = false,
                 onActivate = {},
                 onDeactivate = {},
@@ -432,7 +432,7 @@ private fun ShareCodeToolPreview() {
                 modifier = Modifier.padding(bottom = 16.dp)
             )
             ShareCodeTool(
-                contactCode = "3487-3896-5634",
+                friendCode = "3487-3896-5634",
                 isActive = true,
                 onActivate = {},
                 onDeactivate = {},

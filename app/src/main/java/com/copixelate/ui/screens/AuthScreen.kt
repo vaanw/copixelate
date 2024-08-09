@@ -47,7 +47,7 @@ fun AuthScreen(navController: NavController, userViewModel: UserViewModel) {
     val authStatus = userViewModel.auth.collectAsState().value.authStatus
 
     if (authStatus is AuthStatus.SignedIn && navController.compareRoute(navInfo = NavInfo.Login))
-        navController.navigateTopLevel(navInfo = NavInfo.Contacts)
+        navController.navigateTopLevel(navInfo = NavInfo.Friend)
 
     AuthScreenContent(
         authStatus = authStatus,
