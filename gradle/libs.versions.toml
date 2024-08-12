@@ -1,7 +1,7 @@
 [versions]
 
 # Project-level versions
-androidGradlePlugin = "8.5.1"
+androidGradlePlugin = "8.5.2"
 kotlin = "2.0.0"
 kotlinSymbolProcessing = "2.0.0-1.0.24"
 
