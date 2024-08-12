@@ -4,13 +4,14 @@ import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.compose.rememberNavController
-import com.copixelate.ui.MainContent
+import com.copixelate.ui.main.MainContent
 import com.copixelate.ui.util.createShareImageIntent
 import com.copixelate.viewmodel.ActivityViewModel
 import com.copixelate.viewmodel.ActivityViewModel.UiEvent
@@ -22,6 +23,9 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        installSplashScreen()
+        enableEdgeToEdge()
+
         val activityViewModel: ActivityViewModel by viewModels()
 
         lifecycleScope.launch {
@@ -29,8 +33,6 @@ class MainActivity : ComponentActivity() {
                 handleUiEvents(activityViewModel.events)
             }
         }
-
-        installSplashScreen()
 
         setContent {
             MainContent(
